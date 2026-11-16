@@ -1,0 +1,29 @@
+{
+  "name": "Proje Kontrol",
+  "short_name": "Projeler",
+  "lang": "tr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f1418",
+  "theme_color": "#0f766e",
+  "description": "Projeler, durumlar, yapılacaklar ve sahadaki sürümler",
+  "icons": [
+    {
+      "src": "ikon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "ikon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "ikon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
