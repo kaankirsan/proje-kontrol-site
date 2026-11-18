@@ -817,6 +817,20 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
 .ot-arac-oge { font-size: .78rem; color: var(--muted); }
 .ot-arac-oge summary { cursor: pointer; }
 .ot-arac-oge pre { white-space: pre-wrap; overflow-wrap: anywhere; font: .74rem var(--mono); background: var(--soft); padding: 6px 8px; border-radius: 6px; margin: 4px 0 0; max-height: 240px; overflow: auto; }
+/* === Faz 1 · Oturumlar: "Claude'da aç" bölünmüş düğmesi, Oturumlar sekmesi satırları === */
+.btn-grup { display: inline-flex; align-items: stretch; }
+.btn-grup > .btn { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.btn-grup-menu { position: relative; display: flex; }
+.btn-grup-menu > summary { list-style: none; cursor: pointer; border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: -1px; padding-left: 9px; padding-right: 9px; height: 100%; }
+.btn-grup-menu > summary::-webkit-details-marker { display: none; }
+.btn-grup-menu > summary.btn.ana { border-left-color: color-mix(in srgb, var(--accent-ink) 35%, var(--accent)); }
+.btn-grup-menu > .ot-daha-ic { min-width: 190px; }
+.ot-tam .sag { flex-wrap: wrap; justify-content: flex-end; row-gap: 6px; }
+.ot-son { font-size: .8rem; color: var(--ink2); margin-top: 3px; font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.ot-son b { font-weight: 600; color: var(--muted); }
+.ot-ozet { margin: 0; font-size: .82rem; }
+.kart > header .ot-grup-sag { display: inline-flex; gap: 10px; align-items: center; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 700px) { .ot-tam { grid-template-columns: minmax(0, 1fr); } .ot-tam .sag { justify-content: flex-start; } .ot-son { white-space: normal; } }
 .gb-gunler { display: grid; grid-template-columns: repeat(7, 16px); gap: 3px; }
 .gb-gun { width: 16px; height: 16px; border-radius: 4px; background: var(--soft); display: flex; align-items: center; justify-content: center; font: 700 .52rem var(--sans); color: var(--muted); }
 .gb-gun.v { background: var(--h1); color: var(--ink); }
@@ -831,6 +845,10 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
 /* Orta genişlikte üst çubuk sığsın: önce cihaz hapı, sonra Claude hapının ayrıntısı gizlenir */
 @media (max-width: 1240px) { #durumHap:has(+ .limit-hap:not([hidden])) { display: none; } }
 @media (max-width: 1020px) { .hap.limit-hap .uzun { display: none; } }
+/* Üç kota hapı birden (Claude, Codex, agy) görünürken: geniş ekran dışında yalnızca yüzdeler (ayrıntı hapın ipucunda) */
+@media (max-width: 1640px) { .ust-sol:has(.limit-hap:not([hidden]) ~ .limit-hap:not([hidden]) ~ .limit-hap:not([hidden])) .hap.limit-hap .uzun { display: none; } }
+/* Dar ekranda arama kutusu kalan boşluğa sığar (yazısı kısalır), haplar arama kutusunun altına girmez */
+@media (min-width: 821px) and (max-width: 1640px) { .ust:has(.limit-hap:not([hidden]) ~ .limit-hap:not([hidden]) ~ .limit-hap:not([hidden])) .ara-btn { width: auto; flex: 1 1 0; min-width: 96px; max-width: 400px; } }
 .limitler { display: flex; flex-direction: column; gap: 14px; }
 .limit { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline; }
 .limit .ad { font-size: .86rem; font-weight: 600; }
@@ -842,6 +860,15 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
 .limit .metre .tik { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--ink); opacity: .55; }
 .limit .alt-yazi { grid-column: 1 / -1; color: var(--muted); font-size: .77rem; display: flex; flex-wrap: wrap; gap: 2px 10px; }
 .limit .alt-yazi .uyari-yazi { color: var(--warn); font-weight: 600; } .limit .alt-yazi .kotu-yazi { color: var(--bad); font-weight: 600; }
+/* === Faz 4 · Kotalar: Codex ve agy, Claude kartının altında === */
+.kota-diger { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.kota-diger[hidden] { display: none; }
+.kota-baslik { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: .86rem; }
+.kota-baslik span { color: var(--muted); font-size: .78rem; }
+.kota-not { margin: 0; color: var(--muted); font-size: .78rem; }
+.limit .deger.bilinmiyor { color: var(--muted); font-weight: 500; }
+.limit .metre.bilinmiyor { background: repeating-linear-gradient(135deg, var(--line) 0 5px, transparent 5px 10px); }
+@media (max-width: 900px) { #kotaHap { display: none; } }
 .kart-durum { display: inline-flex; align-items: center; gap: 6px; }
 .ikon-btn.kucuk { width: 28px; height: 28px; padding: 0; border-radius: 8px; }
 .ikon-btn.kucuk .ikon { width: 15px; height: 15px; }
@@ -1016,6 +1043,138 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
 .is-menu button.tehlike { color: var(--bad); }
 .is-kart input.is-duzen { width: 100%; font: inherit; font-size: .82rem; padding: 4px 6px; border: 1px solid var(--form-kenar); border-radius: 6px; background: var(--panel); color: var(--ink); }
 @media (pointer: coarse) { .is-kart .is-menu-btn { opacity: 1; } }
+/* === Faz 3 · Terminal === uygulama içi terminal: sekmeler, xterm sahnesi. Renkler JS'e buradan okunur (--trm-*; yalnızca düz renk
+   ya da var(): xterm color-mix çözemez). 0–15: ANSI siyah, kırmızı, yeşil, sarı, mavi, mor, camgöbeği, beyaz ve parlakları. */
+:root {
+  --trm-bg: var(--panel); --trm-fg: var(--ink); --trm-imlec: var(--accent); --trm-secim: #b5643c40;
+  --trm-0: #14120f; --trm-1: #c4334f; --trm-2: #017b37; --trm-3: #8d6300; --trm-4: #0a71b1; --trm-5: #8a3f8f; --trm-6: #0d7680; --trm-7: #797672;
+  --trm-8: #5c5955; --trm-9: #a8283f; --trm-10: #0b6a30; --trm-11: #6f4e00; --trm-12: #075c90; --trm-13: #6e2f73; --trm-14: #0a5f67; --trm-15: #3c3a36;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --trm-bg: var(--komur); --trm-fg: var(--ink); --trm-imlec: var(--accent); --trm-secim: #c3734b55;
+  --trm-0: #3c3a36; --trm-1: #e45268; --trm-2: #3fb56c; --trm-3: #e0b019; --trm-4: #3b9be0; --trm-5: #b58ad6; --trm-6: #3fb6c0; --trm-7: #d6d2cb;
+  --trm-8: #797672; --trm-9: #f07186; --trm-10: #62cf8c; --trm-11: #f2cb4c; --trm-12: #6bb6ef; --trm-13: #cfa6ee; --trm-14: #6fd3db; --trm-15: #f5f1ea;
+} }
+:root[data-theme="dark"] {
+  --trm-bg: var(--komur); --trm-fg: var(--ink); --trm-imlec: var(--accent); --trm-secim: #c3734b55;
+  --trm-0: #3c3a36; --trm-1: #e45268; --trm-2: #3fb56c; --trm-3: #e0b019; --trm-4: #3b9be0; --trm-5: #b58ad6; --trm-6: #3fb6c0; --trm-7: #d6d2cb;
+  --trm-8: #797672; --trm-9: #f07186; --trm-10: #62cf8c; --trm-11: #f2cb4c; --trm-12: #6bb6ef; --trm-13: #cfa6ee; --trm-14: #6fd3db; --trm-15: #f5f1ea;
+}
+.trm { display: flex; flex-direction: column; height: max(360px, calc(100dvh - 240px)); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: var(--trm-bg); box-shadow: var(--shadow-sm); }
+.trm-cubuk { display: flex; align-items: flex-end; gap: 8px; min-height: 42px; padding: 6px 8px 0; background: var(--panel2); border-bottom: 1px solid var(--line); }
+/* Şerit çubuğun alt çizgisinin üstüne biner: seçili sekme çizgiyi örter, terminale bağlanır */
+.trm-sekmeler { display: flex; gap: 2px; min-width: 0; margin-bottom: -1px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.trm-sekmeler::-webkit-scrollbar { display: none; }
+.trm-sekme { display: inline-flex; flex: none; align-items: center; gap: 7px; max-width: 230px; padding: 6px 5px 7px 11px; border: 1px solid transparent; border-bottom: 0; border-radius: 9px 9px 0 0; color: var(--muted); font: 550 .82rem var(--sans); white-space: nowrap; cursor: pointer; user-select: none; }
+.trm-sekme:hover { color: var(--ink); background: var(--hover); }
+.trm-sekme[aria-selected="true"] { color: var(--ink); background: var(--trm-bg); border-color: var(--line); }
+.trm-sekme:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.trm-sekme .ad { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.trm-nokta { width: 7px; height: 7px; flex: none; border-radius: 50%; background: var(--s-bitti); }
+.trm-nokta.canli { background: var(--ok); } .trm-nokta.kotu { background: var(--bad-bar); }
+.trm-x { display: grid; place-items: center; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 5px; background: none; color: var(--muted); cursor: pointer; opacity: .7; }
+.trm-x:hover, .trm-x:focus-visible { background: var(--soft); color: var(--ink); opacity: 1; }
+.trm-x .ikon { width: 13px; height: 13px; }
+.trm-yeni { position: relative; flex: none; align-self: center; margin-bottom: 4px; }
+.trm-yeni > summary { list-style: none; } .trm-yeni > summary::-webkit-details-marker { display: none; }
+.trm-menu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; display: flex; flex-direction: column; min-width: 220px; padding: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+.trm-menu button { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 0; border-radius: 7px; background: none; color: var(--ink); font: inherit; font-size: .84rem; text-align: left; cursor: pointer; }
+.trm-menu button:hover:not([disabled]) { background: var(--hover); }
+.trm-menu button[disabled] { opacity: .5; cursor: not-allowed; }
+.trm-menu small { margin-left: auto; color: var(--muted); font-size: .72rem; }
+.trm-bilgi { align-self: center; margin: 0 4px 4px auto; max-width: 40%; overflow: hidden; color: var(--muted); font: .74rem var(--mono); white-space: nowrap; text-overflow: ellipsis; }
+.trm-sahne { position: relative; flex: 1; min-height: 0; }
+.trm-kap { position: absolute; inset: 8px 4px 4px 12px; }
+.trm-kap .xterm { height: 100%; }
+/* xterm.css varsayılanı siyah zemin + yerel kaydırma çubuğu: satırların doldurmadığı alt pay şerit, sağ kenarda çubuk artığı
+   görünüyordu. xterm 6 kendi kaydırma çubuğunu çizer (renkleri temadan) */
+.trm-kap .xterm .xterm-viewport { background-color: var(--trm-bg) !important; scrollbar-width: none; }
+.trm-kap .xterm .xterm-viewport::-webkit-scrollbar { display: none; }
+.trm-bitti { position: absolute; right: 10px; bottom: 8px; z-index: 6; display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); color: var(--ink2); font-size: .82rem; }
+.trm-bitti.kotu { border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); }
+.trm-bos { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: 20px; overflow: auto; background: var(--panel); }
+.trm-hizli { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 8px; }
+@media (max-width: 720px) { .trm { height: max(320px, calc(100dvh - 250px)); } .trm-bilgi { display: none; } }
+/* === /Faz 3 · Terminal === */
+/* === Faz 4.4 · Görevler === (proje sayfası → Görevler: paralel ajan şeritleri) */
+.gorev-form { display: flex; flex-direction: column; gap: 10px; }
+.gorev-metinler { display: flex; flex-direction: column; gap: 8px; }
+.gorev-metin { display: flex; gap: 6px; align-items: flex-start; }
+.gorev-metin textarea, .gorev-secim select, .gorev-secim input { font: .88rem var(--sans); color: var(--ink); background: var(--soft); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; min-width: 0; }
+.gorev-metin textarea { flex: 1; resize: vertical; min-height: 66px; line-height: 1.5; }
+.gorev-metin textarea:focus, .gorev-secim select:focus, .gorev-secim input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent); }
+.gorev-secim { display: flex; flex-wrap: wrap; gap: 10px; }
+.gorev-secim label { display: flex; flex-direction: column; gap: 4px; font-size: .76rem; color: var(--muted); }
+.gorev-secim .gorev-model { flex: 1; min-width: 150px; }
+.gorev-onay { display: flex; gap: 8px; align-items: flex-start; font-size: .84rem; color: var(--ink2); cursor: pointer; }
+.gorev-onay input { margin: 3px 0 0; accent-color: var(--ink); flex: none; }
+.gorev-not { margin: 0; font-size: .8rem; }
+.gorev-form .tuslar { display: flex; justify-content: flex-end; }
+.gorev-liste { display: flex; flex-direction: column; gap: 12px; }
+.gorev { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.gorev-bas { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+.gorev-baslik { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.gorev-baslik small { font: .74rem var(--mono); }
+.gorev-tus, .serit-tus { display: flex; gap: 6px; flex-wrap: wrap; }
+.gorev details summary { cursor: pointer; font-size: .8rem; color: var(--muted); }
+p.gorev-tam, .serit-rapor { margin: 6px 0 0; font-size: .84rem; white-space: pre-line; overflow-wrap: anywhere; color: var(--ink2); }
+.serit-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.serit { background: var(--soft); border-radius: 9px; padding: 7px 9px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.serit-ust { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.serit-id { font-size: .76rem; color: var(--ink2); }
+.serit-bilgi { font-size: .78rem; flex: 1; min-width: 140px; }
+.serit-hata, .serit-uyari { margin: 0; font-size: .82rem; overflow-wrap: anywhere; }
+.serit-hata { color: var(--bad); }
+.serit-dosyalar { margin: 6px 0 0; padding-left: 16px; font-size: .78rem; max-height: 220px; overflow-y: auto; overflow-wrap: anywhere; }
+.serit-gunluk { max-height: 320px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .74rem; }
+@media (max-width: 560px) { .gorev-secim label { flex: 1 1 100%; } }
+/* === Faz 5 · Beyin === Bilgi (kararlar, notlar, kaynaklar, görevler), gelen kutusu, yakala penceresi, hafıza denetimi */
+.bilgi-suzgec { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bilgi-suzgec .ara-kutu { flex: 1 1 260px; }
+.bilgi-suzgec select { border: 1px solid var(--line2); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 7px 12px; font-size: .82rem; max-width: 100%; min-width: 0; }
+.bilgi-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.bilgi-liste > li { border-bottom: 1px solid var(--line); }
+.bilgi-liste > li:last-child { border-bottom: 0; }
+.bilgi-liste summary { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 10px; align-items: baseline; padding: 10px 2px; cursor: pointer; list-style: none; }
+.bilgi-liste summary::-webkit-details-marker { display: none; }
+.bilgi-liste summary b { font-weight: 600; font-size: .92rem; overflow-wrap: anywhere; }
+.bilgi-liste summary small { color: var(--muted); font-size: .76rem; white-space: nowrap; }
+.bilgi-liste summary .bilgi-bas { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bilgi-liste summary .bilgi-alt { color: var(--muted); font-size: .78rem; overflow-wrap: anywhere; }
+.bilgi-icerik { padding: 2px 2px 14px; display: flex; flex-direction: column; gap: 8px; font-size: .88rem; line-height: 1.55; overflow-wrap: anywhere; }
+.bilgi-icerik .md > :first-child { margin-top: 0; }
+.bilgi-icerik .md :is(h1, h2, h3) { font-size: .9rem; margin: 10px 0 4px; }
+.bilgi-icerik .md :is(p, ul, ol) { margin: 0 0 6px; }
+.bilgi-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: .76rem; color: var(--muted); }
+.bilgi-meta a { color: var(--ink2); overflow-wrap: anywhere; }
+.rozet.t-karar { background: var(--warn-soft); color: var(--ink); }
+.rozet.t-not { background: var(--soft); color: var(--ink2); }
+.rozet.t-kaynak { background: var(--info-soft); color: var(--ink); }
+.rozet.t-gorev { background: var(--h1); color: var(--ink); }
+.rozet.t-gelen { background: var(--secim); color: var(--ink); }
+.gelen-liste { list-style: none; margin: 0; padding: 0; }
+.gelen-liste li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .86rem; }
+.gelen-liste li:last-child { border-bottom: 0; }
+.gelen-liste .ne { overflow-wrap: anywhere; }
+.gelen-liste small { display: block; color: var(--muted); font-size: .74rem; }
+.gelen-liste .tuslar { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.yakala-form { display: flex; flex-direction: column; gap: 12px; }
+.yakala-form label { display: flex; flex-direction: column; gap: 5px; font-size: .78rem; color: var(--muted); }
+.yakala-form :is(textarea, input, select) { font: .93rem var(--sans); color: var(--ink); background: var(--soft); border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px; min-width: 0; }
+.yakala-form textarea { resize: vertical; min-height: 120px; }
+.yakala-form :is(textarea, input, select):focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.yakala-form .tuslar { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+body.pencere-kip .kabuk { grid-template-columns: minmax(0, 1fr); }
+body.pencere-kip :is(.yan, #ust, #altNav, #bant) { display: none !important; }
+body.pencere-kip main { padding: 16px; }
+.soru.denetim { width: min(660px, calc(100vw - 32px)); }
+.denetim .liste { display: flex; flex-direction: column; gap: 10px; max-height: 56vh; overflow-y: auto; padding-right: 4px; }
+.denetim fieldset { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.denetim legend { font-size: .76rem; color: var(--muted); padding: 0 4px; }
+.denetim .satir-metin { font: .8rem var(--mono); color: var(--ink); overflow-wrap: anywhere; background: var(--soft); border-radius: 6px; padding: 4px 7px; }
+.denetim .neden { font-size: .8rem; color: var(--ink2); }
+.soru label.denetim-sec { flex-direction: row; align-items: flex-start; gap: 8px; font-size: .84rem; color: var(--ink2); cursor: pointer; }
+.denetim-sec input { margin: 3px 0 0; accent-color: var(--ink); flex: none; }
 </style>
 </head>
 <body>
@@ -1246,10 +1405,43 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
   }
   const kuyrukAk = () => kuyruk.ak().then(() => { seritYaz(); }, () => { seritYaz(); });
   addEventListener('online', kuyrukAk);
+  // === Faz 5 · Beyin === Bilgi tabanı (proje-kontrol-veri: bilgi/<klasör>/<not>.md), salt okunur. Tek istekte ağaç (yollar ve
+  // içerik özetleri); not metni özetine göre telefonda saklanır, yalnızca yeni / değişen not indirilir. Paylaşılan dizin dosyası
+  // yok (cihazlar arası çakışmasın). Ağ yoksa son kopya döner ("çevrimdışı"). Yazma bilgisayardaki uygulamada.
+  const BILGI_ONB = 'pk-mobil-bilgi-v1';
+  const BILGI_KLASOR = ['kararlar', 'notlar', 'kaynaklar', 'gorevler', 'gelen'];
+  const bilgiYolu = (p) => { const s = String(p || '').split('/'); return s.length === 3 && s[0] === 'bilgi' && BILGI_KLASOR.includes(s[1]) && s[2].toLowerCase().endsWith('.md'); };
+  async function bilgiGetir() {
+    const onb = oku(BILGI_ONB) || { liste: [], metin: {} };
+    const ciktisi = (o) => o.liste.filter((x) => Object.prototype.hasOwnProperty.call(o.metin, x.sha)).map((x) => ({ yol: x.yol, metin: o.metin[x.sha] }));
+    try {
+      let liste;
+      if (test) { const r = await fetch('test-veri/proje-kontrol-veri/bilgi/liste.json'); liste = r.ok ? (await r.json()).filter((y) => bilgiYolu('bilgi/' + y)).map((y) => ({ yol: y, sha: y })) : []; }
+      else {
+        const r = await gh('/repos/' + SAHIP + '/proje-kontrol-veri/git/trees/HEAD?recursive=1');
+        if (!r.ok) throw Object.assign(new Error('Bilgi tabanı okunamadı (' + r.status + ')'), { gecici: r.status >= 500 });
+        const j = await r.json();
+        liste = (j.tree || []).filter((x) => x.type === 'blob' && bilgiYolu(x.path)).map((x) => ({ yol: x.path.slice(6), sha: x.sha }));
+      }
+      const metin = {};
+      for (const x of liste) if (!test && Object.prototype.hasOwnProperty.call(onb.metin, x.sha)) metin[x.sha] = onb.metin[x.sha];
+      const eksik = liste.filter((x) => !Object.prototype.hasOwnProperty.call(metin, x.sha));
+      for (let i = 0; i < eksik.length; i += 6) {
+        await Promise.all(eksik.slice(i, i + 6).map(async (x) => { const d = await dosyaOku('proje-kontrol-veri', 'bilgi/' + x.yol); if (d) metin[x.sha] = d.metin; }));
+      }
+      const yeni = { liste, metin, zaman: new Date().toISOString() };
+      yaz(BILGI_ONB, yeni);
+      return { dosyalar: ciktisi(yeni) };
+    } catch (e) {
+      if (e.yetki || !onb.liste.length) throw e;
+      return { cevrimdisi: true, dosyalar: ciktisi(onb) };
+    }
+  }
   function baslat(v, cevrimdisi) {
     const { k, adlar, zamanlar } = birlestir(v);
     for (const [id, d] of Object.entries(v.kayit)) ilk[id] = JSON.stringify(d);
     window.PK = { mobil: true, cihaz: 'Telefon', adlar, cihazZamanlari: zamanlar, yerel: v.kayit, kaydet, projelerKlasoru: 'bilgisayarlarda', digerCihaz: null };
+    window.PK.bilgiGetir = bilgiGetir; // === Faz 5 · Beyin ===
     document.getElementById('veri').textContent = JSON.stringify(k);
     const b = document.createElement('script'); b.textContent = document.getElementById('anaBetik').textContent; document.body.append(b);
     if (cevrimdisi) { const s = document.createElement('div'); s.id = 'serit'; s.textContent = 'Çevrimdışı · son veri ' + new Date(v.zaman).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' }); document.body.append(s); }
@@ -1355,6 +1547,8 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     cop: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
     gunSonu: '<path d="M12 16V4m0 0-4 4m4-4 4 4"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/>',
     zil: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+    terminal: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/>', // === Faz 3 · Terminal ===
+    beyin: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3z"/>', // === Faz 5 · Beyin ===
   };
   const fmtGB = (b) => {
     if (b == null || isNaN(b)) return '—';
@@ -1609,9 +1803,20 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
   // --- Uygulama sürümü ve güncelleme (sol alt): etkin sürüm; GitHub'da yeni sürüm varsa ikon + sayı; tıklayınca yenilikler ve
   // "Güncelle" (git pull, gerekirse beceri/paketler; ardından uygulama kendini yeniden başlatır). Yalnızca masaüstü.
   const surumTarih = (s) => (s ? new Date(s).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : '');
+  // === Faz 3 · Terminal === yeniden başlatma çalışan terminal oturumlarını kapatır (PTY'ler sunucu sürecinde): önce sorulur
+  async function yenidenBaslatIste() {
+    try { return await api('/api/yeniden-baslat', {}); }
+    catch (e) {
+      if (e.durum !== 409 || !e.veri?.terminal) throw e;
+      const n = e.veri.terminal;
+      const ok = await sor({ baslik: `${n} terminal oturumu kapanacak`, metin: `Uygulamanın içindeki terminalde ${n} oturum çalışıyor. Yeniden başlatınca bu oturumlar ve içlerinde çalışanlar sonlanır (Claude / Codex konuşmaları sonra Oturumlar'dan "Devam et" ile sürdürülebilir).`, tamam: 'Yine de yeniden başlat', vazgec: 'Sonra', tehlike: true });
+      if (!ok) throw new Error('Yeniden başlatma ertelendi: terminalde çalışan oturumlar var.');
+      return api('/api/yeniden-baslat', { zorla: true });
+    }
+  }
   async function yenidenBaslatVeYukle() {
     bantGoster('surum', 'Yeniden başlatılıyor…', null, null, { oncelik: 3 });
-    try { await api('/api/yeniden-baslat', {}); } catch (e) { bantKaldir('surum'); bildir(e.message, 8000, 'hata'); return false; }
+    try { await yenidenBaslatIste(); } catch (e) { bantKaldir('surum'); bildir(e.message, 8000, 'hata'); return false; }
     for (let i = 0; i < 60; i++) { await new Promise((z) => setTimeout(z, 750)); if (await fetch('/api/ping').then((r) => r.ok).catch(() => false)) { location.reload(); return true; } }
     bantGoster('surum', 'Uygulama yeniden başlamadı. Pencereyi kapatıp Proje Kontrol\'ü yeniden açın.', null, null, { ton: 'kotu', oncelik: 3 });
     return false;
@@ -1772,6 +1977,61 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
   const silinen = new Set(sekmeler.filter((s) => s.silindi).map((s) => s.id));
   const sonuc = kats.filter((k) => !(k.kullanici && silinen.has(k.kullanici) && !k.anaProjeler.length));
   return { ...katalog, kategoriler: sonuc, yerlesim: { uygulandi: true, eklenen, tasinan } };
+};
+  // === Faz 5 · Beyin === bilgi tabanı notlarının ayrıştırıcısı (lib/bilgi.mjs notAyristir; sunucu / telefon derlemesi gömer)
+  const notAyristir = function notAyristir(md, yol) {
+  const metin = String(md == null ? '' : md).replace(/^﻿/, '').replace(/\r\n?/g, '\n');
+  const meta = {};
+  let govde = metin;
+  const tirnak = (v) => {
+    const t = v.trim();
+    if (t.startsWith('"')) { try { return JSON.parse(t); } catch (_) { return t.slice(1, t.endsWith('"') && t.length > 1 ? -1 : undefined); } }
+    if (t.startsWith("'")) return t.slice(1, t.endsWith("'") && t.length > 1 ? -1 : undefined).replace(/''/g, "'");
+    return t;
+  };
+  const liste = (v) => {
+    const t = v.trim();
+    try { const j = JSON.parse(t); if (Array.isArray(j)) return j.map((x) => String(x)); } catch (_) { /* Obsidian biçimi */ }
+    return t.slice(1, -1).split(',').map((x) => tirnak(x)).filter((x) => x !== '');
+  };
+  if (metin.startsWith('---\n')) {
+    const son = metin.indexOf('\n---', 4);
+    if (son > 0) {
+      const satirlar = metin.slice(4, son).split('\n');
+      let cari = null;
+      for (const s of satirlar) {
+        const bl = s.match(/^\s+-\s+(.*)$/);
+        if (bl && cari) { if (!Array.isArray(meta[cari])) meta[cari] = []; meta[cari].push(tirnak(bl[1])); continue; }
+        const m = s.match(/^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/);
+        if (!m) { cari = null; continue; }
+        cari = m[1];
+        const v = m[2];
+        meta[cari] = v.trim() === '' ? '' : /^\s*\[.*\]\s*$/.test(v) ? liste(v) : tirnak(v);
+      }
+      govde = metin.slice(son + 4).replace(/^[^\n]*\n?/, '');
+    }
+  }
+  const y = String(yol || '').replace(/\\/g, '/');
+  const klasor = y.split('/')[0];
+  const KLASOR_TUR = { kararlar: 'karar', notlar: 'not', kaynaklar: 'kaynak', gorevler: 'gorev', gelen: 'gelen' };
+  const ad = y.split('/').pop().replace(/\.md$/i, '');
+  const adTarih = ad.match(/^(\d{4}-\d{2}-\d{2})(?: (\d{2})(\d{2})\d{0,2})?/);
+  const baslikSatiri = govde.match(/^# (.+)$/m);
+  const metinOl = (v) => (Array.isArray(v) ? v.join(', ') : String(v == null ? '' : v));
+  const etiket = [].concat(meta.etiketler || [], meta.tags || []).map((x) => String(x).replace(/^#/, '').trim()).filter(Boolean);
+  return {
+    yol: y,
+    tur: KLASOR_TUR[klasor] === 'gelen' ? 'gelen' : (metinOl(meta.tur) || KLASOR_TUR[klasor] || 'not'),
+    baslik: metinOl(meta.baslik) || (baslikSatiri ? baslikSatiri[1].trim() : ad.replace(/^\d{4}-\d{2}-\d{2}( \d{4,6})? /, '')),
+    proje: metinOl(meta.proje),
+    proje_ad: metinOl(meta.proje_ad),
+    tarih: metinOl(meta.tarih) || (adTarih ? adTarih[1] : ''),
+    saat: metinOl(meta.saat) || (adTarih && adTarih[2] ? adTarih[2] + ':' + adTarih[3] : ''),
+    kaynak: metinOl(meta.kaynak || meta.url),
+    etiketler: [...new Set(etiket)],
+    govde: govde.replace(/^\n+/, ''),
+    meta,
+  };
 };
   if (yerlesimUygula && !K.yerlesim?.uygulandi) Object.assign(K, yerlesimUygula(K, yerel));
   const yerlesimImza = (y) => JSON.stringify([(y?.['$yerlesim']?.kategoriler || []).map((s) => [s.id, s.ad, s.aciklama || '', !!s.is, !!s.silindi]), Object.entries(y || {}).filter(([, v]) => v && v.yer).map(([id, v]) => [id, v.yer.kategori, v.yer.ana]).sort()]);
@@ -2049,7 +2309,7 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     // Yalnızca gerçekten çalışan işlemler. Kaldırılanlar (Karşılaştır, Satır geçmişi, Sahadan okunan yedek, Kütüphaneye ekle,
     // Taşı, Birleştir, Arşive kaldır, Süreli link, Foto / ses notu) yalnızca "Uygulamada: …" bildirimi gösteriyordu.
     ['Sürümler', [['Sürüm oluştur', 'Etiket ve not ile anlık görüntü'], ['Eski sürüme dön', 'Seçilen sürümü projenin yanına ayrı indirir (proje klasörüne dokunmaz)'], ['Sahaya yüklendi', 'Makinedeki sürümü işaretler']]],
-    ['Proje', [['Yapılacak ekle', 'Kanban\'a iş ekler'], ['Wiki / README', 'Proje dokümanını yazar'], ['Makine kartı', 'Müşteri, PLC/HMI modeli, IP, firmware'], ['Uzaktan erişim', 'VPN / TeamViewer / IP (kasadan)'], ['Durumu değiştir', 'Aktif → Beklemede → Tamamlandı'], ['Başka sekmeye taşı', 'Başka sekmeye ya da başka bir ana projenin altına; kimlik ve yedekler değişmez']]],
+    ['Proje', [['Yapılacak ekle', 'Kanban\'a iş ekler'], ['Wiki / README', 'Proje dokümanını yazar'], ['Makine kartı', 'Müşteri, PLC/HMI modeli, IP, firmware'], ['Uzaktan erişim', 'VPN / TeamViewer / IP (kasadan)'], ['Durumu değiştir', 'Aktif → Beklemede → Tamamlandı'], ['Başka sekmeye taşı', 'Başka sekmeye ya da başka bir ana projenin altına; kimlik ve yedekler değişmez'], /* === Faz 4 · İnceleme paketi === */ ['İnceleme paketi', 'Dış model (ChatGPT Pro) için: gitleaks taramalı, bölünmüş zip + hazır istem, İndirilenler klasörüne']]],
   ];
   /** Bu projede menüde görünür mü (koşulu tutmayan işlem gösterilmez) */
   const eylemUygun = (x, ad) => ({
@@ -2057,9 +2317,10 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     'Makine kartı': () => IS_KAT.has(x.kategori),
     'Uzaktan erişim': () => MASA && IS_KAT.has(x.kategori),
     'Sürüm oluştur': () => !MOBIL,
+    'İnceleme paketi': () => MASA && buDurum(x) !== 'yok', // === Faz 4 · yalnızca bu cihazda kurulu projede
   }[ad] || (() => true))();
   const DURUMLAR = ['Aktif', 'Beklemede', 'Tamamlandı'];
-  const GERCEK = ['Kur', 'Gönder', 'Güncelle', 'Bağla', 'Önce gönder, sonra güncelle', 'Sürüm oluştur', 'Buluta kaldır', 'Bu cihazda tut', 'Tutmayı bırak', 'Klasörü aç', 'Programla aç'];
+  const GERCEK = ['Kur', 'Gönder', 'Güncelle', 'Bağla', 'Önce gönder, sonra güncelle', 'Sürüm oluştur', 'Buluta kaldır', 'Bu cihazda tut', 'Tutmayı bırak', 'Klasörü aç', 'Programla aç', 'İnceleme paketi']; // Faz 4: + İnceleme paketi
   const BULUTA_KALDIR_METNI = 'Önce tamamı GitHub\'a ve şifreli Drive yedeğine alınır, yedek dosya dosya doğrulanır; sonra bu bilgisayardan kalıcı silinir (Geri Dönüşüm Kutusu\'na gitmez). Kur ile aynen geri gelir. node_modules gibi yeniden üretilebilenler yedeğe girmez.';
   const anaEylemOf = (x) => { const s = buDurum(x); return s === 'yok' ? ['Kur', IK.indir] : s === 'geride' ? ['Güncelle', IK.indir] : s === 'cakisma' ? ['Önce gönder, sonra güncelle', IK.yenile] : s === 'bagsiz' ? ['Bağla', IK.yukle] : s === 'ileride' ? ['Gönder', IK.yukle] : ['Sürüm oluştur', IK.etiket]; };
   /**
@@ -2136,6 +2397,8 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
         geriAlinir(`${ad}: ${x.ad}`, () => eylem(x, ad === 'Bu cihazda tut' ? 'Tutmayı bırak' : 'Bu cihazda tut'));
         ciz(); return;
       } else if (['Klasörü aç', 'Programla aç'].includes(ad)) { bildir((son?.sonuc || [ad]).join(' · '), 4000); return; }
+      // === Faz 4 · İnceleme paketi === "Klasörü aç": sunucu yalnızca kendi oluşturduğu son paket klasörünü açar
+      else if (ad === 'İnceleme paketi') { bildirimEkle(`İnceleme paketi hazır: ${son?.hedef || ''} · ${(son?.paketler || []).length} zip + README + istem şablonu. Dönen rapordaki her bulgu canlı koda karşı doğrulanmadan uygulanmaz.`, { ton: 'tamam', sure: 30000, etiket: 'Klasörü aç', fn: () => api('/api/eylem', { id: x.id, eylem: 'İnceleme klasörünü aç' }).catch((e) => bildir('Klasör açılamadı: ' + e.message, 7000, 'hata')) }); return; }
       else sonucBildir(ad, son);
       // Ekran yerinde güncellenir (süzgeçler, açık sekme, bildirimler kalır)
       delete onbellek['islem:' + x.id];
@@ -2239,20 +2502,23 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
   const ROTALAR = [
     { id: 'pano', ad: 'Pano', ikon: IK.pano, grup: 'Genel' },
     { id: 'projeler', ad: 'Projeler', ikon: IK.klasor, grup: 'Genel', sayi: TUM.length },
+    MASA ? { id: 'oturumlar', ad: 'Oturumlar', ikon: IK.yz, grup: 'Genel' } : null, // Faz 1 · Oturumlar
     { id: 'cihazlar', ad: 'Cihazlar', ikon: IK.pc, grup: 'Genel' },
     MASA ? { id: 'posta', ad: 'Posta', ikon: IK.posta, grup: 'Genel' } : null,
+    MASA ? { id: 'terminal', ad: 'Terminal', ikon: IK.terminal, grup: 'Genel' } : null, // === Faz 3 · Terminal ===
     { id: 'yedekler', ad: 'Yedekler', ikon: IK.bulut, grup: 'Depolama' },
     { id: 'yer-ac', ad: 'Yer aç', ikon: IK.disk, grup: 'Depolama' },
     { id: 'medya', ad: 'Medya', ikon: IK.medya, grup: 'Depolama', sayi: K.medya.length },
     { id: 'kasa', ad: 'Kasa', ikon: IK.kilit, grup: 'Güvenlik' },
     MASA ? { id: 'rapor', ad: 'Haftalık rapor', kisa: 'Rapor', ikon: IK.rapor, grup: 'Araçlar' } : null,
     MASA ? { id: 'ziyaret', ad: 'Ziyaretler', ikon: IK.aktivite, grup: 'Araçlar' } : null,
+    { id: 'bilgi', ad: 'Bilgi', ikon: IK.beyin, grup: 'Araçlar' }, // === Faz 5 · Beyin ===
     { id: 'kutuphane', ad: 'Kütüphane', ikon: IK.kitap, grup: 'Araçlar' },
     { id: 'incele', ad: 'İncelenecek', ikon: IK.gelen, grup: 'Araçlar', sayi: K.incelenecek.length },
   ].filter(Boolean);
   const ROTA_ID = Object.fromEntries(ROTALAR.map((r) => [r.id, r]));
   // Görünür menü 4 ana öğe; geri kalanlar katlanır "Diğer" grubunda (telefonda "Diğer" sayfası)
-  const ANA_MENU = MASA ? ['pano', 'projeler', 'ziyaret', 'kasa', 'medya'] : ['pano', 'projeler', 'kasa', 'medya'];
+  const ANA_MENU = MASA ? ['pano', 'projeler', 'oturumlar', 'terminal', 'ziyaret', 'kasa', 'medya'] : ['pano', 'projeler', 'kasa', 'medya'];
   const ALT_SEKME = ['pano', 'projeler', 'kasa', 'medya'];
   const DIGER = ROTALAR.filter((r) => !ANA_MENU.includes(r.id));
   const digerSay = DIGER.reduce((t, r) => t + (r.sayi || 0), 0);
@@ -2291,6 +2557,7 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
       const yokla = (mod) => limitGetir(mod).then((r) => { if (r.durum === 'tamam') limitHapGuncelle(r.v); }).catch(() => {});
       setTimeout(() => yokla(0), 400);
       setInterval(() => { if (document.visibilityState === 'visible') yokla(1); }, 60_000);
+      kotaHapKur(lh); // === Faz 4 · Kotalar: Codex hapı Claude hapının yanında
       // Ziyaretler menüsündeki "yeni" rozeti (son bakıştan beri gelen ziyaret)
       const zyYokla = (mod) => ziyaretGetir(mod).then((r) => { if (r.durum === 'tamam') zyRozet(r.v.yeni); }).catch(() => {});
       setTimeout(() => zyYokla(0), 900);
@@ -2376,6 +2643,8 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     if (ad === 'proje') return { ad, id: parca[0] || '', sekme: parca[1] || 'genel' };
     if (ad === 'projeler') return { ad, kat: parca[0] || null, ana: parca[1] || null };
     if (ad === 'posta' && ROTA_ID.posta && GORUNUM.posta) return { ad, sekme: parca[0] || '' };
+    if (ad === 'bilgi') return { ad, proje: parca[0] || '' }; // === Faz 5 · Beyin === #bilgi/<proje>
+    if (ad === 'yakala') return { ad, pencere: parca[0] === 'pencere' }; // #yakala, küçük pencere: #yakala/pencere
     return { ad: GORUNUM[ad] && (ROTA_ID[ad] || ad === 'proje') ? ad : 'pano' };
   }
   const GORUNUM = {};
@@ -2438,7 +2707,7 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     canliTazele = async () => { await api('/api/yenile', {}).catch(() => {}); await durumYenile(); };
     const surumBak = (s) => {
       if (!s) return;
-      if (s.sunucuEski) { bantGoster('surum', 'Proje Kontrol güncellendi: yeni sürüm için uygulama yeniden başlatılmalı.', 'Yeniden başlat', async () => { bantGoster('surum', 'Yeniden başlatılıyor…', null, null, { oncelik: 3 }); await api('/api/yeniden-baslat', {}).catch((e) => bildir(e.message, 6000, 'hata')); for (let i = 0; i < 40; i++) { await new Promise((z) => setTimeout(z, 750)); if (await fetch('/api/ping').then((r) => r.ok).catch(() => false)) { location.reload(); return; } } }, { oncelik: 2 }); return; }
+      if (s.sunucuEski) { bantGoster('surum', 'Proje Kontrol güncellendi: yeni sürüm için uygulama yeniden başlatılmalı.', 'Yeniden başlat', async () => { bantGoster('surum', 'Yeniden başlatılıyor…', null, null, { oncelik: 3 }); if (!(await yenidenBaslatIste().then(() => true, (e) => { bildir(e.message, 6000, 'hata'); return false; }))) { surumBak(s); return; } for (let i = 0; i < 40; i++) { await new Promise((z) => setTimeout(z, 750)); if (await fetch('/api/ping').then((r) => r.ok).catch(() => false)) { location.reload(); return; } } }, { oncelik: 2 }); return; }
       if (PK.surum && s.surum && s.surum !== PK.surum) bantGoster('surum', 'Yeni sürüm hazır.', 'Yenile', () => location.reload(), { oncelik: 2 });
     };
     const isle = (alanlar) => {
@@ -2447,8 +2716,12 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
       if (alanlar.includes('saglik')) saglikYenile();
       if (alanlar.includes('islemler')) { for (const k of Object.keys(onbellek)) if (/^islem/.test(k)) delete onbellek[k]; if (/^#proje/.test(location.hash)) yerindeCiz(); }
       if (alanlar.includes('hafiza') || alanlar.includes('posta')) { for (const k of Object.keys(onbellek)) if (/^(hafiza|posta)/.test(k)) delete onbellek[k]; if (/^#(proje|posta)/.test(location.hash)) yerindeCiz(); }
+      if (alanlar.includes('gorevler')) GOREV.tazele?.(); // Faz 4.4 · Görevler: yalnızca açık Görevler sekmesi, yerinde
+      if (alanlar.includes('hafiza')) for (const k of Object.keys(hafizaOnbellek)) delete hafizaOnbellek[k]; // === Faz 5 · Beyin === denetimden sonra
+      if (alanlar.includes('bilgi')) { bilgiOnbellek = null; if (/^#(bilgi|proje)/.test(location.hash)) yerindeCiz(); } // === Faz 5 · Beyin ===
       if (alanlar.includes('katalog')) bantGoster('katalog', 'Katalog güncellendi (yeni proje ya da kaynak).', 'Yenile', () => location.reload(), { oncelik: 1 });
       if (alanlar.includes('surum')) api('/api/ping').then(surumBak).catch(() => {});
+      if (alanlar.includes('terminal')) trmListeTazele(); // === Faz 3 · Terminal === sekme listesi ve durumlar (başka pencereden açılan da)
     };
     // Bağlantı: sunucu yeniden başlarsa (güncelleme, çökme, "pk arayuz") pencere kendiliğinden yeniden bağlanır. Belirteç
     // yeniden başlatmada korunur (arayuz.json); geçersizse (401) pencerenin yeniden açılması istenir — belirteç sayfaya taşınmaz.
@@ -2516,7 +2789,7 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
       const bolum = (ad, l) => { if (!l.length) return; liste.append(el('h6', { text: ad })); for (const o of l) { const i = ogeler.length; const n = el('div', { class: 'palet-oge', role: 'option', id: 'po-' + i, 'aria-selected': 'false' }, svg(o.ikon), el('span', {}, el('b', { text: o.baslik }), o.alt ? el('small', { text: o.alt }) : null), o.cevap ? el('span', { class: 'cevap', text: o.cevap }) : svg(IK.sag, 'ikon k')); n.addEventListener('click', () => { d.close(); o.fn(); }); n.addEventListener('mousemove', () => sec(i)); liste.append(n); ogeler.push(o); } };
       if (!q) {
         bolum('Son çalışılanlar', (G.sonCalisilan || []).map((s) => TUM.find((t) => t.ad === s.ad && t.ana === s.ana)).filter(Boolean).slice(0, 5).map((x) => oge(IK.klasor, x.ad, `${x.kategori} · ${x.ana}`, () => ac(x))));
-        if (MASA) bolum('Yapay zekâ', [oge(IK.yz, 'Oturumlar', 'Son Claude ve Codex oturumları · aranabilir', () => otAraPencere(''))]);
+        if (MASA) bolum('Yapay zekâ', [oge(IK.yz, 'Oturumlar', 'Son Claude ve Codex oturumları · aranabilir', () => git('#oturumlar'))]); // Faz 1: sekmeye gider
         bolum('Eylemler', eylemler());
         bolum('Bölümler', ROTALAR.map((r) => oge(r.ikon, r.ad, null, () => git('#' + r.id))));
       } else {
@@ -2557,13 +2830,21 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
 
   // ================= YAPAY ZEKÂ OTURUMLARI · GENEL BAKIŞ (yalnızca bilgisayardaki uygulama) =================
   // Satırda tek ana eylem (Devam et); konuşma ve ayrıntılar "⋯" menüsünde. Konuşma içeriği yalnızca bu bilgisayarda okunur.
-  const OT_ARAC = { claude: 'Claude', codex: 'Codex' };
+  const OT_ARAC = { claude: 'Claude', codex: 'Codex', agy: 'Antigravity' };
   const OT_DURUM = { calisiyor: ['Çalışıyor', 'guncel'], bekliyor: ['Yanıt bekliyor', 'ileride'], bosta: ['Boşta', 'yok'] };
   const otZaman = (s) => { const dk = Math.round((Date.now() - new Date(s)) / 60000); if (!Number.isFinite(dk)) return ''; if (dk < 1) return 'şimdi'; if (dk < 60) return dk + ' dk önce'; if (dk < 1440) return Math.round(dk / 60) + ' saat önce'; return goreli(s, new Date()); };
   const otAracRozet = (o) => el('span', { class: 'ot-arac ' + o.arac, title: (OT_ARAC[o.arac] || o.arac) + ' ile açıldı', text: OT_ARAC[o.arac] || o.arac });
   const otCihazRozet = (o) => el('span', { class: 'ot-cihaz', title: o.uzak ? 'Diğer bilgisayarda' : 'Bu bilgisayarda', text: o.cihazAd || '' });
   const otDurumRozet = (o) => { const [m, c] = OT_DURUM[o.durum] || OT_DURUM.bosta; return el('span', { class: 'cr ' + c, text: m }); };
-  const otIpucu = (x) => { const t = PK?.oturumIpucu?.[x.id]; return t ? el('span', { class: 'ot-ipucu', text: `Son oturum: ${otZaman(t.son)} · ${OT_ARAC[t.arac] || t.arac}` }) : null; };
+  // Faz 1: proje kartında son oturum özeti (zaman · bilgisayar · başlık). Önce sayfaya gömülü ipucu, oturum listesi gelince en yenisi.
+  const otIpucu = (x) => {
+    const t = PK?.oturumIpucu?.[x.id];
+    const s = el('span', { class: 'ot-ipucu', hidden: !t, text: t ? `Son oturum: ${otZaman(t.son)} · ${t.cihaz ? t.cihaz + ' · ' : ''}${OT_ARAC[t.arac] || t.arac}` : '' });
+    if (MASA) oturumlarGetir().then((r) => { const o = r.durum === 'tamam' ? otSonProje(r.v).get(x.id) : null; if (!o) return; s.hidden = false; s.textContent = `Son oturum: ${otZaman(o.son)} · ${o.cihazAd} · ${o.baslik}`; s.title = `${OT_ARAC[o.arac] || o.arac} · ${zamanTR(o.son)} · ${o.cihazAd}${o.acik ? ' · şu an açık' : ''}`; });
+    return s;
+  };
+  const otSonProjeOb = new WeakMap(); // oturum listesi yanıtı → proje kimliği → en yeni oturum (liste yeniden düzenden sıralı gelir)
+  const otSonProje = (v) => { let m = otSonProjeOb.get(v); if (!m) { m = new Map(); for (const o of v.liste || []) if (o.projeId && !m.has(o.projeId)) m.set(o.projeId, o); otSonProjeOb.set(v, m); } return m; };
   const otProje = (o) => TUM_ID.get(o.projeId);
   const oturumlarGetir = (yenile) => getir('oturumlar', '/api/oturumlar', yenile);
   const solukP = (t) => el('p', { class: 'soluk', style: 'margin:0;font-size:.84rem', text: t });
@@ -2684,6 +2965,154 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     g.addEventListener('input', () => { clearTimeout(z); z = setTimeout(ara, 350); });
     projeSec.addEventListener('change', ara); aracSec.addEventListener('change', ara);
   }
+  // === Faz 1 · Oturumlar ===
+  // Yeni oturum: Windows Terminal'de projenin bu bilgisayardaki klasöründe yeni sekme (POST /api/oturum-ac, lib/oturumac.mjs).
+  // Claude izinsiz modda, uzaktan kontrol açık (claude.ai/code ve Claude mobil), oturum adı proje adı. Oturumlar sekmesi: iki
+  // bilgisayarın oturumları proje proje, süzgeç, arama, devam et, görüntüle, uzaktan kontrol bağlantısı; canlı yenilenir.
+  const OT_ACAR = [['claude', 'Claude\'da aç', 'Claude Code · izinsiz mod · uzaktan kontrol açık (claude.ai/code ve Claude mobil) · oturum adı proje adı'], ['codex', 'Codex\'te aç', 'Codex CLI · onaysız mod'], ['agy', 'Antigravity\'de aç', 'Antigravity CLI · izinsiz mod']];
+  async function otAc(x, arac = 'claude') {
+    if (!MASA) { bildir('Yeni oturum bilgisayardaki Proje Kontrol uygulamasında açılır.', 5000); return; }
+    const ad = OT_ARAC[arac] || arac;
+    surecGoster(`${ad} açılıyor…`);
+    try {
+      const r = await api('/api/oturum-ac', { id: x.id, arac });
+      surecGizle();
+      if (r.onceKur) { bildirEylem(`${adSade(x)} bu bilgisayarda kurulu değil. Önce kurun, sonra açın.`, 'Kur', () => eylem(x, 'Kur')); return; }
+      const u = r.uyari || [];
+      if (u.length) bildirimEkle([...(r.sonuc || []), ...u].join(' · '), { ton: 'uyari', sure: 12000 });
+      else bildir(`${(r.sonuc || []).join(' · ')} · Windows Terminal'de yeni sekme`, 7000, 'tamam');
+      delete onbellek.oturumlar; delete onbellek.genel;
+    } catch (e) { surecGizle(); bildir(`${ad} açılamadı: ${e.message}`, 10000, 'hata'); }
+  }
+  /** "Claude'da aç" düğmesi + yanında Codex / Antigravity seçimi (▾) */
+  function otAcDugmesi(x, { ana = true, kucuk = false } = {}) {
+    const cls = 'btn' + (ana ? ' ana' : '') + (kucuk ? ' kucuk' : '');
+    const b = el('button', { class: cls, type: 'button', title: OT_ACAR[0][2], onclick: (e) => { e.stopPropagation(); otAc(x, 'claude'); } }, svg(IK.yz, kucuk ? 'ikon k' : 'ikon'), OT_ACAR[0][1]);
+    const d = el('details', { class: 'btn-grup-menu' }, el('summary', { class: cls, 'aria-label': 'Başka araçla aç', title: 'Codex ya da Antigravity ile aç' }, '▾'));
+    const ic = el('div', { class: 'ot-daha-ic', role: 'menu' });
+    for (const [a, ad, aciklama] of OT_ACAR) ic.append(el('button', { type: 'button', role: 'menuitem', title: aciklama, onclick: (e) => { e.stopPropagation(); d.open = false; otAc(x, a); } }, ad));
+    d.append(ic); d.addEventListener('click', (e) => e.stopPropagation());
+    return el('span', { class: 'btn-grup' }, b, d);
+  }
+  // Açık kalan ⋯ / ▾ menüleri dışarı tıklayınca kapanır (açık menü canlı yenilemeyi de bekletir)
+  document.addEventListener('click', (e) => { for (const d of document.querySelectorAll('details.btn-grup-menu[open], details.ot-daha[open]')) if (!d.contains(e.target)) d.open = false; });
+  // Durum: çalışıyor / yanıt bekliyor (lib/oturumlar.mjs oturumDurumu) · açık (süreç yaşıyor, boşta) · bitti
+  const OT_GORUNEN = { calisiyor: ['Çalışıyor', 'guncel'], bekliyor: ['Yanıt bekliyor', 'ileride'], acik: ['Açık', 'yerel'], bitti: ['Bitti', 'yok'] };
+  const otDurumu = (o) => (o.durum === 'calisiyor' || o.durum === 'bekliyor' ? o.durum : o.acik ? 'acik' : 'bitti');
+  const otSure = (o) => {
+    const ms = Date.parse(o.son) - Date.parse(o.baslangic); if (!Number.isFinite(ms) || ms < 0) return null;
+    const dk = Math.round(ms / 60000);
+    return dk < 1 ? '1 dk\'dan kısa' : dk < 60 ? `${dk} dk` : dk < 1440 ? `${Math.floor(dk / 60)} sa${dk % 60 ? ' ' + (dk % 60) + ' dk' : ''}` : `${Math.floor(dk / 1440)} gün${Math.round((dk % 1440) / 60) ? ' ' + Math.round((dk % 1440) / 60) + ' sa' : ''}`;
+  };
+  const OT_UZAK_RX = /^https:\/\/claude\.ai\/code\/session_[A-Za-z0-9_-]{8,120}$/;
+  /**
+   * Uzaktan kontrol (açık Claude oturumu): Remote Control adresi oturum dökümündeki bridge_status satırından ya da canlı süreç
+   * kaydından (~/.claude/sessions, bridgeSessionId) gelir. Bulunamazsa (ya da diğer bilgisayarın oturumuysa) claude.ai/code.
+   */
+  function otUzakBag(o) {
+    if (o.arac !== 'claude' || !o.acik) return null;
+    const tam = OT_UZAK_RX.test(o.uzakUrl || '');
+    return el('a', { class: 'btn kucuk', href: tam ? o.uzakUrl : 'https://claude.ai/code', target: '_blank', rel: 'noopener noreferrer', onclick: (e) => e.stopPropagation(),
+      title: tam ? 'Bu oturumu claude.ai/code\'da açar; telefondan da yönetilir (Claude mobil uygulamasında da görünür).' : 'Bu oturumun uzaktan kontrol adresi bilinmiyor: claude.ai/code\'daki oturum listesinden seçin (oturum uzaktan kontrolle açıldıysa). Claude mobil uygulamasında da görünür.' },
+    svg(IK.telefon, 'ikon k'), tam ? 'Uzaktan' : 'claude.ai/code');
+  }
+  /** Oturumlar sekmesinin satırı: araç · başlık, son mesaj, zaman · süre · mesaj; bilgisayar, durum, eylemler */
+  function otTamSatir(o) {
+    const [dm, dc] = OT_GORUNEN[otDurumu(o)], sure = otSure(o);
+    const meta = [otZaman(o.son), sure ? 'süre ' + sure : null, o.mesaj ? sayiTR(o.mesaj) + ' mesaj' : null, o.dal && o.dal !== 'HEAD' ? o.dal : null].filter(Boolean).join(' · ');
+    const son = o.sonMetin ? el('div', { class: 'ot-son', title: o.sonMetin }, el('b', { text: (o.sonRol === 'kullanici' ? 'Siz' : OT_ARAC[o.arac] || o.arac) + ': ' }), o.sonMetin) : null;
+    const s = el('div', { class: 'satir ot-satir ot-tam' + (o.acik ? ' ot-acik' : '') },
+      el('div', { class: 'ad' }, el('span', {}, otAracRozet(o), ' ', o.baslik), son, el('small', { text: meta })),
+      el('span', { class: 'sag' }, otCihazRozet(o), el('span', { class: 'cr ' + dc, text: dm }), otUzakBag(o),
+        o.uzak ? null : el('button', { class: 'btn kucuk hayalet', type: 'button', title: 'Konuşmayı salt okunur açar', onclick: (e) => { e.stopPropagation(); otGoruntule(o); } }, 'Görüntüle'),
+        otDugme(o), otMenu(o)));
+    tiklanir(s.querySelector('.ad'), () => (o.uzak ? otAyrinti(o) : otGoruntule(o)));
+    return s;
+  }
+  /** Yeni oturum: bu bilgisayarda kurulu bir proje ve araç seçilir */
+  async function yeniOturumSor(x0 = null) {
+    const kurulu = TUM.filter((x) => buDurum(x) !== 'yok').sort((a, b) => adSade(a).localeCompare(adSade(b), 'tr'));
+    if (!kurulu.length) { bildir('Bu bilgisayarda kurulu proje yok: önce bir projeyi kurun.', 6000); return; }
+    const r = await formSor({ baslik: 'Yeni oturum', metin: 'Windows Terminal\'de projenin klasöründe yeni sekme açılır. Claude izinsiz modda, uzaktan kontrol açık (claude.ai/code ve Claude mobil), oturum adı proje adı.', tamam: 'Aç',
+      alanlar: [{ ad: 'proje', etiket: 'Proje (bu bilgisayarda kurulu)', tur: 'secim', deger: x0?.id || kurulu[0].id, secenekler: kurulu.map((x) => [x.id, `${adSade(x)} · ${x.ana}`]) },
+        { ad: 'arac', etiket: 'Araç', tur: 'secim', deger: 'claude', secenekler: OT_ACAR.map(([a]) => [a, OT_ARAC[a]]) }] });
+    const x = r && TUM_ID.get(r.proje);
+    if (x) otAc(x, r.arac);
+  }
+  const OF = { q: '', cihaz: '', durum: '', arac: '', acik: new Set() }; // süzgeçler sekmeler arasında kalır; acik: "Tümü" ile açılan gruplar
+  GORUNUM.oturumlar = () => {
+    const v = gorunum('Oturumlar', 'İki bilgisayardaki Claude ve Codex oturumları, proje proje · canlı güncellenir', MASA ? el('button', { class: 'btn ana', type: 'button', onclick: () => yeniOturumSor() }, svg(IK.arti), 'Yeni oturum') : null);
+    if (!MASA) { v.append(bilgiKutu(IK.yz, '', p('Oturumlar bilgisayardaki Proje Kontrol uygulamasında görünür.'))); return v; }
+    const ara = el('input', { type: 'search', placeholder: 'Ara: başlık, proje, son mesaj · 2+ harfte konuşmaların içinde de', 'aria-label': 'Oturumlarda ara', autocomplete: 'off' }); ara.value = OF.q;
+    const secim = (ad, etiket, secenekler) => { const s = el('select', { class: 'btn', 'aria-label': etiket }, ...secenekler.map(([d, t]) => el('option', { value: d, text: t, selected: OF[ad] === d }))); s.addEventListener('change', () => { OF[ad] = s.value; listeCiz(); if (ad === 'arac') icerikAra(); }); return s; };
+    const ozet = el('p', { class: 'soluk ot-ozet', role: 'status' });
+    const aramaKutu = el('div', { class: 'pd-kolon' }), liste = el('div', { class: 'pd-kolon' }, yukleniyor('Oturumlar okunuyor…'));
+    v.append(el('div', { class: 'arac-cubugu' }, el('div', { class: 'arac-ust' }, el('label', { class: 'ara-kutu' }, svg(IK.ara), ara),
+      secim('cihaz', 'Bilgisayar', [['', 'Tüm bilgisayarlar'], ['bu', cAd('Bu PC')], ['diger', cAd('Diğer PC')]]),
+      secim('durum', 'Durum', [['', 'Tüm durumlar'], ['calisiyor', 'Çalışıyor'], ['bekliyor', 'Yanıt bekliyor'], ['acik', 'Açık'], ['bitti', 'Bitti']]),
+      secim('arac', 'Araç', [['', 'Tüm araçlar'], ['claude', 'Claude'], ['codex', 'Codex']])), ozet), aramaKutu, liste);
+    let L = null, hata = null;
+    const uygun = (o) => {
+      if ((OF.cihaz === 'bu' && o.uzak) || (OF.cihaz === 'diger' && !o.uzak)) return false;
+      if ((OF.durum && otDurumu(o) !== OF.durum) || (OF.arac && o.arac !== OF.arac)) return false;
+      const q = aranir(OF.q.trim()), x = otProje(o);
+      return !q || aranir([o.baslik, o.sonMetin, x ? adSade(x) : '', x?.ana, o.cihazAd, o.dal].filter(Boolean).join(' ')).includes(q);
+    };
+    function listeCiz() {
+      if (!L) return;
+      const l = L.filter(uygun), say = (f) => L.filter(f).length;
+      ozet.textContent = [`${sayiTR(L.length)} oturum`, `${say((o) => o.acik)} açık`, `${say((o) => o.durum === 'calisiyor')} çalışıyor`, `${say((o) => o.durum === 'bekliyor')} yanıt bekliyor`, l.length !== L.length ? `süzgece uyan ${sayiTR(l.length)}` : null, hata ? `son yenileme yapılamadı: ${hata}` : null].filter(Boolean).join(' · ');
+      const gruplar = new Map();
+      for (const o of l) { const k = otProje(o) ? o.projeId : ''; if (!gruplar.has(k)) gruplar.set(k, []); gruplar.get(k).push(o); }
+      // Sıra: açık oturumu olan projeler, sonra son etkinlik (liste yeniden eskiye gelir); projeye bağlı olmayanlar en sonda
+      const sira = [...gruplar.entries()].sort((a, b) => (!a[0]) - (!b[0]) || b[1].some((o) => o.acik) - a[1].some((o) => o.acik) || Date.parse(b[1][0].son) - Date.parse(a[1][0].son));
+      const kartlar = sira.map(([pid, os]) => {
+        const x = pid ? TUM_ID.get(pid) : null, n = OF.acik.has(pid) ? os.length : 5, acikN = os.filter((o) => o.acik).length;
+        const sag = el('span', { class: 'ot-grup-sag' }, el('small', { class: 'soluk', text: `${os.length} oturum${acikN ? ` · ${acikN} açık` : ''}` }), x ? otAcDugmesi(x, { ana: false, kucuk: true }) : null);
+        const tumu = os.length > n ? el('button', { class: 'btn kucuk ot-tumu', type: 'button', onclick: () => { OF.acik.add(pid); listeCiz(); } }, `Tümü (${os.length})`) : null;
+        const k = kart({ baslik: x ? adSade(x) : 'Bir projeye bağlı olmayanlar', ikon: x ? IK.klasor : IK.yz }, el('div', { class: 'satirlar' }, ...os.slice(0, n).map(otTamSatir)), tumu);
+        k.querySelector('header').append(sag);
+        if (x) { const h = k.querySelector('h3'); h.title = `${x.kategori} › ${x.ana} · projeyi aç`; tiklanir(h, () => ac(x)); }
+        return k;
+      });
+      liste.replaceChildren(...(kartlar.length ? kartlar : [kart({}, bosDurum(IK.yz, L.length ? 'Süzgece uyan oturum yok' : 'Henüz oturum yok', L.length ? 'Süzgeçleri ya da aramayı değiştirin.' : 'Bir projede "Claude\'da aç" ile ilk oturumu başlatın.'))]));
+    }
+    async function yukle(yenile) {
+      const r = await oturumlarGetir(yenile);
+      if (!v.isConnected && L) return;
+      if (r.durum !== 'tamam') {
+        hata = r.hata || 'okunamadı';
+        if (L) { listeCiz(); return; } // eski liste ekranda kalır, özet satırı hatayı söyler
+        liste.replaceChildren(bilgiKutu(IK.uyari, 'kotu', p('Oturumlar okunamadı: ' + hata), el('div', {}, el('button', { class: 'btn kucuk', type: 'button', onclick: () => { liste.replaceChildren(yukleniyor('Oturumlar okunuyor…')); yukle(true); } }, svg(IK.yenile, 'ikon k'), 'Yeniden dene'))));
+        return;
+      }
+      hata = null; L = r.v.liste; listeCiz();
+    }
+    // İçerik araması (yalnızca bu bilgisayarın konuşmaları; sonuçlar maskeli): 2+ harf, yazmayı bırakınca
+    let araZ = null, araNo = 0;
+    async function icerikAra() {
+      const q = OF.q.trim(), no = ++araNo, bas = 'Konuşmaların içinde (bu bilgisayar)';
+      if (q.length < 2) { aramaKutu.replaceChildren(); return; }
+      aramaKutu.replaceChildren(kart({ baslik: bas, ikon: IK.ara }, solukP('Aranıyor…')));
+      try {
+        const r = await api(`/api/oturum-ara?q=${encodeURIComponent(q)}${OF.arac ? '&arac=' + encodeURIComponent(OF.arac) : ''}`);
+        if (no !== araNo) return;
+        const satirlar = r.sonuclar.map((s) => {
+          const o = (L || []).find((y) => y.id === s.id && !y.uzak) || { ...s, uzak: false, cihazAd: '' }, x = otProje(o);
+          const n = el('div', { class: 'satir ot-satir' }, el('div', { class: 'ad' }, el('span', {}, otAracRozet(o), ' ', s.baslik), el('small', { text: [x ? adSade(x) : null, s.rol === 'kullanici' ? 'sizin mesajınız' : s.rol === 'asistan' ? 'yanıt' : 'araç', s.zaman ? otZaman(s.zaman) : null].filter(Boolean).join(' · ') }), el('div', { class: 'ot-parca', text: s.parca })), el('span', { class: 'sag' }, (L || []).includes(o) ? otDugme(o) : null));
+          tiklanir(n.querySelector('.ad'), () => otGoruntule(o)); return n;
+        });
+        aramaKutu.replaceChildren(kart({ baslik: bas, ikon: IK.ara, sag: `${r.sonuclar.length}${r.eksik ? '+' : ''} sonuç` }, besli(satirlar, 'Konuşmaların içinde bulunamadı.', 8) || '', r.eksik ? solukP('Çok sonuç var; aramayı daraltın.') : ''));
+      } catch (e) { if (no === araNo) aramaKutu.replaceChildren(kart({ baslik: bas, ikon: IK.ara }, solukP('Aranamadı: ' + e.message))); }
+    }
+    ara.addEventListener('input', () => { OF.q = ara.value; listeCiz(); clearTimeout(araZ); araZ = setTimeout(icerikAra, 450); });
+    yukle(false);
+    if (OF.q.trim().length >= 2) icerikAra();
+    // Canlı: 15 sn'de bir (sayfa görünürken). Menü ya da pencere açıkken beklenir (açtığınız şey kapanmasın).
+    canliTut(v, () => { if (!v.querySelector('details[open]') && !document.querySelector('dialog[open]')) yukle(true).catch(() => {}); }, 15_000);
+    return v;
+  };
+
   // Proje hafızası (başka bir modülün ucu, /api/hafiza/<id>): yoksa ya da boşsa sessizce atlanır
   const hafizaOnbellek = {};
   function hafizaCoz(j) {
@@ -2696,7 +3125,7 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
   const hafizaGetir = (id) => (hafizaOnbellek[id] ??= MASA ? api('/api/hafiza/' + encodeURIComponent(id)).then(hafizaCoz, () => null) : Promise.resolve(null));
   function hafizaKutu(x) {
     const k = el('div', { hidden: true });
-    hafizaGetir(x.id).then((h) => { if (h && k.isConnected) k.replaceWith(kart({ baslik: 'Kaldığım yer', ikon: IK.not }, el('dl', { class: 'ozellik' }, ...[['Şu an', h.simdi], ['Sıradaki', h.siradaki]].filter(([, d]) => d).flatMap(([a, d]) => [el('dt', { text: a }), el('dd', { text: d })])))); });
+    hafizaGetir(x.id).then((h) => { if (h && k.isConnected) k.replaceWith(kart({ baslik: 'Kaldığım yer', ikon: IK.not, sag: denetleDugmesi(x) },el('dl', { class: 'ozellik' }, ...[['Şu an', h.simdi], ['Sıradaki', h.siradaki]].filter(([, d]) => d).flatMap(([a, d]) => [el('dt', { text: a }), el('dd', { text: d })])))); });
     return k;
   }
   /** Proje paneli: son oturumlar (en çok 5, devamı "Tümü") */
@@ -2750,7 +3179,7 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
         el('h6', { class: 'ot-bolum', text: 'Şu an açık' }), besli(dAcik.map((o) => otSatir(o, { baslikProje: true })), `${cAd('Diğer PC')}'da şu an açık oturum yok.`, 3),
         el('h6', { class: 'ot-bolum', text: 'Bugün değişenler' }), besli(dBugun.map((x) => el('a', { class: 'satir', href: projeYolu(x) }, el('div', { class: 'ad' }, el('span', { text: adSade(x) })))), 'Bugün bir değişiklik görünmüyor.', 3));
       iz.replaceChildren(...[
-        kart({ baslik: 'Şu an', ikon: IK.aktivite, cls: 'c7', sag: el('button', { class: 'btn kucuk', type: 'button', title: 'İki bilgisayardaki son Claude ve Codex oturumları; aranabilir', onclick: () => otAraPencere('') }, 'Tüm oturumlar') }, besli(L.filter((o) => o.acik).map((o) => otSatir(o, { baslikProje: true })), 'Şu an açık bir yapay zekâ oturumu yok.')),
+        kart({ baslik: 'Şu an', ikon: IK.aktivite, cls: 'c7', sag: el('button', { class: 'btn kucuk', type: 'button', title: 'Oturumlar sekmesi: iki bilgisayardaki Claude ve Codex oturumları, proje proje; aranabilir', onclick: () => (ROTA_ID.oturumlar ? git('#oturumlar') : otAraPencere('')) }, 'Tüm oturumlar') }, besli(L.filter((o) => o.acik).map((o) => otSatir(o, { baslikProje: true })), 'Şu an açık bir yapay zekâ oturumu yok.')),
         digerKart,
         kart({ baslik: 'Bu hafta', ikon: IK.takvim, cls: 'c7', sag: 'son 7 gün' }, besli(haftaSatir, 'Bu hafta üzerinde çalışılan proje görünmüyor.')),
         kart({ baslik: 'Aktif projeler', ikon: IK.klasor, cls: 'c5' }, besli(yeni.map(pjSatir), 'Son bir ayda dokunulan aktif proje yok.')),
@@ -2988,6 +3417,7 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     const govde = el('div', { class: 'limitler' }, iskelet()), durumN = el('span', { class: 'kart-durum' });
     const c = kart({ baslik: 'Claude kullanımı', ikon: IK.yz, cls, sag: el('span', { class: 'kart-durum' }, durumN, yenileDugme(() => ciz_(2))) }, govde);
     c.id = 'claudeKart';
+    c.append(kotaBolumu()); // === Faz 4 · Kotalar: Codex ve agy, Claude limitlerinin altında (ayrı kutu, kendi yenilemesi)
     async function ciz_(mod) {
       const r = await limitGetir(mod);
       if (!c.isConnected && mod) return;
@@ -3001,6 +3431,76 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     canliTut(c, () => ciz_(1).catch(() => {}), 60_000);
     return c;
   }
+  // === Faz 4 · Kotalar === Codex (ChatGPT) ve Antigravity (agy) — lib/kotalar.mjs, /api/kotalar. Yalnızca yerel dosyalar okunur.
+  // Bilinmeyen değer "bilinmiyor" yazar (boş ya da %100 değil); kurulu olmayan araç yer kaplamaz; agy girişsizse hiç görünmez,
+  // girişliyse tek soluk satır (kota agy'nin içinde: /usage).
+  const kotaGetir = (mod = 0) => izGetir('kotalar', '/api/kotalar', mod);
+  function kotaBilinmiyorSatir(l) {
+    const m = el('div', { class: 'metre bilinmiyor', tabindex: '0' });
+    ipucuBagla(m, `${l.ad}: bilinmiyor${l.neden ? ' · ' + l.neden : ''}${l.sonOlcum ? ` · son ölçülen kalan %${Math.round(l.sonOlcum.kalan)} (${zamanTR(l.sonOlcum.zaman)})` : ''}`);
+    return el('div', { class: 'limit' }, el('span', { class: 'ad', text: l.ad }), el('span', { class: 'deger bilinmiyor', text: 'bilinmiyor' }), m,
+      el('div', { class: 'alt-yazi' }, el('span', { text: l.sonOlcum ? `Son ölçüm %${Math.round(l.sonOlcum.kalan)} kaldı · ${otZaman(l.sonOlcum.zaman)}` : l.neden || 'ölçüm yok' })));
+  }
+  function kotaBolumu() {
+    const kutu = el('div', { class: 'kota-diger', id: 'kotaKart', hidden: true });
+    async function ciz_(mod) {
+      const r = await kotaGetir(mod);
+      if (!kutu.isConnected && mod) return;
+      if (r.durum !== 'tamam') { kutu.hidden = false; kutu.replaceChildren(el('div', { class: 'kota-baslik' }, el('b', { text: 'Codex ve Antigravity' })), izOkunamadi(r)); return; }
+      const { codex, agy } = r.v; kotaHapGuncelle(r.v);
+      const parcalar = [];
+      if (codex && codex.durum !== 'kurulu-degil') {
+        parcalar.push(el('div', { class: 'kota-baslik' }, el('b', { text: 'Codex' }), el('span', { text: [codex.plan, codex.zaman ? 'ölçüm ' + otZaman(codex.zaman) : null, codex.kaynakAd].filter(Boolean).join(' · ') })));
+        parcalar.push(...(codex.pencereler || []).map((l) => (l.kalan == null ? kotaBilinmiyorSatir(l) : limitSatir(l))));
+        if (codex.durum !== 'tamam' && codex.mesaj) parcalar.push(el('p', { class: 'kota-not', text: codex.mesaj + (codex.kaynak === 'oturum' ? ' Codex\'te bir istem çalışınca güncellenir.' : '') }));
+        if (codex.canliHata) parcalar.push(el('p', { class: 'kota-not', text: `Hesaptan canlı okunamadı (${codex.canliHata}); yerel kayıt gösteriliyor.` }));
+      }
+      if (agy?.pencereler?.length) {
+        // agy /usage (sunucu en çok 10 dakikada bir sorar): grup başına haftalık kalan, sıfırlanma ve tempo
+        parcalar.push(el('div', { class: 'kota-baslik' }, el('b', { text: 'Antigravity (agy)' }), el('span', { text: [agy.zaman ? 'ölçüm ' + otZaman(agy.zaman) : null, agy.kaynakAd].filter(Boolean).join(' · ') })));
+        parcalar.push(...agy.pencereler.map((l) => { const s = l.kalan == null ? kotaBilinmiyorSatir(l) : limitSatir(l); if (l.modeller) s.title = l.modeller; return s; }));
+        if (agy.mesaj) parcalar.push(el('p', { class: 'kota-not', text: agy.mesaj }));
+      } else if (agy && ['girisli', 'giris-bilinmiyor', 'bilinmiyor'].includes(agy.durum)) parcalar.push(el('p', { class: 'kota-not' }, el('b', { text: 'Antigravity (agy) · ' }), agy.mesaj));
+      kutu.hidden = !parcalar.length;
+      kutu.replaceChildren(...parcalar);
+    }
+    ciz_(0).catch((e) => { kutu.hidden = false; kutu.replaceChildren(solukP('Codex kotası çizilemedi: ' + e.message)); });
+    canliTut(kutu, () => ciz_(1).catch(() => {}), 60_000);
+    return kutu;
+  }
+  /** Üst çubukta Claude hapının yanında Codex hapı: geçerli pencerelerin en azı; biri bilinmiyorsa "?" (boş değil). Codex kurulu değilse görünmez. */
+  function kotaHapGuncelle(v) {
+    agyHapGuncelle(v?.agy);
+    const h = $('#kotaHap'); if (!h) return;
+    const c = v?.codex;
+    if (!c || c.durum === 'kurulu-degil') { h.hidden = true; return; }
+    const bilinmiyor = !c.pencereler?.length || c.pencereler.some((l) => l.kalan == null);
+    const bag = bilinmiyor ? null : c.pencereler.reduce((a, b) => (b.kalan < a.kalan ? b : a));
+    h.hidden = false;
+    h.replaceChildren(el('span', { class: 'nokta ' + (bilinmiyor ? 'gri' : SEVIYE_NOKTA[enKotu(c.pencereler)]) }), el('span', {}, 'Codex ', el('b', { text: bilinmiyor ? '?' : `%${Math.round(bag.kalan)}` }),
+      el('span', { class: 'uzun', text: bilinmiyor ? ' · bilinmiyor' : ` · ${bag.ad}${bag.sifirlanma ? ' · ' + sureKisa((Date.parse(bag.sifirlanma) - Date.now()) / 1000) : ''}` })));
+    h.title = bilinmiyor ? (c.mesaj || 'Codex kalan kotası bilinmiyor') : `Codex kalan: ${c.pencereler.map((l) => `${l.ad} %${Math.round(l.kalan)}`).join(' · ')}`;
+  }
+  /** agy hapı: ölçülen grupların en azı ("agy %97 · Gemini · haftalık"); ölçüm yoksa görünmez */
+  function agyHapGuncelle(a) {
+    const h = $('#agyHap'); if (!h) return;
+    const l = (a?.pencereler || []).filter((x) => x.kalan != null);
+    if (!l.length) { h.hidden = true; return; }
+    const bag = l.reduce((x, y) => (y.kalan < x.kalan ? y : x));
+    h.hidden = false;
+    h.replaceChildren(el('span', { class: 'nokta ' + SEVIYE_NOKTA[enKotu(l)] }), el('span', {}, 'agy ', el('b', { text: `%${Math.round(bag.kalan)}` }),
+      el('span', { class: 'uzun', text: ` · ${bag.ad.split(' · ')[0]}${bag.sifirlanma ? ' · ' + sureKisa((Date.parse(bag.sifirlanma) - Date.now()) / 1000) : ''}` })));
+    h.title = `Antigravity (agy) kalan: ${l.map((x) => `${x.ad} %${Math.round(x.kalan)}`).join(' · ')}`;
+  }
+  function kotaHapKur(yanina) {
+    const kh = el('button', { class: 'hap limit-hap', id: 'kotaHap', type: 'button', hidden: true, onclick: () => karttaGoster('claudeKart') });
+    yanina.after(kh);
+    kh.after(el('button', { class: 'hap limit-hap', id: 'agyHap', type: 'button', hidden: true, onclick: () => karttaGoster('claudeKart') }));
+    const yokla = (mod) => kotaGetir(mod).then((r) => { if (r.durum === 'tamam') kotaHapGuncelle(r.v); }).catch(() => {});
+    setTimeout(() => yokla(0), 600);
+    setInterval(() => { if (document.visibilityState === 'visible') yokla(1); }, 60_000);
+  }
+  // === Faz 4 · son ===
   /** 14 günlük tek seri: ince çizgi, taban çizgisi, üstüne gelince imleç + ipucu; klavyeyle ← → */
   function kivrim(gunler) {
     const n = gunler.length, W = 100, H = 40, enCok = Math.max(1, ...gunler.map((g) => g.toplam)) * 1.1;
@@ -3518,7 +4018,9 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     const ey = el('div', { class: 'pd-eylem' });
     if (!MOBIL) {
       const [ae, ai] = anaEylemOf(x);
-      ey.append(el('button', { class: 'btn ana', type: 'button', onclick: () => eylem(x, ae) }, svg(ai), ae));
+      const claudeOnde = MASA && buVar && ae === 'Sürüm oluştur'; // Faz 1: bekleyen iş yoksa ana düğme "Claude'da aç"
+      ey.append(el('button', { class: claudeOnde ? 'btn' : 'btn ana', type: 'button', onclick: () => eylem(x, ae) }, svg(ai), ae));
+      if (MASA) ey[claudeOnde ? 'prepend' : 'append'](otAcDugmesi(x, { ana: buVar })); // Faz 1 · Oturumlar: Claude'da aç (+ Codex / Antigravity)
       if (buVar || !PK) ey.append(el('button', { class: 'btn', type: 'button', onclick: () => eylem(x, 'Programla aç') }, svg(IK.kod), 'Programla aç'), el('button', { class: 'btn', type: 'button', onclick: () => eylem(x, 'Klasörü aç') }, svg(IK.klasor), 'Klasörü aç'));
       if (buVar) {
         ey.append(sabit ? el('button', { class: 'btn', type: 'button', 'aria-pressed': 'true', title: 'Bu cihazda tutuluyor; işareti kaldırır', onclick: () => eylem(x, 'Tutmayı bırak') }, svg(IK.pin), 'Tutmayı bırak') : el('button', { class: 'btn', type: 'button', title: 'İnternetsiz / sürekli çalışılan proje: yer açma önerilerine girmez', onclick: () => eylem(x, 'Bu cihazda tut') }, svg(IK.pin), 'Bu cihazda tut'));
@@ -3541,7 +4043,7 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     if (MOBIL) ey.append(el('span', { class: 'soluk', style: 'font-size:.8rem', text: 'Kur, Gönder ve Buluta kaldır bilgisayarda yapılır.' }));
     v.append(ey);
     // Sekmeler
-    const SEK = [['genel', 'Genel'], ['cihaz', 'Cihazlar'], ['surum', 'Sürümler', surumSayisi(x)], ['yapilacak', 'Yapılacaklar', isler(x).filter((i) => i.k !== 'bitti').length], ['wiki', 'Wiki'], ['kaynak', 'Kaynaklar', x.kaynaklar.length], ['not', 'Notlar', x.notlar.length]];
+    const SEK = [['genel', 'Genel'], ['cihaz', 'Cihazlar'], ['surum', 'Sürümler', surumSayisi(x)], ['yapilacak', 'Yapılacaklar', isler(x).filter((i) => i.k !== 'bitti').length], ['wiki', 'Wiki'], ['kaynak', 'Kaynaklar', x.kaynaklar.length], ['not', 'Notlar', x.notlar.length], ...(MASA ? [['gorev', 'Görevler']] : [])];
     const sekme = SEK.some(([k]) => k === r.sekme) ? r.sekme : 'genel';
     const sekmeler = el('div', { class: 'sekmeler', role: 'tablist', 'aria-label': 'Proje bölümleri' });
     const govde = el('div', { role: 'tabpanel' });
@@ -3549,7 +4051,7 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
       sekmeler.querySelectorAll('button').forEach((b) => { const s = b.dataset.k === k; b.setAttribute('aria-selected', String(s)); b.tabIndex = s ? 0 : -1; if (s && odak) b.focus(); });
       history.replaceState(null, '', projeYolu(x, k)); sonAnahtar = location.hash;
       govde.replaceChildren(); govde.setAttribute('aria-labelledby', 'sk-' + k);
-      ({ genel: genelSekme, cihaz: cihazSekme, surum: surumSekme, yapilacak: kanbanSekme, wiki: wikiSekme, kaynak: kaynakSekme, not: notSekme })[k](x, govde, () => { const b = sekmeler.querySelector('[data-k="yapilacak"] small'); if (b) b.textContent = String(isler(x).filter((i) => i.k !== 'bitti').length); });
+      ({ genel: genelSekme, cihaz: cihazSekme, surum: surumSekme, yapilacak: kanbanSekme, wiki: wikiSekme, kaynak: kaynakSekme, not: notSekme, gorev: gorevSekme })[k](x, govde, () => { const b = sekmeler.querySelector('[data-k="yapilacak"] small'); if (b) b.textContent = String(isler(x).filter((i) => i.k !== 'bitti').length); });
     };
     for (const [k, ad, n] of SEK) sekmeler.append(el('button', { type: 'button', role: 'tab', id: 'sk-' + k, 'data-k': k, 'aria-selected': String(k === sekme), tabindex: k === sekme ? '0' : '-1', onclick: () => sec(k) }, ad, n != null ? el('small', { text: String(n) }) : null));
     sekmeler.addEventListener('keydown', (e) => { if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) return; e.preventDefault(); const i = SEK.findIndex(([k]) => k === sekmeler.querySelector('[aria-selected="true"]').dataset.k); const j = e.key === 'Home' ? 0 : e.key === 'End' ? SEK.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + SEK.length) % SEK.length; sec(SEK[j][0], true); });
@@ -3579,6 +4081,7 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     govde.append(el('div', { class: 'pd-govde' }, sol, sag));
     sol.append(blok('Ne bu?', IK.not, x.aciklama ? el('p', { class: 'acik-metin', text: x.aciklama }) : el('p', { class: 'soluk', style: 'margin:0', text: 'Açıklama yok. Wiki sekmesinden yazabilirsiniz.' })));
     if (MASA) sol.append(hafizaKutu(x), oturumKarti(x));
+    sol.append(bilgiKarti(x)); // === Faz 5 · Beyin === projenin kararları ve notları (telefonda da)
     if (x.isGecmisi?.length) sol.append(kart({ baslik: 'Bu projede toplanan işler', ikon: IK.belge, sag: String(x.isGecmisi.length) },
       el('ul', { class: 'is-liste' }, ...x.isGecmisi.map((i) => el('li', {}, el('span', { class: 'no' }, i.isNo || '—', i.yil ? el('small', { text: i.yil }) : null), el('span', { class: 'ad', text: i.ad }), i.aciklama ? el('span', { class: 'ac', text: i.aciklama }) : null)))));
     const on = x.saglik.oneriler || [];
@@ -3897,6 +4400,188 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
   function notSekme(x, govde) {
     govde.append(kart({ baslik: 'Notlar', ikon: IK.not }, x.notlar.length ? el('ul', { class: 'not-liste' }, ...x.notlar.map((n) => el('li', { text: n }))) : bosDurum(IK.not, 'Not yok', 'Katalogda bu proje için not yok. Kalıcı notlar için Wiki sekmesini kullanın.')));
   }
+
+  // === Faz 4.4 · Görevler ===
+  // Paralel görevler (lib/gorevler.mjs): projede aynı anda birden çok ajan görevi; her şerit ayrı git worktree'sinde, kendi dalında.
+  // Yalnızca bilgisayardaki uygulamada. Liste "gorevler" olayıyla yerinde tazelenir; yazılan görev metni, seçimler, açık günlükler ve
+  // açılmış ayrıntılar sayfa yeniden çizilse de kalır (GOREV.taslak / acik / detay). Açık günlük, şerit çalışırken 2 sn'de bir yoklanır.
+  // Birleştir / At / Durdur geri alınamaz: uygulama içi onay penceresi (formSor). Sunucudan gelen her metin textContent ile yazılır.
+  const GOREV = { tazele: null, taslak: {}, acik: new Set(), detay: new Set(), gunluk: new Map() };
+  const GOREV_DURUM = { bekliyor: ['bekliyor', 'bekliyor'], calisiyor: ['çalışıyor', 'suruyor'], bitti: ['bitti', 'tamam'], hata: ['hata', 'kotu'], durduruldu: ['durduruldu', 'uyari'], birlestirildi: ['birleştirildi', 'tamam'], atildi: ['atıldı', 'bekliyor'] };
+  const gorevEtkin = (s) => s.durum === 'bekliyor' || s.durum === 'calisiyor';
+  const gorevKisa = (s, n) => { const t = String(s || '').split('\n').map((y) => y.trim()).find(Boolean) || ''; return t.length > n ? t.slice(0, n - 1) + '…' : t; };
+  const gorevSure = (ms) => (ms == null ? '' : ms < 60_000 ? '<1 dk' : sureYaz(ms / 1000));
+  function gorevSekme(x, govde) {
+    const formYer = el('div', {}, yukleniyor('Okunuyor…')), durumYer = el('p', { class: 'serit-hata', role: 'status', hidden: true }), listeYer = el('div', { class: 'gorev-liste' });
+    govde.append(
+      kart({ baslik: 'Yeni görev', ikon: IK.yz, sag: 'her şerit ayrı git worktree\'sinde, kendi dalında' }, formYer),
+      kart({ baslik: 'Görevler', ikon: IK.dal }, durumYer, listeYer));
+    const T = (GOREV.taslak[x.id] ??= { metinler: [''], arac: yerelOku('pk-gorev-arac', ''), model: '', serit: '1', tam: true }); // Kaan 19.11: şeritler varsayılan tam yetkili
+    let V = null, tik = 0;
+    const aracAdi = (a) => V?.araclar?.find((y) => y.ad === a)?.etiket || a;
+    const detay = (k, ozet, ...c) => { const d = el('details', { open: GOREV.detay.has(k) }, el('summary', { text: ozet }), ...c); d.addEventListener('toggle', () => { if (d.open) GOREV.detay.add(k); else GOREV.detay.delete(k); }); return d; };
+    async function yukle() {
+      let v;
+      try { v = await api('/api/gorevler?proje=' + encodeURIComponent(x.id)); }
+      catch (e) {
+        const m = /^(yok|not found)$/i.test(e.message) ? 'Sunucu eski sürüm: uygulamayı yeniden başlatın.' : 'Görevler okunamadı: ' + e.message;
+        if (!V) { formYer.replaceChildren(solukP(m)); listeYer.replaceChildren(); }
+        durumYer.textContent = m; durumYer.hidden = false; return;
+      }
+      durumYer.hidden = true;
+      const ilk = !V; V = v;
+      if (ilk) formCiz();
+      listeCiz();
+      if (ilk) for (const id of GOREV.acik) gunlukGetir(id);
+    }
+    function formCiz() {
+      if (!V.yol) { formYer.replaceChildren(bosDurum(IK.dal, 'Bu projede görev başlatılamaz', V.neden || 'Proje bu cihazda kurulu bir git deposu değil.')); return; }
+      const kurulu = V.araclar.filter((a) => a.kurulu);
+      if (!kurulu.length) { formYer.replaceChildren(bosDurum(IK.yz, 'Ajan aracı bulunamadı', 'Bu cihazda claude, codex ya da agy komutu yok.')); return; }
+      if (!kurulu.some((a) => a.ad === T.arac)) T.arac = kurulu[0].ad;
+      const metinler = el('div', { class: 'gorev-metinler' });
+      const metinCiz = () => {
+        metinler.replaceChildren(...T.metinler.map((v, i) => {
+          const ta = el('textarea', { rows: '3', maxlength: '8000', spellcheck: 'false', 'aria-label': `Görev metni ${i + 1}`, placeholder: i ? 'Başka bir görev (ayrı görev olarak başlar)' : 'Ne yapılacak, hangi dosyalar, nasıl doğrulanır? Ajanın tek bağlamı bu metin.' });
+          ta.value = v;
+          ta.addEventListener('input', () => { T.metinler[i] = ta.value; });
+          return el('div', { class: 'gorev-metin' }, ta, T.metinler.length > 1 ? el('button', { class: 'btn kucuk', type: 'button', 'aria-label': `${i + 1}. görevi çıkar`, title: 'Çıkar', onclick: () => { T.metinler.splice(i, 1); metinCiz(); } }, svg(IK.kapat, 'ikon k')) : null);
+        }));
+      };
+      metinCiz();
+      const aracS = el('select', { id: 'gorevArac' }, ...V.araclar.map((a) => el('option', { value: a.ad, disabled: !a.kurulu, selected: a.ad === T.arac, text: a.etiket + (a.kurulu ? '' : ' (kurulu değil)') })));
+      const dl = el('datalist', { id: 'gorevModeller' });
+      const modelG = el('input', { id: 'gorevModel', value: T.model, placeholder: 'varsayılan', list: 'gorevModeller', maxlength: '80', autocomplete: 'off', spellcheck: 'false' });
+      const modelTazele = () => dl.replaceChildren(...(V.araclar.find((a) => a.ad === aracS.value)?.modeller || []).map((m) => el('option', { value: m })));
+      aracS.addEventListener('change', () => { T.arac = aracS.value; yerelYaz('pk-gorev-arac', aracS.value); modelTazele(); });
+      modelG.addEventListener('input', () => { T.model = modelG.value; });
+      modelTazele();
+      const seritS = el('select', { id: 'gorevSerit' }, ...Array.from({ length: V.seritEnFazla || 6 }, (_, i) => el('option', { value: String(i + 1), selected: String(i + 1) === T.serit, text: `${i + 1} şerit` })));
+      seritS.addEventListener('change', () => { T.serit = seritS.value; });
+      const tam = el('input', { type: 'checkbox', id: 'gorevTam', checked: T.tam });
+      tam.addEventListener('change', () => { T.tam = tam.checked; });
+      const baslatB = el('button', { class: 'btn ana', type: 'submit' }, svg(IK.yz), 'Başlat');
+      const form = el('form', { class: 'gorev-form', 'aria-label': 'Yeni görev' }, metinler,
+        el('div', {}, el('button', { class: 'btn kucuk', type: 'button', onclick: () => { T.metinler.push(''); metinCiz(); metinler.lastChild?.querySelector('textarea')?.focus(); } }, svg(IK.arti, 'ikon k'), 'Başka görev')),
+        el('div', { class: 'gorev-secim' },
+          el('label', { for: 'gorevArac' }, el('span', { text: 'Araç' }), aracS),
+          el('label', { for: 'gorevModel', class: 'gorev-model' }, el('span', { text: 'Model' }), modelG, dl),
+          el('label', { for: 'gorevSerit' }, el('span', { text: 'Şerit' }), seritS)),
+        el('label', { class: 'gorev-onay', for: 'gorevTam' }, tam, el('span', { text: 'Tam yetki: ajan komut da çalıştırabilir (test, kurulum, git). Kapalıyken yalnızca dosya okur ve düzenler.' })),
+        el('p', { class: 'soluk gorev-not', text: 'Şeritler projenin son kaydından başlar; kaydedilmemiş değişiklikleri görmez. Birden çok şerit aynı metni bağımsız dener: beğendiğinizi birleştirir, diğerlerini atarsınız. Her metin ayrı bir görevdir.' }),
+        el('div', { class: 'tuslar' }, baslatB));
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const l = T.metinler.map((m) => m.trim()).filter(Boolean);
+        if (!l.length) { bildir('Görev metni yazın.', 4000, 'uyari'); metinler.querySelector('textarea')?.focus(); return; }
+        baslatB.disabled = true;
+        try {
+          const r = await api('/api/gorev/baslat', { proje: x.id, metinler: l, arac: T.arac, model: T.model.trim() || null, serit: Number(T.serit), izin: T.tam ? 'tam' : 'duzenle' });
+          bildir(`${r.gorevler.length} görev başladı · ${r.gorevler.reduce((t, g) => t + g.seritler.length, 0)} şerit`, 4000, 'tamam');
+          for (const u of r.uyarilar || []) bildir('Uyarı: ' + u, 9000, 'uyari');
+          T.metinler = ['']; T.tam = true; tam.checked = true; metinCiz();
+          await yukle();
+        } catch (er) { bildir('Görev başlatılamadı: ' + er.message, 9000, 'hata'); }
+        finally { baslatB.disabled = false; }
+      });
+      formYer.replaceChildren(form);
+    }
+    function listeCiz() {
+      const l = V.gorevler || [];
+      if (!l.length) { listeYer.replaceChildren(solukP('Henüz görev yok. Yukarıdan başlatın: her şerit kendi dalında çalışır, bitince birleştirir ya da atarsınız.')); return; }
+      listeYer.replaceChildren(...[...l.slice(0, 20).map(gorevOge), l.length > 20 ? solukP(`+${l.length - 20} eski görev (pk gorev liste)`) : null].filter(Boolean));
+      for (const pre of listeYer.querySelectorAll('pre.serit-gunluk')) pre.scrollTop = pre.scrollHeight;
+    }
+    function gorevOge(g) {
+      const etkin = g.seritler.filter(gorevEtkin).length;
+      const kalan = g.seritler.filter((s) => s.durum !== 'atildi' && !(s.durum === 'birlestirildi' && !s.temizlikHata)).length;
+      const ust = [g.id, aracAdi(g.arac), g.model, `${g.serit} şerit`, g.izin === 'tam' ? 'tam yetki' : null, otZaman(g.olusturma), `taban ${g.tabanDal}@${String(g.tabanSha).slice(0, 7)}`].filter(Boolean).join(' · ');
+      return el('section', { class: 'gorev', 'aria-label': 'Görev ' + g.id },
+        el('div', { class: 'gorev-bas' },
+          el('div', { class: 'gorev-baslik' }, el('b', { text: gorevKisa(g.metin, 110) }), el('small', { class: 'soluk', text: ust })),
+          el('div', { class: 'gorev-tus' },
+            etkin > 1 ? el('button', { class: 'btn kucuk', type: 'button', onclick: () => durdurSor(g.id, `${etkin} şerit`) }, 'Tümünü durdur') : null,
+            !etkin && kalan > 1 ? el('button', { class: 'btn kucuk tehlike-cizgi', type: 'button', onclick: () => atSor(g.id) }, svg(IK.cop, 'ikon k'), 'Tümünü at') : null)),
+        g.metin.includes('\n') || g.metin.length > 110 ? detay(g.id + ':metin', 'Görev metninin tamamı', el('p', { class: 'gorev-tam', text: g.metin })) : null,
+        el('ul', { class: 'serit-liste' }, ...g.seritler.map((s) => seritOge(g, s))));
+    }
+    function seritOge(g, s) {
+      const [ad, ton] = GOREV_DURUM[s.durum] || [s.durum, ''];
+      const etkin = gorevEtkin(s), acik = GOREV.acik.has(s.id);
+      const bilgi = [`şerit ${s.n}/${g.serit}`, gorevSure(s.sureMs), etkin && s.sonCikti ? 'son çıktı ' + otZaman(s.sonCikti) : null,
+        s.sonuc ? s.sonuc.ozet + (s.sonuc.commit ? ` · ${s.sonuc.commit} kayıt` : '') : null, s.maliyet != null ? '$' + Number(s.maliyet).toFixed(2) : null].filter(Boolean).join(' · ');
+      const tus = el('div', { class: 'serit-tus' },
+        el('button', { class: 'btn kucuk', type: 'button', 'aria-expanded': String(acik), onclick: () => { if (acik) GOREV.acik.delete(s.id); else GOREV.acik.add(s.id); listeCiz(); if (!acik) gunlukGetir(s.id); } }, svg(IK.liste, 'ikon k'), acik ? 'Günlüğü kapat' : 'Günlük'),
+        etkin ? el('button', { class: 'btn kucuk', type: 'button', onclick: () => durdurSor(s.id, 'şerit') }, 'Durdur') : null,
+        !etkin && !['birlestirildi', 'atildi'].includes(s.durum) ? el('button', { class: 'btn kucuk', type: 'button', onclick: () => birlestirSor(s.id) }, svg(IK.dal, 'ikon k'), 'Birleştir') : null,
+        !etkin && s.durum !== 'atildi' && (s.durum !== 'birlestirildi' || s.temizlikHata) ? el('button', { class: 'btn kucuk tehlike-cizgi', type: 'button', onclick: () => atSor(s.id) }, s.durum === 'birlestirildi' ? 'Temizle' : 'At') : null);
+      const ek = [];
+      if (s.hata) ek.push(el('p', { class: 'serit-hata', text: s.hata }));
+      for (const u of [...(s.uyari || []), ...(s.temizlikHata ? [s.temizlikHata] : [])]) ek.push(el('p', { class: 'serit-uyari', text: 'Uyarı: ' + u }));
+      if (s.birlestirme) ek.push(solukP(`"${s.birlestirme.hedef}" dalına birleştirildi · ${otZaman(s.birlestirme.zaman)} · ${String(s.birlestirme.sonra || '').slice(0, 7)}`));
+      if (s.sonuc?.dosyalar?.length) ek.push(detay(s.id + ':dosya', `Değişen dosyalar (${s.sonuc.dosya})`, el('ul', { class: 'serit-dosyalar' }, ...s.sonuc.dosyalar.slice(0, 80).map((d) => el('li', {}, el('span', { class: 'mono', text: d.d + ' ' }), d.yol, d.ek != null ? el('small', { class: 'soluk', text: ` +${d.ek} −${d.sil}` }) : null)), s.sonuc.dosya > 80 ? el('li', { class: 'soluk', text: `… +${s.sonuc.dosya - 80} dosya` }) : null)));
+      if (s.sonMesaj) ek.push(detay(s.id + ':rapor', 'Ajanın raporu', el('p', { class: 'serit-rapor', text: s.sonMesaj })));
+      if (acik) { const pre = el('pre', { class: 'kod-blok serit-gunluk', 'data-id': s.id, tabindex: '0', 'aria-label': 'Günlük ' + s.id }); pre.textContent = GOREV.gunluk.get(s.id) ?? 'Okunuyor…'; ek.push(pre); }
+      return el('li', { class: 'serit' }, el('div', { class: 'serit-ust' }, el('span', { class: 'etiket ' + ton, text: ad }), el('span', { class: 'mono serit-id', text: s.id }), el('span', { class: 'soluk serit-bilgi', text: bilgi }), tus), ...ek);
+    }
+    async function gunlukGetir(id) {
+      let t;
+      try { const r = await api('/api/gorev/gunluk?id=' + encodeURIComponent(id) + '&bayt=24000'); t = (r.kesik ? `… (öncesi: pk gorev gunluk ${id} --bayt 1000000)\n` : '') + (r.metin || '(henüz çıktı yok)'); }
+      catch (e) { t = 'Günlük okunamadı: ' + e.message; }
+      GOREV.gunluk.set(id, t);
+      const pre = [...listeYer.querySelectorAll('pre.serit-gunluk')].find((p) => p.dataset.id === id);
+      if (pre && pre.textContent !== t) { const altta = pre.scrollHeight - pre.scrollTop - pre.clientHeight < 30; pre.textContent = t; if (altta) pre.scrollTop = pre.scrollHeight; }
+    }
+    async function durdurSor(id, ne) {
+      const v = await formSor({ baslik: 'Durdurulsun mu?', metin: `${id} (${ne}): ajan kapatılır; o ana kadarki değişiklikler şeridin dalına kaydedilir. Kaldığı yerden sürdürülemez.`, alanlar: [], tamam: 'Durdur' });
+      if (!v) return;
+      try { const r = await api('/api/gorev/durdur', { id }); bildir(r.sonuc.join(' · '), 5000); } catch (e) { bildir('Durdurulamadı: ' + e.message, 9000, 'hata'); }
+      yukle();
+    }
+    async function birlestirSor(id) {
+      let o;
+      try { o = (await api('/api/gorev/birlestir', { id })).onizleme; } catch (e) { return bildir('Birleştirme önizlemesi alınamadı: ' + e.message, 9000, 'hata'); }
+      if (o.bos) return bildir(`${id}: birleştirilecek değişiklik yok. İsterseniz şeridi atın.`, 7000, 'uyari');
+      if (o.cakisma.length || o.engeller.length) {
+        const c = o.cakisma.length ? `"${o.hedef}" dalıyla ${o.cakisma.length} dosyada çakışma (${o.cakisma.slice(0, 5).join(', ')}${o.cakisma.length > 5 ? '…' : ''}); proje klasörüne dokunulmadı.` : null;
+        return bildir(`${id} şimdi birleştirilemez: ${[...o.engeller, c].filter(Boolean).join(' ')}`, 14000, 'uyari');
+      }
+      const d = o.fark.dosyalar.slice(0, 12).map((f) => `${f.d} ${f.yol}${f.ek != null ? ` (+${f.ek} −${f.sil})` : ''}`);
+      const v = await formSor({
+        baslik: `"${o.hedef}" dalına birleştirilsin mi?`,
+        metin: [`${id}: ${o.commit} kayıt · ${o.fark.ozet}${o.bekleyen ? ` · worktree'deki ${o.bekleyen} kaydedilmemiş değişiklik de eklenir` : ''}`, '', ...d, o.fark.dosya > 12 ? `… +${o.fark.dosya - 12} dosya` : null, '', `Proje klasörüne (${o.yol}) yazılır; geri almak git ile olur. Sonra şeridin worktree'si ve dalı silinir. GitHub'a gönderilmez (Gönder ayrı).`].filter((y) => y != null).join('\n'),
+        alanlar: [], tamam: 'Birleştir',
+      });
+      if (!v) return;
+      try { const r = await api('/api/gorev/birlestir', { id, onay: true }); bildir(r.sonuc.join(' · '), 7000, 'tamam'); for (const u of r.uyari || []) bildir('Uyarı: ' + u, 9000, 'uyari'); }
+      catch (e) { bildir('Birleştirilemedi: ' + e.message, 14000, 'hata'); }
+      yukle();
+    }
+    async function atSor(id) {
+      let o;
+      try { o = await api('/api/gorev/at', { id, onizle: true }); } catch (e) { return bildir('Atılamadı: ' + e.message, 9000, 'hata'); }
+      const v = await formSor({
+        baslik: 'Atılsın mı?',
+        metin: o.uyarilar.length ? `Birleştirilmemiş iş var; atılırsa kaybolur:\n${o.uyarilar.map((u) => '· ' + u).join('\n')}` : `${o.seritler.join(', ')}: worktree ve dal silinir. Birleştirilmemiş değişiklik yok.`,
+        alanlar: [], tamam: 'At',
+      });
+      if (!v) return;
+      try { const r = await api('/api/gorev/at', { id, onay: true }); bildir(r.sonuc.join(' · ') || 'Atılacak şerit yok.', 6000, 'tamam'); for (const u of r.uyarilar || []) bildir('Uyarı: ' + u, 9000, 'uyari'); }
+      catch (e) { bildir('Atılamadı: ' + e.message, 9000, 'hata'); }
+      yukle();
+    }
+    const tazele = () => { if (govde.isConnected) yukle(); else if (GOREV.tazele === tazele) GOREV.tazele = null; };
+    GOREV.tazele = tazele;
+    const z = setInterval(() => {
+      if (!govde.isConnected) { clearInterval(z); if (GOREV.tazele === tazele) GOREV.tazele = null; return; }
+      if (!V || document.visibilityState !== 'visible') return;
+      const etkin = new Set(V.gorevler.flatMap((g) => g.seritler.filter(gorevEtkin).map((s) => s.id)));
+      for (const id of GOREV.acik) if (etkin.has(id)) gunlukGetir(id);
+      if (etkin.size && ++tik % 5 === 0) yukle(); // süre ve "son çıktı" ilerlesin; olay kaçarsa durum da buradan
+    }, 2000);
+    yukle();
+  }
+  // === Faz 4.4 · Görevler sonu ===
 
   // ================= CİHAZLAR =================
   GORUNUM.cihazlar = () => {
@@ -4235,6 +4920,491 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
     return v;
   };
 
+
+  // === Faz 3 · Terminal ===
+  // Uygulama içi terminal (lib/terminal.mjs): Claude Code, Codex, Antigravity ya da kabuk oturumları sunucuda PTY olarak yaşar;
+  // pencere kapansa da sürer, tekrar açılınca liste ve kaldığı yerden çıktı gelir. Görünüm bir kez kurulur, her çizimde aynı düğüm
+  // geri takılır (xterm örnekleri ve ekran içerikleri kaybolmaz). Tarayıcı sunucu başına 6 bağlantıya izin verdiği için aynı anda
+  // yalnızca görünen sekmenin çıktı akışı açıktır; sekmeye dönünce kaldığı konumdan sürer. Girdi sırayla gider (uçuşta tek istek;
+  // arada yazılanlar birleşir). Diğer bölümler terminalAc({ dizin, komut, argumanlar, ad }) ile sekme açar.
+  const TRM = { kok: null, cubuk: null, sahne: null, bos: null, liste: [], komutlar: null, destek: null, winPty: null, hata: null, yukHata: null, etkin: yerelOku('pk-terminal-etkin', '') || null, xt: new Map(), akis: null, yukle: null, odakla: false };
+  const TRM_RENK = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white', 'brightBlack', 'brightRed', 'brightGreen', 'brightYellow', 'brightBlue', 'brightMagenta', 'brightCyan', 'brightWhite'];
+  const TRM_YZ = new Set(['claude', 'codex', 'agy']);
+  function trmTema() {
+    const c = getComputedStyle(document.documentElement), v = (k) => c.getPropertyValue(k).trim();
+    return { background: v('--trm-bg'), foreground: v('--trm-fg'), cursor: v('--trm-imlec'), cursorAccent: v('--trm-bg'), selectionBackground: v('--trm-secim'), scrollbarSliderBackground: '#79767255', scrollbarSliderHoverBackground: '#797672aa', scrollbarSliderActiveBackground: '#797672cc', ...Object.fromEntries(TRM_RENK.map((a, i) => [a, v('--trm-' + i)])) };
+  }
+  const trmGorunur = () => !!TRM.kok?.isConnected;
+  const trmOzet = (id) => TRM.liste.find((o) => o.id === id) || null;
+  const trmKomutlar = () => TRM.komutlar || [{ komut: 'kabuk', ad: 'PowerShell', var: true }];
+  /** xterm.js + eklentiler sunucudan, ilk kullanımda (telefon ve taslak önizleme bunları hiç yüklemez) */
+  function trmXtermYukle() {
+    const betik = (src) => new Promise((coz, red) => { const s = document.createElement('script'); s.src = src; s.onload = coz; s.onerror = () => red(new Error('xterm dosyası yüklenemedi (' + src + ')')); document.head.append(s); });
+    return (TRM.yukle ||= (async () => {
+      if (!document.querySelector('link[data-trm]')) document.head.append(el('link', { rel: 'stylesheet', href: '/vendor/xterm/xterm.css', 'data-trm': '1' }));
+      if (!window.Terminal) await betik('/vendor/xterm/xterm.js');
+      await Promise.all([window.FitAddon ? null : betik('/vendor/xterm/addon-fit.js'), window.Unicode11Addon ? null : betik('/vendor/xterm/addon-unicode11.js')]);
+      if (!window.Terminal || !window.FitAddon?.FitAddon) throw new Error('xterm.js yüklenemedi');
+    })().catch((e) => { TRM.yukle = null; throw e; }));
+  }
+  function trmKur() {
+    TRM.cubuk = el('div', { class: 'trm-cubuk' });
+    TRM.bos = el('div', { class: 'trm-bos' });
+    TRM.sahne = el('div', { class: 'trm-sahne' }, TRM.bos);
+    TRM.kok = el('div', { class: 'trm' }, TRM.cubuk, TRM.sahne);
+    let raf = 0;
+    new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const x = TRM.xt.get(TRM.etkin); if (x) trmSigdir(x); }); }).observe(TRM.sahne);
+    const temaYenile = () => { const t = trmTema(); for (const x of TRM.xt.values()) x.term.options.theme = t; };
+    new MutationObserver(temaYenile).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', temaYenile); } catch (_) {}
+    document.addEventListener('click', (e) => { for (const d of document.querySelectorAll('.trm-yeni[open]')) if (!d.contains(e.target)) d.open = false; });
+    // Terminal görünümünden çıkınca akış kapanır (bağlantı boşa durmaz); dönünce kaldığı konumdan sürer ve terminal odak alır
+    // (canlı güncellemeyle yeniden çizimde odak çalınmaz)
+    addEventListener('hashchange', () => { if (rota.ad !== 'terminal') trmAkisKapat(); else TRM.odakla = true; });
+    TRM.odakla = true; // ilk açılışta da (bu dinleyici o geçişten sonra kuruldu)
+    trmCubukCiz(); trmBosCiz();
+  }
+  async function trmListeTazele() {
+    if (!MASA || !TRM.kok) return;
+    let j;
+    try { j = await api('/api/terminal'); TRM.hata = null; } catch (e) { TRM.hata = e.message; trmBosCiz(); return; }
+    Object.assign(TRM, { liste: j.oturumlar || [], komutlar: j.komutlar || null, destek: j.destek || null, winPty: j.windowsPty || null });
+    for (const id of [...TRM.xt.keys()]) if (!trmOzet(id)) trmXtSil(id); // kapatılmış ya da sunucu yeniden başlamış
+    if (!trmOzet(TRM.etkin)) TRM.etkin = TRM.liste.at(-1)?.id || null;
+    trmCubukCiz(); trmBosCiz();
+    if (trmGorunur()) trmGoster(TRM.etkin, { odak: false });
+  }
+  /** Sunucudan gelen özet listedeki kaydı günceller (durum değiştiyse sekme çubuğu yeniden çizilir) */
+  function trmOzetYaz(oz) {
+    if (!oz?.id) return;
+    const i = TRM.liste.findIndex((o) => o.id === oz.id);
+    if (i < 0) return;
+    const degisti = TRM.liste[i].durum !== oz.durum || TRM.liste[i].ad !== oz.ad;
+    TRM.liste[i] = oz;
+    if (degisti) trmCubukCiz();
+  }
+  function trmCubukCiz() {
+    if (!TRM.cubuk) return;
+    const l = TRM.liste;
+    const sekmeler = l.map((o, i) => {
+      const sec = o.id === TRM.etkin;
+      const ton = o.durum === 'calisiyor' ? 'canli' : o.cikisKodu ? 'kotu' : '';
+      const s = el('div', { class: 'trm-sekme', role: 'tab', tabindex: sec ? '0' : '-1', 'aria-selected': String(sec), 'data-id': o.id, title: `${o.ad} · ${o.komutAd} · ${o.dizin}${o.durum === 'bitti' ? ` · bitti${o.cikisKodu != null ? ' (çıkış kodu ' + o.cikisKodu + ')' : ''}` : ''}\nÇift tık ya da F2: yeniden adlandır · orta tık: kapat` },
+        el('span', { class: 'trm-nokta ' + ton, 'aria-hidden': 'true' }), el('span', { class: 'ad', text: o.ad }),
+        el('button', { class: 'trm-x', type: 'button', tabindex: '-1', 'aria-label': `${o.ad} sekmesini kapat`, title: 'Kapat', onclick: (e) => { e.stopPropagation(); trmKapat(o.id); } }, svg(IK.kapat, 'ikon')));
+      s.addEventListener('click', () => trmGoster(o.id));
+      s.addEventListener('dblclick', (e) => { if (!e.target.closest('.trm-x')) trmAdVer(o.id); });
+      s.addEventListener('auxclick', (e) => { if (e.button === 1) { e.preventDefault(); trmKapat(o.id); } });
+      s.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); const j = l[(i + (e.key === 'ArrowRight' ? 1 : -1) + l.length) % l.length]; trmGoster(j.id, { odak: false }); TRM.cubuk.querySelector(`[data-id="${j.id}"]`)?.focus(); }
+        else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trmGoster(o.id); }
+        else if (e.key === 'F2') { e.preventDefault(); trmAdVer(o.id); }
+        else if (e.key === 'Delete') { e.preventDefault(); trmKapat(o.id); }
+      });
+      return s;
+    });
+    const yeni = el('details', { class: 'trm-yeni' });
+    yeni.append(el('summary', { class: 'btn kucuk hayalet', title: 'Yeni terminal sekmesi' }, svg(IK.arti, 'ikon k'), 'Yeni'),
+      el('div', { class: 'trm-menu', role: 'menu' }, ...trmKomutlar().map((k) => el('button', { type: 'button', role: 'menuitem', disabled: !k.var, title: k.var ? null : `${k.ad} bu bilgisayarda kurulu değil`, onclick: () => { yeni.open = false; terminalAc({ komut: k.komut }); } }, svg(TRM_YZ.has(k.komut) ? IK.yz : IK.terminal, 'ikon k'), el('span', { text: k.ad }), k.var ? null : el('small', { text: 'kurulu değil' })))));
+    const o = trmOzet(TRM.etkin);
+    const yol = o ? (o.dizin.length > 64 ? '…' + o.dizin.slice(-63) : o.dizin) : '';
+    TRM.cubuk.replaceChildren(...[el('div', { class: 'trm-sekmeler', role: 'tablist', 'aria-label': 'Terminal oturumları' }, ...sekmeler), yeni, o ? el('span', { class: 'trm-bilgi', title: o.dizin, text: yol }) : null].filter(Boolean));
+  }
+  function trmBosCiz() {
+    if (!TRM.bos) return;
+    const d = TRM.destek, parca = [];
+    if (TRM.hata) parca.push(bilgiKutu(IK.uyari, 'kotu', p('Terminal oturumları alınamadı: ' + TRM.hata)));
+    if (TRM.yukHata) parca.push(bilgiKutu(IK.uyari, 'kotu', p(TRM.yukHata + '. tools\\pk klasöründe ', kod('npm install'), ' çalıştırıp uygulamayı yeniden başlatın.')));
+    if (d && !d.pty) parca.push(bilgiKutu(IK.uyari, 'kotu', p('Terminal kullanılamıyor (node-pty yüklenemedi: ', kod(d.hata || 'bilinmiyor'), '). tools\\pk klasöründe ', kod('npm install'), ' çalıştırıp uygulamayı yeniden başlatın.')));
+    const hazir = !TRM.yukHata && (!d || d.pty);
+    if (!TRM.liste.length) parca.push(bosDurum(IK.terminal, 'Açık terminal yok', 'PowerShell, Claude Code ya da Codex başlatın. Oturumlar pencere kapansa da uygulamada çalışmaya devam eder; tekrar açınca kaldığı yerden görünür.', '',
+      hazir ? el('div', { class: 'trm-hizli' }, ...trmKomutlar().filter((k) => k.var).map((k) => el('button', { class: 'btn kucuk' + (k.komut === 'kabuk' ? ' ana' : ''), type: 'button', onclick: () => terminalAc({ komut: k.komut }) }, svg(TRM_YZ.has(k.komut) ? IK.yz : IK.terminal, 'ikon k'), k.ad))) : null));
+    TRM.bos.replaceChildren(...parca);
+    TRM.bos.hidden = !parca.length || (!!trmOzet(TRM.etkin) && !TRM.yukHata && !TRM.hata);
+  }
+  /** Oturumun xterm örneği (bir kez oluşur; sahneye takılı kalır, yalnızca görünürlüğü değişir) */
+  function trmXt(o) {
+    let x = TRM.xt.get(o.id);
+    if (x) return x;
+    const kap = el('div', { class: 'trm-kap', hidden: true });
+    const bittiKutu = el('div', { class: 'trm-bitti', hidden: true, role: 'status' });
+    const yazi = getComputedStyle(document.documentElement).getPropertyValue('--mono').trim() || 'Cascadia Mono, Consolas, monospace';
+    const term = new window.Terminal({ fontFamily: yazi, fontSize: 14, lineHeight: 1.1, cursorBlink: true, scrollback: 10000, allowProposedApi: true, theme: trmTema(), windowsPty: TRM.winPty || { backend: 'conpty' }, cols: o.cols || 120, rows: o.rows || 30 });
+    const fit = new window.FitAddon.FitAddon();
+    term.loadAddon(fit);
+    // Geniş karakterler (⏺ ✻ emoji) ConPTY ile aynı genişlikte: yoksa Claude Code ekranı kayar
+    try { if (window.Unicode11Addon) { term.loadAddon(new window.Unicode11Addon.Unicode11Addon()); term.unicode.activeVersion = '11'; } } catch (_) {}
+    x = { id: o.id, term, fit, kap, bittiKutu, acildi: false, konum: 0, bitti: o.durum === 'bitti', bittiGeldi: false, girdi: '', ucusta: false, boyutZ: null, hataZaman: 0 };
+    term.onData((d) => trmGirdi(x, d));
+    term.onResize(({ cols, rows }) => { clearTimeout(x.boyutZ); x.boyutZ = setTimeout(() => { if (!x.bitti) api('/api/terminal/boyut', { id: x.id, cols, rows }).catch(() => {}); }, 120); });
+    term.attachCustomKeyEventHandler((e) => trmTus(x, e));
+    // Ctrl K (arama), "/" ve Esc sayfanın değil terminalin: tuşlar sayfa kısayollarına ulaşmaz
+    kap.addEventListener('keydown', (e) => e.stopPropagation());
+    kap.append(bittiKutu);
+    TRM.sahne.append(kap);
+    TRM.xt.set(o.id, x);
+    return x;
+  }
+  /** Windows Terminal gibi: seçim varken Ctrl C kopyalar (yoksa ^C gider), Ctrl Shift C kopyalar; Ctrl V tarayıcının yapıştırmasına kalır */
+  function trmTus(x, e) {
+    if (e.type !== 'keydown') return true;
+    const k = String(e.key || '').toLowerCase();
+    if (e.ctrlKey && !e.altKey && k === 'c' && (e.shiftKey || x.term.hasSelection())) {
+      const s = x.term.getSelection();
+      if (s) navigator.clipboard?.writeText(s).catch(() => bildir('Panoya kopyalanamadı', 3000, 'hata'));
+      x.term.clearSelection(); e.preventDefault(); return false;
+    }
+    if (e.ctrlKey && !e.altKey && k === 'v') return false;
+    return true;
+  }
+  function trmGirdi(x, d) {
+    if (x.bitti) return;
+    x.girdi += d;
+    if (x.ucusta) return;
+    const gonder = () => {
+      const veri = x.girdi; x.girdi = '';
+      if (!veri) { x.ucusta = false; return; }
+      x.ucusta = true;
+      api('/api/terminal/yaz', { id: x.id, veri })
+        .catch((e) => {
+          x.girdi = '';
+          if (e.durum === 404) trmListeTazele();
+          else if (Date.now() - x.hataZaman > 5000) { x.hataZaman = Date.now(); bildir('Terminale yazılamadı: ' + e.message, 5000, 'hata'); }
+        })
+        .finally(() => { x.ucusta = false; if (x.girdi) gonder(); });
+    };
+    gonder();
+  }
+  function trmSigdir(x) {
+    if (!x?.acildi || x.kap.hidden || !trmGorunur()) return;
+    try { x.fit.fit(); } catch (_) {}
+  }
+  function trmAkisKapat() { try { TRM.akis?.es.close(); } catch (_) {} TRM.akis = null; }
+  /** Etkin sekmenin çıktı akışı: konumdan sonrası gelir; tarayıcı koparsa Last-Event-ID ile kendisi devam eder */
+  function trmBaglan(x) {
+    trmAkisKapat();
+    if (x.bittiGeldi) return; // biten oturumun çıktısının tamamı zaten alındı
+    const es = new EventSource(`/api/terminal/akis?id=${encodeURIComponent(x.id)}&konum=${x.konum}`);
+    TRM.akis = { id: x.id, es };
+    const coz = (e) => { try { return JSON.parse(e.data); } catch (_) { return null; } };
+    es.addEventListener('bas', (e) => {
+      const j = coz(e); if (!j) return;
+      // Kaçırılan kısım arabellekten düşmüş (çok çıktı): ekran temizlenip tutulan kısım yazılır, sonra ConPTY'ye yeniden çizdirilir
+      if (j.kirpildi) { x.term.reset(); if (j.ozet?.durum === 'calisiyor') setTimeout(() => trmYenidenCizdir(x), 400); }
+      x.konum = j.konum;
+      trmOzetYaz(j.ozet);
+    });
+    es.addEventListener('veri', (e) => { const s = coz(e); if (typeof s !== 'string') return; x.term.write(s); x.konum = Number(e.lastEventId) || x.konum + s.length; });
+    es.addEventListener('bitti', (e) => { es.close(); if (TRM.akis?.es === es) TRM.akis = null; trmBitti(x, coz(e)); });
+    es.addEventListener('yok', () => { es.close(); if (TRM.akis?.es === es) TRM.akis = null; trmListeTazele(); });
+  }
+  function trmYenidenCizdir(x) {
+    if (x.bitti) return;
+    const { cols, rows } = x.term;
+    api('/api/terminal/boyut', { id: x.id, cols: Math.max(2, cols - 1), rows }).then(() => api('/api/terminal/boyut', { id: x.id, cols, rows })).catch(() => {});
+  }
+  function trmBitti(x, oz) {
+    if (x.bittiGeldi) return;
+    x.bittiGeldi = true; x.bitti = true;
+    if (oz) trmOzetYaz(oz);
+    const kodu = oz?.cikisKodu;
+    x.term.write(`\r\n\x1b[2m[Süreç bitti${kodu != null ? ' · çıkış kodu ' + kodu : ''}]\x1b[0m\r\n`);
+    x.bittiKutu.className = 'trm-bitti' + (kodu ? ' kotu' : '');
+    x.bittiKutu.replaceChildren(el('span', { text: kodu ? `Bitti · çıkış kodu ${kodu}` : 'Süreç bitti' }),
+      el('button', { class: 'btn kucuk', type: 'button', onclick: () => trmYenidenBaslat(x.id) }, svg(IK.yenile, 'ikon k'), 'Yeniden başlat'),
+      el('button', { class: 'btn kucuk hayalet', type: 'button', onclick: () => trmKapat(x.id) }, 'Sekmeyi kapat'));
+    x.bittiKutu.hidden = false;
+  }
+  /** Sekmeyi gösterir: xterm ilk kez açılır (görünürken: ölçü alır), sığdırılır, akış bağlanır */
+  async function trmGoster(id, { odak = true } = {}) {
+    if (id !== TRM.etkin) { TRM.etkin = id; yerelYaz('pk-terminal-etkin', id || ''); trmCubukCiz(); }
+    for (const [i, x] of TRM.xt) x.kap.hidden = i !== id;
+    trmBosCiz();
+    const o = trmOzet(id);
+    if (!o || !trmGorunur()) { if (!trmGorunur()) trmAkisKapat(); return; }
+    try { await trmXtermYukle(); TRM.yukHata = null; } catch (e) { TRM.yukHata = e.message; trmBosCiz(); return; }
+    if (TRM.etkin !== id || !trmGorunur() || !trmOzet(id)) return;
+    const x = trmXt(o);
+    x.kap.hidden = false;
+    if (!x.acildi) { x.term.open(x.kap); x.acildi = true; }
+    trmSigdir(x);
+    if (TRM.akis?.id !== id) trmBaglan(x);
+    if (odak || TRM.odakla) { TRM.odakla = false; x.term.focus(); }
+  }
+  function trmXtSil(id) {
+    const x = TRM.xt.get(id); if (!x) return;
+    if (TRM.akis?.id === id) trmAkisKapat();
+    clearTimeout(x.boyutZ);
+    try { x.term.dispose(); } catch (_) {}
+    x.kap.remove(); TRM.xt.delete(id);
+  }
+  async function trmKapat(id) {
+    const o = trmOzet(id); if (!o) return;
+    if (o.durum === 'calisiyor' && !(await sor({ baslik: `“${o.ad}” kapatılsın mı?`, metin: `Oturum hâlâ çalışıyor. Kapatınca ${o.komutAd} ve içinde başlattığı her şey sonlandırılır.`, tamam: 'Kapat', tehlike: true }))) return;
+    try { await api('/api/terminal/kapat', { id }); } catch (e) { if (e.durum !== 404) { bildir('Terminal kapatılamadı: ' + e.message, 6000, 'hata'); return; } }
+    const i = TRM.liste.findIndex((x) => x.id === id);
+    TRM.liste = TRM.liste.filter((x) => x.id !== id);
+    trmXtSil(id);
+    if (TRM.etkin === id) TRM.etkin = (TRM.liste[i] || TRM.liste[i - 1])?.id || null;
+    trmCubukCiz(); trmGoster(TRM.etkin);
+  }
+  async function trmAdVer(id) {
+    const o = trmOzet(id); if (!o) return;
+    const r = await sor({ baslik: 'Sekmeyi yeniden adlandır', alanlar: [{ ad: 'ad', etiket: 'Ad', deger: o.ad }], tamam: 'Kaydet' });
+    if (r?.ad && r.ad !== o.ad) { try { trmOzetYaz(await api('/api/terminal/ad', { id, ad: r.ad })); } catch (e) { bildir('Ad değiştirilemedi: ' + e.message, 6000, 'hata'); } }
+    TRM.xt.get(id)?.term.focus();
+  }
+  async function trmYenidenBaslat(id) {
+    const o = trmOzet(id); if (!o) return;
+    if (!(await terminalAc({ dizin: o.dizin, komut: o.komut, argumanlar: o.argumanlar, ad: o.ad }))) return;
+    await api('/api/terminal/kapat', { id }).catch(() => {});
+    TRM.liste = TRM.liste.filter((x) => x.id !== id);
+    trmXtSil(id); trmCubukCiz();
+  }
+  /**
+   * Yeni terminal sekmesi açar ve Terminal görünümüne geçer (proje sayfasındaki "Uygulamada aç" gibi diğer bölümler için).
+   * { dizin: tam yol (yoksa kullanıcı klasörü), komut: kabuk | cmd | pwsh | claude | codex | agy, argumanlar: [metin], ad } →
+   * oturum özeti ya da null (hata bildirildi)
+   */
+  async function terminalAc({ dizin = null, komut = 'kabuk', argumanlar = [], ad = null } = {}) {
+    if (!MASA) { bildir('Terminal bilgisayardaki Proje Kontrol uygulamasında açılır.', 5000); return null; }
+    const x = TRM.xt.get(TRM.etkin), boyut = x?.acildi && trmGorunur() ? { cols: x.term.cols, rows: x.term.rows } : { cols: 120, rows: 30 };
+    let o;
+    try { o = await api('/api/terminal/ac', { dizin, komut, argumanlar, ad, ...boyut }); }
+    catch (e) { bildir('Terminal açılamadı: ' + e.message, 7000, 'hata'); return null; }
+    if (!TRM.kok) trmKur();
+    if (!trmOzet(o.id)) TRM.liste.push(o);
+    TRM.etkin = o.id; TRM.odakla = true; yerelYaz('pk-terminal-etkin', o.id);
+    if (rota.ad !== 'terminal') git('#terminal'); else { trmCubukCiz(); trmGoster(o.id); }
+    return o;
+  }
+  GORUNUM.terminal = () => {
+    const v = gorunum('Terminal', 'Claude Code, Codex, Antigravity ya da kabuk · oturumlar pencere kapansa da uygulamada çalışır, tekrar açınca kaldığı yerden sürer');
+    if (!TRM.kok) trmKur();
+    v.append(TRM.kok);
+    trmListeTazele();
+    requestAnimationFrame(() => trmGoster(TRM.etkin, { odak: false }));
+    return v;
+  };
+  // === /Faz 3 · Terminal ===
+  // === Faz 5 · Beyin === BİLGİ (kararlar, notlar, kaynaklar, görevler), YAKALA (gelen kutusu), HAFIZA DENETİMİ
+  // Notlar kayıt deposunda Markdown (bilgi/…); bilgisayarda sunucudan (/api/bilgi), telefonda GitHub'dan (PK.bilgiGetir) ham okunur
+  // ve burada aynı ayrıştırıcıyla (notAyristir) çözülür. Yazma bilgisayarda; telefon okur.
+  const BILGI_TUR = { karar: 'Karar', not: 'Not', kaynak: 'Kaynak', gorev: 'Görev', gelen: 'Gelen' };
+  const BF = { q: '', tur: '', proje: '' }; // Bilgi süzgeci (sayfa yeniden çizilince kalır)
+  let bilgiOnbellek = null;
+  ROTA_ID.yakala = { id: 'yakala', ad: 'Yakala', ikon: IK.gelen };
+  function bilgiGetir(yenile) {
+    if (!notAyristir) return Promise.resolve({ durum: 'yok' });
+    if (!yenile && bilgiOnbellek) return bilgiOnbellek;
+    const kaynak = MASA ? api('/api/bilgi') : PK?.bilgiGetir ? PK.bilgiGetir() : null;
+    if (!kaynak) return Promise.resolve({ durum: 'yok' });
+    return (bilgiOnbellek = kaynak.then((v) => ({ durum: 'tamam', dizin: v.dizin || '', cevrimdisi: !!v.cevrimdisi, notlar: (v.dosyalar || []).map((d) => notAyristir(d.metin, d.yol)).sort((a, b) => `${b.tarih} ${b.saat}`.localeCompare(`${a.tarih} ${a.saat}`) || b.yol.localeCompare(a.yol)) }),
+      (e) => { bilgiOnbellek = null; return { durum: 'hata', hata: e.message }; }));
+  }
+  const bilgiTazele = () => { bilgiOnbellek = null; const y = scrollY; ciz(); scrollTo(0, y); };
+  const projeSecenekleri = (bos = 'Genel (projesiz)') => [['', bos], ...TUM.map((x) => [x.id, `${x.ana} / ${x.ad}`]).sort((a, b) => a[1].localeCompare(b[1], 'tr'))];
+  const turRozet = (t) => el('span', { class: 'rozet t-' + t, text: BILGI_TUR[t] || t });
+  const httpMi = (s) => /^https?:\/\/\S+$/i.test(String(s || ''));
+  const bilgiAra = (l, q) => {
+    const t = aranir(q).split(/\s+/).filter(Boolean);
+    if (!t.length) return l;
+    return l.map((n) => { const b = aranir(n.baslik), h = aranir([n.baslik, n.govde, n.etiketler.join(' '), n.proje_ad, n.kaynak, n.tur, n.meta?.not, n.meta?.dosya_ad].filter(Boolean).join(' ')); return t.every((w) => h.includes(w)) ? { n, p: t.reduce((s, w) => s + (b.includes(w) ? 3 : 0) + 1, 0) } : null; })
+      .filter(Boolean).sort((a, b) => b.p - a.p).map((o) => o.n);
+  };
+  /** Tek not: özet satırı + açılınca metin, kaynak, etiketler, proje, dosya (bilgisayarda Obsidian'da aç) */
+  function bilgiOge(n, dizin) {
+    const icerik = el('div', { class: 'md' }); icerik.innerHTML = md(n.govde.replace(/^# .*\n+/, ''));
+    const proje = n.proje && TUM_ID.get(n.proje);
+    const yol = dizin ? dizin.replace(/[\\/]+$/, '') + '\\' + n.yol.replace(/\//g, '\\') : '';
+    const meta = el('div', { class: 'bilgi-meta' },
+      n.kaynak ? el('span', {}, 'Kaynak: ', httpMi(n.kaynak) ? el('a', { href: n.kaynak, target: '_blank', rel: 'noopener noreferrer', text: n.kaynak }) : n.kaynak) : null,
+      n.etiketler.length ? el('span', { text: n.etiketler.map((e) => '#' + e).join(' ') }) : null,
+      proje ? el('a', { href: projeYolu(proje), text: `${proje.ana} / ${proje.ad}` }) : n.proje_ad ? el('span', { text: n.proje_ad }) : null,
+      n.meta?.cihaz ? el('span', { text: [n.meta.cihaz, n.meta.arac].filter(Boolean).join(' · ') }) : null,
+      el('span', { class: 'mono', text: 'bilgi/' + n.yol }),
+      MASA && yol ? el('a', { href: 'obsidian://open?path=' + encodeURIComponent(yol), title: 'Obsidian kuruluysa notu açar' }, 'Obsidian\'da aç') : null);
+    return el('li', {}, el('details', {}, el('summary', {}, turRozet(n.tur), el('span', { class: 'bilgi-bas' }, el('b', { text: n.baslik }),
+      n.proje_ad || n.etiketler.length ? el('span', { class: 'bilgi-alt', text: [n.proje_ad, n.etiketler.map((e) => '#' + e).join(' ')].filter(Boolean).join(' · ') }) : null), el('small', { text: [n.tarih, n.saat].filter(Boolean).join(' ') })),
+    el('div', { class: 'bilgi-icerik' }, icerik, meta)));
+  }
+  /** Gelen kutusu öğesinin görünen metni */
+  const gelenNe = (n) => { const m = n.meta || {}; return m.cesit === 'dosya' || m.cesit === 'klasor' ? `${m.cesit === 'klasor' ? 'Klasör' : 'Dosya'}: ${m.dosya_ad || m.dosya} · ${m.dosya || ''}` : m.cesit === 'baglanti' ? m.url : n.govde.trim().replace(/\s+/g, ' ').slice(0, 300); };
+  async function gelenIsle(n) {
+    const m = n.meta || {};
+    const v = await formSor({
+      baslik: 'Yakalananı işle', metin: `${gelenNe(n)}\nÖzgün metin notun sonunda "Yakalanan" olarak kalır; öğe gelen kutusundan kalkar.`,
+      alanlar: [{ ad: 'tur', etiket: 'Ne olarak', tur: 'secim', secenekler: [['karar', 'Karar'], ['not', 'Not'], ['kaynak', 'Kaynak (bağlantı / belge)'], ['gorev', 'Görev']], deger: m.url || m.dosya ? 'kaynak' : 'not' },
+        { ad: 'proje', etiket: 'Proje', tur: 'secim', secenekler: projeSecenekleri(), deger: n.proje || '' },
+        { ad: 'baslik', etiket: 'Başlık', deger: (m.dosya_ad || (m.url ? '' : n.govde.trim().split('\n')[0]) || '').slice(0, 140), uzunluk: '140', ipucu: 'boş: bağlantı / dosya adı' },
+        { ad: 'metin', etiket: 'Not (isteğe bağlı)', uzunluk: '2000' }],
+      tamam: 'Kaydet',
+    });
+    if (!v) return;
+    try { const r = await api('/api/bilgi/gelen-isle', { dosya: n.yol, tur: v.tur, proje: v.proje || null, baslik: v.baslik, metin: v.metin }); bildir('İşlendi: ' + r.dosya, 3400, 'tamam'); if (r.hafizaHata) bildir('Uyarı: hafızaya karar satırı yazılamadı: ' + r.hafizaHata, 8000, 'uyari'); bilgiTazele(); }
+    catch (e) { bildir('İşlenemedi: ' + e.message, 8000, 'hata'); }
+  }
+  async function gelenSil(n) {
+    if (!(await formSor({ baslik: 'Gelen kutusundan silinsin mi?', metin: gelenNe(n), alanlar: [], tamam: 'Sil' }))) return;
+    try { await api('/api/bilgi/gelen-sil', { dosya: n.yol, onay: true }); bildir('Gelen kutusundan kaldırıldı', 3000); bilgiTazele(); }
+    catch (e) { bildir('Silinemedi: ' + e.message, 8000, 'hata'); }
+  }
+  async function bilgiYeni(projeId = '') {
+    const v = await formSor({
+      baslik: 'Yeni kayıt', metin: 'Kayıt deposuna Markdown olarak yazılır; tüm cihazlarda ve telefonda görünür. Gizli değer (şifre, anahtar) yazmayın: kasada durur.',
+      alanlar: [{ ad: 'tur', etiket: 'Tür', tur: 'secim', secenekler: [['karar', 'Karar'], ['not', 'Not'], ['kaynak', 'Kaynak (bağlantı / belge)'], ['gorev', 'Görev']], deger: 'karar' },
+        { ad: 'proje', etiket: 'Proje', tur: 'secim', secenekler: projeSecenekleri(), deger: projeId },
+        { ad: 'baslik', etiket: 'Başlık', uzunluk: '140', ipucu: 'ör. PLC programı V21\'de dondu' },
+        { ad: 'metin', etiket: 'Ne? (karar / not)', uzunluk: '2000' },
+        { ad: 'gerekce', etiket: 'Gerekçe (karar için)', uzunluk: '1000' },
+        { ad: 'kaynak', etiket: 'Kaynak (bağlantı, toplantı, kişi)', uzunluk: '500' },
+        { ad: 'etiketler', etiket: 'Etiketler (virgülle)', uzunluk: '200' }],
+      dogrula: (d) => (!d.baslik ? 'Başlık gerekli.' : null), tamam: 'Kaydet',
+    });
+    if (!v) return;
+    try { const r = await api('/api/bilgi/kaydet', { ...v, proje: v.proje || null }); bildir(`Kaydedildi${r.hafiza ? ' · projenin hafızasına karar satırı eklendi' : ''}`, 3400, 'tamam'); if (r.hafizaHata) bildir('Uyarı: hafızaya karar satırı yazılamadı: ' + r.hafizaHata, 8000, 'uyari'); bilgiTazele(); }
+    catch (e) { bildir('Kaydedilemedi: ' + e.message, 8000, 'hata'); }
+  }
+  function bilgiCiz(govde, b, r) {
+    if (b.durum === 'yok') { govde.replaceChildren(bosDurum(IK.beyin, 'Bilgi tabanı uygulamada görünür', MOBIL ? 'Telefon uygulaması güncel değil: sayfayı yenileyin.' : 'Bu sayfa önizleme; kararlar ve notlar Proje Kontrol uygulamasında (pk arayuz) ve telefonda görünür.')); return; }
+    if (b.durum !== 'tamam') { govde.replaceChildren(bilgiKutu(IK.uyari, 'kotu', p('Bilgi tabanı okunamadı: ' + (b.hata || 'bilinmeyen hata'))), el('div', {}, el('button', { class: 'btn', type: 'button', onclick: bilgiTazele }, svg(IK.yenile), 'Yeniden dene'))); return; }
+    const gelen = b.notlar.filter((n) => n.tur === 'gelen'), notlar = b.notlar.filter((n) => n.tur !== 'gelen');
+    const projeler = [...new Map(notlar.filter((n) => n.proje).map((n) => [n.proje, TUM_ID.get(n.proje) ? `${TUM_ID.get(n.proje).ana} / ${TUM_ID.get(n.proje).ad}` : n.proje_ad || n.proje])).entries()].sort((a, c) => a[1].localeCompare(c[1], 'tr'));
+    const ara = el('input', { type: 'search', placeholder: 'Ara: başlık, metin, etiket, proje', title: 'Büyük/küçük harf ve Türkçe karakterden bağımsız (isik ~ Işık)', value: BF.q, 'aria-label': 'Bilgi tabanında ara' });
+    const tur = el('select', { 'aria-label': 'Tür' }, ...[['', 'Tüm türler'], ...Object.entries(BILGI_TUR).filter(([k]) => k !== 'gelen')].map(([v, t]) => el('option', { value: v, text: t, selected: v === BF.tur })));
+    const pr = el('select', { 'aria-label': 'Proje' }, ...[['', 'Tüm projeler'], ['-', 'Genel (projesiz)'], ...projeler].map(([v, t]) => el('option', { value: v, text: t, selected: v === BF.proje })));
+    const liste = el('div', {});
+    const ciz_ = () => {
+      const l = bilgiAra(notlar.filter((n) => (!BF.tur || n.tur === BF.tur) && (!BF.proje || (BF.proje === '-' ? !n.proje : n.proje === BF.proje))), BF.q);
+      const kararSay = l.filter((n) => n.tur === 'karar').length;
+      liste.replaceChildren(l.length ? kart({ baslik: `${l.length} kayıt`, ikon: IK.beyin, sag: kararSay ? `${kararSay} karar` : null }, el('ul', { class: 'bilgi-liste' }, ...l.slice(0, 300).map((n) => bilgiOge(n, b.dizin))), l.length > 300 ? p(`… +${l.length - 300} kayıt (aramayı daraltın)`) : null)
+        : bosDurum(IK.beyin, notlar.length ? 'Eşleşen kayıt yok' : 'Henüz karar ya da not yok', notlar.length ? 'Aramayı ya da süzgeçleri değiştirin.' : 'Yapay zekâ oturumunda bir karar verildiğinde "karar_kaydet" ile buraya yazılır; buradan "Yeni kayıt" ile de eklenir.'));
+    };
+    let z = null;
+    ara.addEventListener('input', () => { clearTimeout(z); z = setTimeout(() => { BF.q = ara.value; ciz_(); }, 160); });
+    tur.addEventListener('change', () => { BF.tur = tur.value; ciz_(); });
+    pr.addEventListener('change', () => { BF.proje = pr.value; ciz_(); });
+    const parca = [];
+    if (b.cevrimdisi) parca.push(bilgiKutu(IK.uyari, 'uyari', p('Çevrimdışı: telefonda saklanan son kopya gösteriliyor.')));
+    if (gelen.length) {
+      parca.push(kart({ baslik: `Gelen kutusu · ${gelen.length}`, ikon: IK.gelen, sag: MASA ? 'ajana "yakalananları işle" deyin ya da tek tek işleyin' : 'bilgisayarda işlenir' },
+        el('ul', { class: 'gelen-liste' }, ...gelen.map((n) => el('li', {},
+          el('div', { class: 'ne' }, httpMi(n.meta?.url) ? el('a', { href: n.meta.url, target: '_blank', rel: 'noopener noreferrer', text: n.meta.url }) : el('span', { text: gelenNe(n) }),
+            el('small', { text: [[n.tarih, n.saat].filter(Boolean).join(' '), n.meta?.cihaz, n.meta?.not ? 'not: ' + n.meta.not : '', n.proje_ad].filter(Boolean).join(' · ') })),
+          MASA ? el('div', { class: 'tuslar' }, el('button', { class: 'btn kucuk', type: 'button', onclick: () => gelenIsle(n) }, 'İşle'), el('button', { class: 'btn kucuk hayalet', type: 'button', title: 'Gelen kutusundan sil', 'aria-label': 'Sil', onclick: () => gelenSil(n) }, svg(IK.cop, 'ikon k'))) : null)))));
+    }
+    parca.push(el('div', { class: 'bilgi-suzgec' }, el('label', { class: 'ara-kutu' }, svg(IK.ara), ara), tur, pr), liste);
+    govde.replaceChildren(...parca);
+    ciz_();
+  }
+  GORUNUM.bilgi = (r) => {
+    if (r.proje && r.proje !== BF.proje) BF.proje = r.proje;
+    const v = gorunum('Bilgi', 'Kararlar, notlar, kaynaklar ve görevler · tüm projeler · kayıt deposunda Markdown (Obsidian açabilir)',
+      MASA ? el('a', { class: 'btn', href: '#yakala' }, svg(IK.gelen), 'Yakala') : null,
+      MASA ? el('button', { class: 'btn ana', type: 'button', onclick: () => bilgiYeni(BF.proje && BF.proje !== '-' ? BF.proje : '') }, svg(IK.arti), 'Yeni kayıt') : null);
+    const govde = el('div', { class: 'pd-kolon' }, iskelet());
+    v.append(govde);
+    bilgiGetir().then((b) => { if (govde.isConnected) bilgiCiz(govde, b, r); });
+    return v;
+  };
+  /** Proje sayfası: o projenin kararları ve notları (en çok 6; devamı Bilgi'de) */
+  function bilgiKarti(x) {
+    const k = el('div', { hidden: true });
+    bilgiGetir().then((b) => {
+      if (!k.isConnected || b.durum !== 'tamam') return;
+      const l = b.notlar.filter((n) => n.proje === x.id && n.tur !== 'gelen');
+      const g = b.notlar.filter((n) => n.proje === x.id && n.tur === 'gelen').length;
+      if (!l.length && !g && !MASA) return;
+      const sirali = [...l.filter((n) => n.tur === 'karar'), ...l.filter((n) => n.tur !== 'karar')];
+      const sag = el('span', { style: 'display:flex;gap:6px;align-items:center' }, l.length > 6 || g ? el('a', { class: 'bag', href: '#bilgi/' + encodeURIComponent(x.id) }, `Tümü (${l.length}${g ? ` · ${g} gelen` : ''})`, svg(IK.sag, 'ikon k')) : null,
+        MASA ? el('button', { class: 'btn kucuk hayalet', type: 'button', title: 'Bu projeye karar ya da not ekle', 'aria-label': 'Karar ya da not ekle', onclick: () => bilgiYeni(x.id) }, svg(IK.arti, 'ikon k')) : null);
+      k.replaceWith(kart({ baslik: 'Kararlar ve notlar', ikon: IK.beyin, sag }, l.length ? el('ul', { class: 'bilgi-liste' }, ...sirali.slice(0, 6).map((n) => bilgiOge(n, b.dizin)))
+        : el('p', { class: 'soluk', style: 'margin:0;font-size:.84rem', text: 'Bu projede henüz kayıtlı karar yok. Oturumda verilen kararlar karar_kaydet ile buraya gelir.' })));
+    });
+    return k;
+  }
+  // --- Yakala: gelen kutusuna bağlantı / not (küçük pencere: #yakala/pencere, Ctrl+Alt+B) ---
+  let yakalaBoyut = false;
+  const pencereKip = () => document.body.classList.toggle('pencere-kip', /^#yakala\/pencere/.test(location.hash));
+  addEventListener('hashchange', pencereKip); pencereKip();
+  GORUNUM.yakala = (r) => {
+    const pencere = !!r.pencere;
+    const v = gorunum('Yakala', 'Bağlantı, not ya da aklına gelen: gelen kutusuna düşer; ajan sonra ilgili projeye bağlar ve karar / not olarak düzenler.');
+    if (!MASA) { v.append(bilgiKutu(IK.pc, '', p(PK ? 'Yakalama bilgisayardaki uygulamada yapılır (Ctrl+Alt+B). Telefonda gelen kutusu Bilgi sayfasında görünür.' : 'Bu sayfa önizleme; yakalama Proje Kontrol uygulamasında yapılır.'))); return v; }
+    const ta = el('textarea', { id: 'yk-metin', rows: '6', maxlength: '20000', placeholder: 'Bağlantıyı yapıştırın ya da yazın…' });
+    const not = el('input', { id: 'yk-not', maxlength: '1000', placeholder: 'ör. teklifte kullanılacak', autocomplete: 'off' });
+    const pr = el('select', { id: 'yk-proje' }, ...projeSecenekleri('Proje yok (ajan bağlar)').map(([d, t]) => el('option', { value: d, text: t })));
+    const tamam = el('button', { class: 'btn ana', type: 'submit' }, svg(IK.gelen), 'Gelen kutusuna at');
+    const durum = el('p', { class: 'soluk', role: 'status', style: 'margin:0;font-size:.8rem', text: 'Ctrl+Enter: kaydet' + (pencere ? ' · Esc: kapat' : '') + '. Dosya için: Gönder menüsü → Proje Kontrol (yakala); dosyanın yalnızca yolu yazılır, içeriği kopyalanmaz.' });
+    const form = el('form', { class: 'yakala-form' },
+      el('label', { for: 'yk-metin' }, 'Metin ya da bağlantı', ta), el('label', { for: 'yk-not' }, 'Neden? (isteğe bağlı)', not), el('label', { for: 'yk-proje' }, 'Proje (isteğe bağlı)', pr),
+      el('div', { class: 'tuslar' }, pencere ? el('button', { class: 'btn', type: 'button', onclick: () => window.close() }, 'Kapat') : null, tamam), durum);
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!ta.value.trim()) { ta.focus(); return; }
+      tamam.disabled = true;
+      try {
+        const j = await api('/api/yakala', { metin: ta.value, not: not.value, proje: pr.value || null });
+        ta.value = ''; not.value = '';
+        durum.textContent = `Gelen kutusuna eklendi: ${j.ogeler.join(', ')}`;
+        bildir('Yakalandı · gelen kutusunda', 2500, 'tamam');
+        bilgiOnbellek = null;
+        if (pencere) setTimeout(() => window.close(), 700);
+      } catch (err) { durum.textContent = 'Yakalanamadı: ' + err.message; bildir('Yakalanamadı: ' + err.message, 9000, 'hata'); }
+      finally { tamam.disabled = false; }
+    });
+    form.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); form.requestSubmit(); }
+      else if (e.key === 'Escape' && pencere) { e.preventDefault(); window.close(); }
+    });
+    v.append(kart({}, form));
+    if (!pencere) v.append(el('div', {}, el('a', { class: 'btn', href: '#bilgi' }, svg(IK.beyin), 'Bilgi ve gelen kutusu')));
+    setTimeout(() => ta.focus(), 30);
+    if (pencere && !yakalaBoyut) { yakalaBoyut = true; try { window.resizeTo(540, 640); } catch (_) { /* pencere boyutu değişmezse de olur */ } }
+    return v;
+  };
+  // --- Hafıza denetimi: proje hafızasının yanında "Denetle" (salt okunur; seçilenler yazılır) ---
+  function denetleDugmesi(x) {
+    return el('button', { class: 'btn kucuk hayalet', type: 'button', title: 'Hafızada eskimiş, yinelenen, çelişen ya da artık olmayan dosya / dal / komuttan söz eden satırları bul (salt okunur)', onclick: () => hafizaDenetle(x) }, svg(IK.kalkan, 'ikon k'), 'Denetle');
+  }
+  async function hafizaDenetle(x) {
+    let r;
+    surecGoster('Hafıza denetleniyor…');
+    try { r = await api('/api/hafiza-denetle?proje=' + encodeURIComponent(x.id)); } catch (e) { surecGizle(); bildir('Denetlenemedi: ' + e.message, 8000, 'hata'); return; }
+    surecGizle();
+    const d = el('dialog', { class: 'soru denetim', 'aria-label': `${x.ad} · hafıza denetimi` });
+    const form = el('form', { method: 'dialog' }, el('h3', { text: `${x.ad} · hafıza denetimi` }),
+      el('p', { text: `Salt okunur: siz seçip uygulamadan hiçbir şey değişmez. "Şu an" ${r.gun} günden eskiyse eskimiş sayılır; yinelenen ve çelişen bulgular sözcük benzerliğidir, kararı siz verirsiniz.${r.kurulu ? '' : ' Proje bu cihazda kurulu değil: dosya / dal denetlenemedi.'}` }));
+    const liste = el('div', { class: 'liste' });
+    for (const b of r.bulgular) {
+      const ad = 'dn-' + b.kod;
+      liste.append(el('fieldset', {}, el('legend', { text: `${b.tur_ad} · ${b.bolum}` }), el('div', { class: 'satir-metin', text: b.satir }), el('div', { class: 'neden', text: b.neden }),
+        ...[{ kod: '', etiket: 'Dokunma' }, ...b.secenekler].map((o, i) => el('label', { class: 'denetim-sec' }, el('input', { type: 'radio', name: ad, value: o.kod, checked: i === 0 }), el('span', { text: o.etiket })))));
+    }
+    if (!r.bulgular.length) liste.append(bosDurum(IK.tamam, 'Öneri yok', 'Hafıza temiz görünüyor.', 'iyi'));
+    if (r.dogrulanamadi.length) liste.append(el('details', {}, el('summary', { class: 'soluk', style: 'font-size:.8rem;cursor:pointer', text: `Doğrulanamadı (${r.dogrulanamadi.length})` }), el('ul', {}, ...r.dogrulanamadi.map((o) => el('li', { text: `${o.bolum}: ${o.satir} · ${o.neden}` })))));
+    const vz = el('button', { class: 'btn', type: 'button', text: r.bulgular.length ? 'Vazgeç' : 'Kapat' });
+    const ok = el('button', { class: 'btn ana', type: 'submit', text: 'Seçilenleri uygula', disabled: true });
+    form.append(liste, el('div', { class: 'tuslar' }, vz, r.bulgular.length ? ok : null));
+    const secilen = () => [...form.querySelectorAll('input[type=radio]:checked')].map((i) => i.value).filter(Boolean);
+    form.addEventListener('change', () => { const n = secilen().length; ok.disabled = !n; ok.textContent = n ? `Seçilenleri uygula (${n})` : 'Seçilenleri uygula'; });
+    vz.addEventListener('click', () => d.close());
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sec = secilen(); if (!sec.length) return;
+      ok.disabled = true;
+      try {
+        const u = await api('/api/hafiza-denetle', { proje: x.id, sec });
+        d.close();
+        bildir(u.yazildi ? `${u.uygulanan.length} düzeltme uygulandı${u.atlanan.length ? ` · ${u.atlanan.length} öneri atlandı (satır değişmiş)` : ''}` : 'Hiçbir şey yazılmadı: seçilen öneriler artık geçerli değil (hafıza bu arada değişmiş).', 6000, u.yazildi ? 'tamam' : 'uyari');
+        delete hafizaOnbellek[x.id]; const y = scrollY; ciz(); scrollTo(0, y);
+      } catch (err) { ok.disabled = false; bildir('Uygulanamadı: ' + err.message, 8000, 'hata'); }
+    });
+    d.append(form); document.body.append(d);
+    d.addEventListener('close', () => d.remove());
+    d.showModal(); vz.focus();
+  }
+  // === /Faz 5 · Beyin ===
 
   // ================= KÜTÜPHANE, İNCELENECEK =================
   GORUNUM.kutuphane = () => {

@@ -1,5 +1,5 @@
-// Proje Kontrol kabuğu · mwme26su
-const AD = 'pk-kabuk-mwme26su';
+// Proje Kontrol kabuğu · mwmmyerg
+const AD = 'pk-kabuk-mwmmyerg';
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(AD).then((c) => c.addAll(['./', 'index.html', 'manifest.webmanifest', 'ikon-192.png']))); self.skipWaiting(); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((l) => Promise.all(l.filter((k) => k !== AD).map((k) => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener('fetch', (e) => {
