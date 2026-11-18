@@ -835,6 +835,22 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
 .gb-gun { width: 16px; height: 16px; border-radius: 4px; background: var(--soft); display: flex; align-items: center; justify-content: center; font: 700 .52rem var(--sans); color: var(--muted); }
 .gb-gun.v { background: var(--h1); color: var(--ink); }
 .gb-gun.v2 { background: var(--h4); color: var(--bg); }
+/* === Faz 2 · Köprü === diğer bilgisayara canlı bağlantı bandı, uzak terminal penceresi, telefonda oturum listesi */
+.kopru-kutu { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.kopru-bant { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); font-size: .84rem; }
+.kopru-bant .nokta { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--s-bitti); }
+.kopru-bant .nokta.canli { background: var(--ok); } .kopru-bant .nokta.kotu { background: var(--bad-bar); } .kopru-bant .nokta.uyari { background: var(--warn-bar); }
+.kopru-bant .metin { flex: 1 1 300px; min-width: 0; color: var(--ink2); overflow-wrap: anywhere; }
+.kopru-bant .metin b { color: var(--ink); font-weight: 650; }
+.kopru-bant .metin small { display: block; color: var(--muted); font-size: .76rem; margin-top: 2px; }
+.kopru-bant .sag { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+dialog.ot-pencere.kopru-trm { width: min(1240px, calc(100vw - 32px)); }
+.kopru-trm-sahne { flex: 1; min-height: 0; overflow: auto; padding: 8px 4px 4px 12px; background: var(--trm-bg); }
+.kopru-trm-sahne .xterm .xterm-viewport { background-color: var(--trm-bg) !important; }
+.kopru-trm-durum { padding: 6px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
+.mobil-ot .ot-satir { grid-template-columns: minmax(0, 1fr); }
+.mobil-ot .ot-satir .sag { flex-wrap: wrap; justify-content: flex-start; }
+/* === /Faz 2 · Köprü === */
 
 /* ---------- Pano: Claude limitleri, site ziyaretleri (eski masaüstü widget'ları) ---------- */
 .nokta.uyari { background: var(--warn-bar); } .nokta.kotu { background: var(--bad-bar); }
@@ -1437,11 +1453,22 @@ body.pencere-kip main { padding: 16px; }
       return { cevrimdisi: true, dosyalar: ciktisi(onb) };
     }
   }
+  // === Faz 2 · Köprü === cihaz kaydından yalnızca oturum üst bilgisi (proje durumları, yedekler vb. burada gerekmez)
+  const oturumOzetleri = (l) => (Array.isArray(l) ? l : []).filter((c) => c && typeof c === 'object').map((c) => ({ cihaz: c.cihaz || null, gorunenAd: c.gorunenAd || null, zaman: c.zaman || null, oturumlar: Array.isArray(c.bilgi?.oturumlar) ? c.bilgi.oturumlar : [] }));
   function baslat(v, cevrimdisi) {
     const { k, adlar, zamanlar } = birlestir(v);
     for (const [id, d] of Object.entries(v.kayit)) ilk[id] = JSON.stringify(d);
     window.PK = { mobil: true, cihaz: 'Telefon', adlar, cihazZamanlari: zamanlar, yerel: v.kayit, kaydet, projelerKlasoru: 'bilgisayarlarda', digerCihaz: null };
     window.PK.bilgiGetir = bilgiGetir; // === Faz 5 · Beyin ===
+    // === Faz 2 · Köprü === Oturumlar görünümü: bilgisayarların kayıt deposuna yazdığı oturum üst bilgisi ve açık Claude
+    // oturumlarının Remote Control bağlantıları (cihazlar/*.json bilgi.oturumlar; içerik / son mesaj yok). Yenile: yeniden okur.
+    window.PK.cihazOturumlari = oturumOzetleri(v.cihazlar);
+    window.PK.oturumlariTazele = async () => {
+      const l = [];
+      for (const ad of (await klasorListe('proje-kontrol-veri', 'cihazlar')).filter((n) => n.endsWith('.json'))) { const d = await dosyaOku('proje-kontrol-veri', 'cihazlar/' + ad); if (d) try { l.push(JSON.parse(d.metin)); } catch (_) {} }
+      window.PK.cihazOturumlari = oturumOzetleri(l);
+      return window.PK.cihazOturumlari;
+    };
     document.getElementById('veri').textContent = JSON.stringify(k);
     const b = document.createElement('script'); b.textContent = document.getElementById('anaBetik').textContent; document.body.append(b);
     if (cevrimdisi) { const s = document.createElement('div'); s.id = 'serit'; s.textContent = 'Çevrimdışı · son veri ' + new Date(v.zaman).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' }); document.body.append(s); }
@@ -2502,7 +2529,7 @@ body.pencere-kip main { padding: 16px; }
   const ROTALAR = [
     { id: 'pano', ad: 'Pano', ikon: IK.pano, grup: 'Genel' },
     { id: 'projeler', ad: 'Projeler', ikon: IK.klasor, grup: 'Genel', sayi: TUM.length },
-    MASA ? { id: 'oturumlar', ad: 'Oturumlar', ikon: IK.yz, grup: 'Genel' } : null, // Faz 1 · Oturumlar
+    MASA || MOBIL ? { id: 'oturumlar', ad: 'Oturumlar', ikon: IK.yz, grup: 'Genel' } : null, // Faz 1 · Oturumlar (Faz 2: telefonda da, kayıt deposundan)
     { id: 'cihazlar', ad: 'Cihazlar', ikon: IK.pc, grup: 'Genel' },
     MASA ? { id: 'posta', ad: 'Posta', ikon: IK.posta, grup: 'Genel' } : null,
     MASA ? { id: 'terminal', ad: 'Terminal', ikon: IK.terminal, grup: 'Genel' } : null, // === Faz 3 · Terminal ===
@@ -2753,6 +2780,7 @@ body.pencere-kip main { padding: 16px; }
       kaynak = new EventSource('/api/olaylar');
       kaynak.addEventListener('merhaba', (e) => { sseAcik = true; clearTimeout(kopukZ); kopukZ = null; baglantiDurumu('acik'); try { surumBak(JSON.parse(e.data)); } catch (_) {} });
       kaynak.addEventListener('degisti', (e) => { try { isle(JSON.parse(e.data).alanlar || []); } catch (_) {} });
+      kaynak.addEventListener('goster', (e) => { try { const j = JSON.parse(e.data); if (/^[0-9a-f]{8,64}$/.test(j.terminal || '')) { location.hash = '#terminal/' + j.terminal; try { window.focus(); } catch (_) {} } } catch (_) {} }); // === Faz 2 · Köprü === sağ tık: o terminal sekmesine geç
       // Kısa kopmalar (tarayıcı 5 sn'de kendi bağlanır) bant göstermez; 4 sn içinde dönmezse yoklama başlar.
       // 401'de EventSource kapanır ve kendisi denemez: yoklama yeni bağlantıyı açar.
       kaynak.onerror = () => { sseAcik = false; if (!kopukZ) kopukZ = setTimeout(() => { kopukZ = null; if (!sseAcik) yokla(); }, 4000); };
@@ -2858,15 +2886,16 @@ body.pencere-kip main { padding: 16px; }
   /** Canlı bölüm: sayfa görünürken ve öğe ekrandayken 30 sn'de bir yenilenir */
   function canliTut(kutu, fn, ms = 30000) { const z = setInterval(() => { if (!kutu.isConnected) { clearInterval(z); return; } if (document.visibilityState === 'visible') fn(); }, ms); }
 
-  async function otDevam(o) {
+  async function otDevam(o, { yer = 'terminal' } = {}) { // Faz 2: varsayılan uygulama içi terminal; yer 'pencere' Windows Terminal
     const x = otProje(o);
     if (o.uzak && o.acik && !(await sor({ baslik: `${o.cihazAd}'deki oturum burada sürdürülsün mü?`, metin: `Oturum ${o.cihazAd}'de hâlâ açık; iki yerde aynı anda sürdürmek çakışma yaratır.`, tamam: 'Yine de devam et' }))) return;
     surecGoster(o.uzak ? `Oturum ${o.cihazAd} bilgisayarından alınıyor…` : 'Oturum açılıyor…');
     try {
-      const r = await api('/api/oturum-devam', { id: o.id, arac: o.arac, cihaz: o.cihaz });
+      const r = await api('/api/oturum-devam', { id: o.id, arac: o.arac, cihaz: o.cihaz, yer });
       surecGizle();
       if (r.onceKur) { if (x) bildirEylem(`${adSade(x)} bu bilgisayarda kurulu değil. Önce kurun, sonra devam edin.`, 'Kur', () => eylem(x, 'Kur')); else bildir('Bu oturumun klasörü bu bilgisayarda yok.', 7000); return; }
-      bildir([...(r.uyari || []), 'Yeni pencerede açıldı'].join(' · '), 7000);
+      if (r.terminal) trmSekmeyeGec(r.terminal); // === Faz 2 · Köprü ===
+      bildir([...(r.uyari || []), r.terminal ? 'Uygulamanın Terminal\'inde sürdürülüyor' : 'Yeni pencerede açıldı'].join(' · '), 7000);
       delete onbellek.oturumlar; delete onbellek.genel;
     } catch (e) { surecGizle(); bildir('Devam edilemedi: ' + e.message, 9000); }
   }
@@ -2883,6 +2912,7 @@ body.pencere-kip main { padding: 16px; }
     const ic = el('div', { class: 'ot-daha-ic', role: 'menu' });
     const m = (ad, fn) => ic.append(el('button', { type: 'button', role: 'menuitem', onclick: (e) => { e.stopPropagation(); d.open = false; fn(); } }, ad));
     if (!o.uzak) m('Konuşmayı aç', () => otGoruntule(o));
+    if (!o.terminalId && (o.uzak || !o.acik) && (o.kurulu || (!o.uzak && o.cwdVar))) m('Ayrı pencerede devam et', () => otDevam(o, { yer: 'pencere' })); // === Faz 2 · Köprü ===
     m('Ayrıntılar', () => otAyrinti(o));
     if (otProje(o)) m('Projeyi aç', () => ac(otProje(o)));
     d.append(ic); d.addEventListener('click', (e) => e.stopPropagation());
@@ -2890,6 +2920,7 @@ body.pencere-kip main { padding: 16px; }
   }
   function otDugme(o) {
     const x = otProje(o);
+    if (o.terminalId) return kopruTerminalDugmesi(o); // === Faz 2 · Köprü === uygulama içi terminalde çalışıyor: "Terminal'de aç" / "İzle"
     if (!o.kurulu && (o.uzak || !o.cwdVar)) return x ? el('button', { class: 'btn kucuk', type: 'button', title: 'Proje bu bilgisayarda kurulu değil', onclick: (e) => { e.stopPropagation(); eylem(x, 'Kur'); } }, 'Önce Kur') : null;
     // Bu bilgisayarda zaten açık bir oturumu ikinci pencerede açmak aynı konuşmayı iki yerden yürütür: düğme yerine bilgi
     if (!o.uzak && o.acik) return el('span', { class: 'ot-acik-not', title: 'Bu oturum bu bilgisayarda zaten bir pencerede açık; o pencereye geçin' }, 'Zaten açık');
@@ -2969,18 +3000,20 @@ body.pencere-kip main { padding: 16px; }
   // Yeni oturum: Windows Terminal'de projenin bu bilgisayardaki klasöründe yeni sekme (POST /api/oturum-ac, lib/oturumac.mjs).
   // Claude izinsiz modda, uzaktan kontrol açık (claude.ai/code ve Claude mobil), oturum adı proje adı. Oturumlar sekmesi: iki
   // bilgisayarın oturumları proje proje, süzgeç, arama, devam et, görüntüle, uzaktan kontrol bağlantısı; canlı yenilenir.
-  const OT_ACAR = [['claude', 'Claude\'da aç', 'Claude Code · izinsiz mod · uzaktan kontrol açık (claude.ai/code ve Claude mobil) · oturum adı proje adı'], ['codex', 'Codex\'te aç', 'Codex CLI · onaysız mod'], ['agy', 'Antigravity\'de aç', 'Antigravity CLI · izinsiz mod']];
-  async function otAc(x, arac = 'claude') {
+  const OT_ACAR = [['claude', 'Claude\'da aç', 'Uygulamanın Terminal\'inde Claude Code · izinsiz mod · uzaktan kontrol açık (claude.ai/code ve Claude mobil) · oturum adı proje adı'], ['codex', 'Codex\'te aç', 'Uygulamanın Terminal\'inde Codex CLI · onaysız mod'], ['agy', 'Antigravity\'de aç', 'Uygulamanın Terminal\'inde Antigravity CLI · izinsiz mod']];
+  // Faz 2 (Kaan'ın isteği): varsayılan uygulamanın içindeki Terminal (yer: 'terminal'); "Ayrı pencerede aç" Windows Terminal
+  async function otAc(x, arac = 'claude', { yer = 'terminal' } = {}) {
     if (!MASA) { bildir('Yeni oturum bilgisayardaki Proje Kontrol uygulamasında açılır.', 5000); return; }
     const ad = OT_ARAC[arac] || arac;
     surecGoster(`${ad} açılıyor…`);
     try {
-      const r = await api('/api/oturum-ac', { id: x.id, arac });
+      const r = await api('/api/oturum-ac', { id: x.id, arac, yer });
       surecGizle();
       if (r.onceKur) { bildirEylem(`${adSade(x)} bu bilgisayarda kurulu değil. Önce kurun, sonra açın.`, 'Kur', () => eylem(x, 'Kur')); return; }
+      if (r.terminal) trmSekmeyeGec(r.terminal); // === Faz 2 · Köprü === Terminal görünümü, o sekme
       const u = r.uyari || [];
       if (u.length) bildirimEkle([...(r.sonuc || []), ...u].join(' · '), { ton: 'uyari', sure: 12000 });
-      else bildir(`${(r.sonuc || []).join(' · ')} · Windows Terminal'de yeni sekme`, 7000, 'tamam');
+      else bildir(`${(r.sonuc || []).join(' · ')}${r.terminal ? '' : ' · Windows Terminal\'de yeni sekme'}`, 7000, 'tamam');
       delete onbellek.oturumlar; delete onbellek.genel;
     } catch (e) { surecGizle(); bildir(`${ad} açılamadı: ${e.message}`, 10000, 'hata'); }
   }
@@ -2991,6 +3024,8 @@ body.pencere-kip main { padding: 16px; }
     const d = el('details', { class: 'btn-grup-menu' }, el('summary', { class: cls, 'aria-label': 'Başka araçla aç', title: 'Codex ya da Antigravity ile aç' }, '▾'));
     const ic = el('div', { class: 'ot-daha-ic', role: 'menu' });
     for (const [a, ad, aciklama] of OT_ACAR) ic.append(el('button', { type: 'button', role: 'menuitem', title: aciklama, onclick: (e) => { e.stopPropagation(); d.open = false; otAc(x, a); } }, ad));
+    ic.append(el('button', { type: 'button', role: 'menuitem', title: 'Claude Code\'u Windows Terminal\'de ayrı pencerede açar (aynı bayraklar: izinsiz mod, uzaktan kontrol açık)', onclick: (e) => { e.stopPropagation(); d.open = false; otAc(x, 'claude', { yer: 'pencere' }); } }, 'Ayrı pencerede aç')); // === Faz 2 · Köprü ===
+    kopruAcMenuEkle(ic, x, d); // === Faz 2 · Köprü === "<diğer bilgisayar>'da Claude aç"
     d.append(ic); d.addEventListener('click', (e) => e.stopPropagation());
     return el('span', { class: 'btn-grup' }, b, d);
   }
@@ -3033,11 +3068,12 @@ body.pencere-kip main { padding: 16px; }
   async function yeniOturumSor(x0 = null) {
     const kurulu = TUM.filter((x) => buDurum(x) !== 'yok').sort((a, b) => adSade(a).localeCompare(adSade(b), 'tr'));
     if (!kurulu.length) { bildir('Bu bilgisayarda kurulu proje yok: önce bir projeyi kurun.', 6000); return; }
-    const r = await formSor({ baslik: 'Yeni oturum', metin: 'Windows Terminal\'de projenin klasöründe yeni sekme açılır. Claude izinsiz modda, uzaktan kontrol açık (claude.ai/code ve Claude mobil), oturum adı proje adı.', tamam: 'Aç',
+    const r = await formSor({ baslik: 'Yeni oturum', metin: 'Projenin klasöründe uygulamanın Terminal\'inde açılır (diğer bilgisayardan da görünür); istenirse Windows Terminal\'de ayrı pencerede. Claude izinsiz modda, uzaktan kontrol açık (claude.ai/code ve Claude mobil), oturum adı proje adı.', tamam: 'Aç',
       alanlar: [{ ad: 'proje', etiket: 'Proje (bu bilgisayarda kurulu)', tur: 'secim', deger: x0?.id || kurulu[0].id, secenekler: kurulu.map((x) => [x.id, `${adSade(x)} · ${x.ana}`]) },
-        { ad: 'arac', etiket: 'Araç', tur: 'secim', deger: 'claude', secenekler: OT_ACAR.map(([a]) => [a, OT_ARAC[a]]) }] });
+        { ad: 'arac', etiket: 'Araç', tur: 'secim', deger: 'claude', secenekler: OT_ACAR.map(([a]) => [a, OT_ARAC[a]]) },
+        { ad: 'yer', etiket: 'Nerede', tur: 'secim', deger: 'terminal', secenekler: [['terminal', 'Uygulamanın Terminal\'inde'], ['pencere', 'Ayrı pencerede (Windows Terminal)']] }] }); // Faz 2
     const x = r && TUM_ID.get(r.proje);
-    if (x) otAc(x, r.arac);
+    if (x) otAc(x, r.arac, { yer: r.yer === 'pencere' ? 'pencere' : 'terminal' });
   }
   const OF = { q: '', cihaz: '', durum: '', arac: '', acik: new Set() }; // süzgeçler sekmeler arasında kalır; acik: "Tümü" ile açılan gruplar
   GORUNUM.oturumlar = () => {
@@ -3112,6 +3148,230 @@ body.pencere-kip main { padding: 16px; }
     canliTut(v, () => { if (!v.querySelector('details[open]') && !document.querySelector('dialog[open]')) yukle(true).catch(() => {}); }, 15_000);
     return v;
   };
+
+  // === Faz 2 · Köprü ===
+  // Diğer bilgisayara doğrudan bağlantı (lib/kopru.mjs: Tailscale + kasadaki paylaşılan anahtar). Tarayıcı yalnızca bu bilgisayarın
+  // sunucusuyla konuşur (/api/kopru/…); anahtar sayfaya hiç gelmez. Oturumlar sekmesi: bağlantı bandı (eşleştir; kapalı bilgisayar,
+  // çalışmayan uygulama, anahtar farkı ayrı mesajlar), "<diğer>'da Claude aç", diğer bilgisayarın uygulama içi terminalleri (canlı
+  // izleme, yapay zekâ sekmelerine yazma). Diğer bilgisayarın oturum satırları köprü açıksa canlı gelir (/api/oturumlar).
+  // Telefonda (PWA): oturum listesi kayıt deposundan, açık Claude oturumlarının Remote Control bağlantılarıyla (Claude mobil).
+  const KOPRU_DURUM = { canli: 'canlı bağlı', kapali: 'kapalı ya da uykuda', calismiyor: 'Proje Kontrol\'üne ulaşılamıyor', yetki: 'eşleşme sorunu', 'kopru-yok': 'köprü açık değil', eslesmedi: 'eşleştirilmedi', 'tailscale-yok': 'Tailscale bağlı değil', surum: 'sürüm farklı', tanimsiz: 'adres doğrulanamadı', bilinmiyor: 'bilinmiyor', uzak: 'hata', hata: 'hata' };
+  /** Bulunma eki: "DELL Laptop" → "'ta", "ACER" → "'da" (son ünlü ve sert ünsüz) */
+  const ekDa = (ad) => { const s = String(ad || '').toLocaleLowerCase('tr'); const u = [...s].reverse().find((c) => 'aeıioöuü'.includes(c)) || 'a'; return `'${/[fstkçşhp]$/.test(s) ? 't' : 'd'}${'eiöü'.includes(u) ? 'e' : 'a'}`; };
+  const kopruDurumGetir = (yenile) => getir('kopru', '/api/kopru' + (yenile ? '?yenile=1' : ''), yenile);
+  async function kopruEsle() {
+    surecGoster('Eşleştiriliyor: köprü anahtarı kasadan alınıyor… (kasa kilitliyse masaüstünde PIN penceresi açılır)');
+    try {
+      const r = await api('/api/kopru/esle', {});
+      surecGizle();
+      bildirimEkle(`Eşleştirildi ${r.yeni ? '(yeni anahtar kasaya eklendi)' : '(kasadaki anahtar alındı)'} · parmak izi ${r.parmakIzi}. Diğer bilgisayarda da Oturumlar → "Eşleştir"e basın; iki tarafta parmak izi aynı olmalı.${r.dinleyici?.hata ? ' Uyarı: ' + r.dinleyici.hata : ''}`, { ton: r.dinleyici?.hata ? 'uyari' : 'tamam', sure: 16000 });
+      delete onbellek.kopru; delete onbellek.oturumlar;
+    } catch (e) { surecGizle(); bildir('Eşleştirilemedi: ' + e.message, 12000, 'hata'); }
+  }
+  async function kopruOturumAc(cihaz, ad, x, arac = 'claude') {
+    const aAd = OT_ARAC[arac] || arac;
+    surecGoster(`${ad}${ekDa(ad)} ${aAd} açılıyor…`);
+    try {
+      const r = await api('/api/kopru/oturum-ac', { cihaz, id: x.id, arac });
+      surecGizle();
+      const m = `${aAd} ${ad}${ekDa(ad)} açıldı${r.yer === 'terminal' ? ' (uygulama içi terminal)' : ' (Windows Terminal penceresi)'}: ${adSade(x)}${r.uzakAd ? ` · uzaktan kontrol: "${r.uzakAd}" (claude.ai/code ve Claude mobil)` : ''}`;
+      if (r.terminal) bildirimEkle(m, { ton: 'tamam', sure: 16000, etiket: 'İzle', fn: () => kopruTerminalPencere(cihaz, ad, r.terminal) });
+      else bildir(m, 9000, 'tamam');
+      delete onbellek.oturumlar;
+    } catch (e) { surecGizle(); bildir(`${ad}${ekDa(ad)} açılamadı: ${e.message}`, 12000, 'hata'); }
+  }
+  /** Proje kartındaki "Claude'da aç ▾" menüsüne: diğer bilgisayarda aç (proje orada kuruluysa) */
+  function kopruAcMenuEkle(ic, x, d) {
+    const dg = MASA ? PK?.digerCihaz : null;
+    if (!dg?.ad) return;
+    const ad = cAd('Diğer PC'), kurulu = cd(x, 'Diğer PC').durum !== 'yok';
+    ic.append(el('button', { type: 'button', role: 'menuitem', disabled: !kurulu, title: kurulu ? `${ad}${ekDa(ad)} Claude Code açar (uygulama içi terminal; izinsiz mod, uzaktan kontrol açık). ${ad} açık ve eşleştirilmiş olmalı.` : `${adSade(x)} ${ad}${ekDa(ad)} kurulu değil`, onclick: (e) => { e.stopPropagation(); d.open = false; kopruOturumAc(dg.ad, ad, x, 'claude'); } }, `${ad}${ekDa(ad)} Claude aç`));
+  }
+  async function kopruProjeSor(es, x0 = null) {
+    const yer = `${es.ad}${ekDa(es.ad)}`;
+    const kurulu = TUM.filter((x) => es.cihaz !== PK?.digerCihaz?.ad || cd(x, 'Diğer PC').durum !== 'yok').sort((a, b) => adSade(a).localeCompare(adSade(b), 'tr'));
+    if (!kurulu.length) { bildir(`${yer} kurulu proje görünmüyor: önce orada bir projeyi kurun.`, 7000); return; }
+    const r = await formSor({ baslik: `${yer} yeni oturum`, metin: `${yer}ki Proje Kontrol, projenin oradaki klasöründe uygulama içi terminalde açar: Claude izinsiz modda, uzaktan kontrol açık (claude.ai/code ve Claude mobil). Buradan canlı izlenir ve yazılır.`, tamam: 'Aç',
+      alanlar: [{ ad: 'proje', etiket: `Proje (${yer} kurulu)`, tur: 'secim', deger: x0?.id || kurulu[0].id, secenekler: kurulu.map((x) => [x.id, `${adSade(x)} · ${x.ana}`]) },
+        { ad: 'arac', etiket: 'Araç', tur: 'secim', deger: 'claude', secenekler: OT_ACAR.map(([a]) => [a, OT_ARAC[a]]) }] });
+    const x = r && TUM_ID.get(r.proje);
+    if (x) kopruOturumAc(es.cihaz, es.ad, x, r.arac);
+  }
+  /** Oturumlar sekmesinin üstündeki bağlantı bandı (20 sn'de bir yenilenir) */
+  function kopruBant(kutu) {
+    const satir = (nokta, metin, ...dugme) => el('div', { class: 'kopru-bant' }, el('span', { class: 'nokta ' + nokta, 'aria-hidden': 'true' }), el('div', { class: 'metin' }, ...metin), el('span', { class: 'sag' }, ...dugme.filter(Boolean)));
+    const esleBtn = (ana) => el('button', { class: 'btn kucuk' + (ana ? ' ana' : ''), type: 'button', onclick: () => kopruEsle().then(() => yenile(true)) }, 'Eşleştir');
+    const ciz = (d) => {
+      const parca = [];
+      if (!d.eslesti) parca.push(satir('', [el('b', { text: 'Diğer bilgisayara doğrudan bağlantı kurulmadı.' }), ' Eşleştirince diğer bilgisayarın oturumları canlı görünür, orada Claude açılır ve uygulama içi terminali buradan izlenir (Tailscale üzerinden).', el('small', { text: 'Anahtar kasadan gelir; iki bilgisayarda da bir kez "Eşleştir"e basılır.' })], esleBtn(true)));
+      for (const es of d.eslesti ? d.esler || [] : []) {
+        const canli = es.durum === 'canli';
+        const ton = canli ? 'canli' : ['kapali', 'calismiyor', 'kopru-yok', 'eslesmedi', 'surum'].includes(es.durum) ? 'uyari' : 'kotu';
+        parca.push(satir(ton, [el('b', { text: es.ad }), ': ' + (KOPRU_DURUM[es.durum] || es.durum) + (canli ? ' · oturumlar canlı, Tailscale üzerinden' : ''), es.mesaj ? el('small', { text: es.mesaj }) : null],
+          canli ? el('button', { class: 'btn kucuk ana', type: 'button', onclick: () => kopruProjeSor(es) }, svg(IK.yz, 'ikon k'), `${es.ad}${ekDa(es.ad)} Claude aç`) : null,
+          canli && es.terminal ? el('button', { class: 'btn kucuk', type: 'button', onclick: () => kopruTerminalListesi(es) }, svg(IK.terminal, 'ikon k'), 'Terminaller') : null,
+          es.durum === 'yetki' ? esleBtn(false) : null,
+          el('button', { class: 'btn kucuk hayalet', type: 'button', title: 'Bağlantıyı yeniden dene', 'aria-label': 'Bağlantıyı yeniden dene', onclick: () => yenile(true) }, svg(IK.yenile, 'ikon k'))));
+      }
+      if (d.eslesti) {
+        const dl = d.dinleyici || {};
+        const bu = dl.dinliyor ? `köprü açık (${dl.adres}:${dl.port})` : `köprü kapalı${dl.hata ? ' — ' + dl.hata : d.kapali ? ' (config.json: kapalı)' : d.tailscale && !d.tailscale.calisiyor ? ' (Tailscale bağlı değil)' : ''}`;
+        parca.push(el('p', { class: 'soluk', style: 'margin:0;font-size:.76rem', text: `Bu bilgisayar: ${bu} · anahtar parmak izi ${d.parmakIzi}${d.kabuk ? ' · köprüden kabuk açık (config.json)' : ''}` }));
+        if (!(d.esler || []).length) parca.push(solukP('Kayıt deposunda başka bir Proje Kontrol bilgisayarı görünmüyor.'));
+      }
+      kutu.replaceChildren(...parca);
+    };
+    const yenile = async (zorla) => {
+      const r = await kopruDurumGetir(zorla);
+      if (!kutu.isConnected && zorla) return;
+      if (r.durum === 'tamam') ciz(r.v);
+      else if (r.durum === 'hata') kutu.replaceChildren(satir('kotu', ['Köprü durumu okunamadı: ' + r.hata]));
+      else kutu.replaceChildren();
+    };
+    yenile(false);
+    canliTut(kutu, () => { if (!document.querySelector('dialog[open]')) yenile(true); }, 20_000);
+    return kutu;
+  }
+  /** Diğer bilgisayarın uygulama içi terminal oturumları (pencere; 10 sn'de bir yenilenir) */
+  function kopruTerminalListesi(es) {
+    const yer = `${es.ad}${ekDa(es.ad)}`;
+    const govde = el('div', {}, solukP('Yükleniyor…'));
+    const d = otPencere(`${es.ad} · terminaller`, el('header', {}, el('div', { class: 'bas-metin' }, el('h3', { text: `${es.ad} · uygulama içi terminaller` }), el('small', { class: 'soluk', text: 'Canlı izlenir; Claude, Codex ve Antigravity sekmelerine buradan yazılır' + (es.kabuk ? '' : ' · kabuk sekmeleri yalnızca izlenir') })),
+      el('div', { class: 'sag' }, el('button', { class: 'btn kucuk', type: 'button', onclick: () => { d.close(); kopruProjeSor(es); } }, svg(IK.arti, 'ikon k'), 'Claude aç'), el('button', { class: 'btn kucuk', type: 'button', onclick: () => d.close() }, 'Kapat'))), el('div', { class: 'ot-akis-kap' }, govde));
+    const yukle = async () => {
+      try {
+        const r = await api('/api/kopru/terminal?cihaz=' + encodeURIComponent(es.cihaz));
+        if (!d.isConnected) return;
+        const l = r.oturumlar || [];
+        govde.replaceChildren(l.length ? el('div', { class: 'satirlar' }, ...l.map((o) => {
+          const salt = !r.kabuk && !['claude', 'codex', 'agy'].includes(o.komut);
+          return el('div', { class: 'satir' }, el('div', { class: 'ad' }, el('span', {}, el('span', { class: 'trm-nokta ' + (o.durum === 'calisiyor' ? 'canli' : o.cikisKodu ? 'kotu' : ''), 'aria-hidden': 'true', style: 'display:inline-block;margin-right:6px' }), o.ad),
+            el('small', { text: [o.komutAd, o.dizin, o.durum === 'bitti' ? `bitti${o.cikisKodu != null ? ' (çıkış kodu ' + o.cikisKodu + ')' : ''}` : 'çalışıyor', salt ? 'yalnızca izlenir' : null].filter(Boolean).join(' · ') })),
+            el('span', { class: 'sag' }, el('button', { class: 'btn kucuk ana', type: 'button', onclick: () => { d.close(); kopruTerminalPencere(es.cihaz, es.ad, o, { salt }); } }, o.durum === 'bitti' ? 'Çıktıyı gör' : 'İzle')));
+        })) : solukP(`${yer} uygulama içinde açık terminal yok. "${yer} Claude aç" ile başlatılan oturumlar burada görünür.`));
+      } catch (e) { if (d.isConnected) govde.replaceChildren(solukP('Terminaller alınamadı: ' + e.message)); }
+    };
+    yukle();
+    const z = setInterval(() => { if (!d.isConnected) { clearInterval(z); return; } if (document.visibilityState === 'visible') yukle(); }, 10_000);
+  }
+  /**
+   * Diğer bilgisayardaki terminal oturumu: canlı çıktı (SSE, kaldığı konumdan), yazma (uçuşta tek istek; arada yazılanlar birleşir).
+   * Boyut o bilgisayardaki terminalinkidir; "Boyutu uydur" yalnızca istenince değiştirir (orada açık pencere varsa onu da etkiler).
+   * Esc terminale gider (Claude'u durdurur), pencereyi kapatmaz: "Kapat" düğmesi.
+   */
+  function kopruTerminalPencere(cihaz, ad, oz, { salt = false } = {}) {
+    const sahne = el('div', { class: 'kopru-trm-sahne' }), durumS = el('div', { class: 'kopru-trm-durum', role: 'status', text: 'Bağlanıyor…' });
+    const uydur = el('button', { class: 'btn kucuk', type: 'button', disabled: salt, title: `${ad}${ekDa(ad)}ki terminalin boyutunu bu pencereye uydurur (orada açık bir pencere varsa onun da boyutu değişir)` }, 'Boyutu uydur');
+    const d = otPencere(`${ad} · ${oz.ad}`, el('header', {}, el('div', { class: 'bas-metin' }, el('h3', { text: oz.ad }), el('small', { class: 'soluk', text: [ad, oz.komutAd || oz.komut, oz.dizin, salt ? 'yalnızca izlenir (kabuk sekmesi)' : null].filter(Boolean).join(' · ') })),
+      el('div', { class: 'sag' }, uydur, el('button', { class: 'btn kucuk', type: 'button', onclick: () => d.close() }, 'Kapat'))), sahne, durumS);
+    d.classList.add('kopru-trm');
+    let es = null, term = null, fit = null, konum = 0, girdi = '', ucusta = false, bitti = false, hataZ = 0;
+    d.addEventListener('cancel', (e) => { if (sahne.contains(document.activeElement)) e.preventDefault(); });
+    d.addEventListener('close', () => { try { es?.close(); } catch (_) {} es = null; try { term?.dispose(); } catch (_) {} });
+    const gonder = () => {
+      const veri = girdi; girdi = '';
+      if (!veri || bitti || !d.isConnected) { ucusta = false; return; }
+      ucusta = true;
+      api('/api/kopru/terminal/yaz', { cihaz, id: oz.id, veri })
+        .catch((e) => { girdi = ''; if (Date.now() - hataZ > 5000) { hataZ = Date.now(); bildir(`${ad} terminaline yazılamadı: ${e.message}`, 8000, 'hata'); } })
+        .finally(() => { ucusta = false; if (girdi) gonder(); });
+    };
+    const baglan = () => {
+      es = new EventSource(`/api/kopru/terminal/akis?cihaz=${encodeURIComponent(cihaz)}&id=${encodeURIComponent(oz.id)}&konum=${konum}`);
+      const coz = (e) => { try { return JSON.parse(e.data); } catch (_) { return null; } };
+      es.addEventListener('bas', (e) => {
+        const j = coz(e); if (!j) return;
+        if (j.kirpildi) term.reset();
+        konum = j.konum;
+        if (j.ozet?.cols && j.ozet?.rows && (term.cols !== j.ozet.cols || term.rows !== j.ozet.rows)) term.resize(j.ozet.cols, j.ozet.rows);
+        durumS.textContent = `${ad} · canlı${salt ? ' · yalnızca izleniyor' : ''}`;
+      });
+      es.addEventListener('veri', (e) => { const s = coz(e); if (typeof s !== 'string') return; term.write(s); konum = Number(e.lastEventId) || konum + s.length; });
+      es.addEventListener('bitti', (e) => { es.close(); bitti = true; const j = coz(e); term.write(`\r\n\x1b[2m[Süreç bitti${j?.cikisKodu != null ? ' · çıkış kodu ' + j.cikisKodu : ''}]\x1b[0m\r\n`); durumS.textContent = `${ad} · süreç bitti`; });
+      es.addEventListener('yok', () => { es.close(); bitti = true; durumS.textContent = `Bu terminal oturumu ${ad}${ekDa(ad)} artık yok (kapatılmış ya da uygulama yeniden başlamış).`; });
+      es.addEventListener('hata', (e) => { es.close(); const j = coz(e); durumS.textContent = j?.hata || `${ad} ile bağlantı kurulamadı.`; });
+      es.onerror = () => { if (es && es.readyState !== 2) durumS.textContent = `${ad} ile bağlantı koptu; yeniden bağlanılıyor…`; };
+    };
+    (async () => {
+      try { await trmXtermYukle(); } catch (e) { durumS.textContent = e.message; return; }
+      if (!d.isConnected) return;
+      const yazi = getComputedStyle(document.documentElement).getPropertyValue('--mono').trim() || 'Cascadia Mono, Consolas, monospace';
+      term = new window.Terminal({ fontFamily: yazi, fontSize: 14, lineHeight: 1.1, cursorBlink: !salt, disableStdin: salt, scrollback: 10000, allowProposedApi: true, theme: trmTema(), windowsPty: { backend: 'conpty' }, cols: oz.cols || 120, rows: oz.rows || 30 });
+      fit = window.FitAddon?.FitAddon ? new window.FitAddon.FitAddon() : null;
+      if (fit) term.loadAddon(fit);
+      try { if (window.Unicode11Addon) { term.loadAddon(new window.Unicode11Addon.Unicode11Addon()); term.unicode.activeVersion = '11'; } } catch (_) {}
+      term.open(sahne);
+      sahne.addEventListener('keydown', (e) => e.stopPropagation()); // Ctrl K, "/" sayfanın değil terminalin
+      if (!salt) term.onData((v) => { if (bitti) return; girdi += v; if (!ucusta) gonder(); });
+      term.attachCustomKeyEventHandler((e) => {
+        if (e.type !== 'keydown') return true;
+        const k = String(e.key || '').toLowerCase();
+        if (e.ctrlKey && !e.altKey && k === 'c' && (e.shiftKey || term.hasSelection())) { const s = term.getSelection(); if (s) navigator.clipboard?.writeText(s).catch(() => {}); term.clearSelection(); e.preventDefault(); return false; }
+        if (e.ctrlKey && !e.altKey && k === 'v') return false;
+        return true;
+      });
+      uydur.onclick = () => {
+        const p = fit?.proposeDimensions?.();
+        if (!p?.cols || !p?.rows) return;
+        api('/api/kopru/terminal/boyut', { cihaz, id: oz.id, cols: p.cols, rows: p.rows }).then(() => term.resize(p.cols, p.rows)).catch((e) => bildir('Boyut değiştirilemedi: ' + e.message, 6000, 'hata'));
+      };
+      baglan();
+      term.focus();
+    })();
+    return d;
+  }
+  /** Telefon (PWA): iki bilgisayarın yayınladığı oturumlar (kayıt deposu; içerik yok) ve Remote Control bağlantıları */
+  function mobilOturumlar() {
+    const liste = el('div', { class: 'pd-kolon mobil-ot' });
+    const tazeleBtn = el('button', { class: 'btn', type: 'button', onclick: () => tazele(true) }, svg(IK.yenile), 'Yenile');
+    const v = gorunum('Oturumlar', 'İki bilgisayardaki Claude ve Codex oturumları · kayıt deposundan', PK?.oturumlariTazele ? tazeleBtn : null);
+    v.append(bilgiKutu(IK.telefon, '', p('Telefondan bir oturuma ', el('b', { text: 'Claude' }), ' uygulamasıyla (uzaktan kontrol) gidilir: açık oturumdaki "Claude\'da aç"a dokunun. Yeni oturum ve terminal bilgisayardaki Proje Kontrol\'de.')), liste);
+    const ciz = () => {
+      const kayitlar = Array.isArray(PK?.cihazOturumlari) ? PK.cihazOturumlari : [];
+      const L = [];
+      for (const c of kayitlar) {
+        const taze = Date.now() - (Date.parse(c?.zaman) || 0) < 25 * 60_000; // lib/oturumlar.mjs KAYIT_TAZE_MS
+        const cihazAd = String(c?.gorunenAd || c?.cihaz || '').split(/[\s-]/)[0].toUpperCase();
+        for (const o of Array.isArray(c?.oturumlar) ? c.oturumlar : []) {
+          if (!o || typeof o.id !== 'string' || !Number.isFinite(Date.parse(o.son))) continue;
+          const acik = taze && !!o.acik;
+          L.push({ ...o, cihazAd, uzak: true, acik, durum: taze ? o.durum || 'bosta' : 'bosta', uzakUrl: acik && o.arac === 'claude' && OT_UZAK_RX.test(o.uzakUrl || '') ? o.uzakUrl : null, baslik: String(o.baslik || '(başlıksız)').slice(0, 80) });
+        }
+      }
+      L.sort((a, b) => Date.parse(b.son) - Date.parse(a.son));
+      const satir = (o) => {
+        const x = otProje(o);
+        const bag = o.arac === 'claude' && o.acik ? el('a', { class: 'btn kucuk' + (o.uzakUrl ? ' ana' : ''), href: o.uzakUrl || 'https://claude.ai/code', target: '_blank', rel: 'noopener noreferrer', title: o.uzakUrl ? 'Oturumu Claude uygulamasında (ya da claude.ai/code\'da) açar' : 'Bu oturumun bağlantısı bilinmiyor: Claude uygulamasındaki oturum listesinden seçin' }, svg(IK.telefon, 'ikon k'), o.uzakUrl ? 'Claude\'da aç' : 'claude.ai/code') : null;
+        return el('div', { class: 'satir ot-satir' + (o.acik ? ' ot-acik' : '') }, el('div', { class: 'ad' }, el('span', {}, otAracRozet(o), ' ', x ? adSade(x) : o.baslik), el('small', { text: [x ? o.baslik : null, o.cihazAd, otZaman(o.son)].filter(Boolean).join(' · ') })),
+          el('span', { class: 'sag' }, otCihazRozet(o), o.durum && o.durum !== 'bosta' ? otDurumRozet(o) : null, bag));
+      };
+      const acik = L.filter((o) => o.acik);
+      liste.replaceChildren(
+        kart({ baslik: 'Şu an açık', ikon: IK.aktivite, sag: acik.length ? String(acik.length) : null }, besli(acik.map(satir), 'Şu an açık bir oturum görünmüyor.', 8) || ''),
+        kart({ baslik: 'Son oturumlar', ikon: IK.yz }, besli(L.filter((o) => !o.acik).map(satir), kayitlar.length ? 'Henüz oturum yok.' : 'Bilgisayarlardan oturum bilgisi gelmedi.', 10) || ''),
+        el('p', { class: 'soluk', style: 'margin:0;font-size:.76rem', text: [...kayitlar.map((c) => `${c.gorunenAd || c.cihaz}: ${c.zaman ? 'son kayıt ' + otZaman(c.zaman) : 'kayıt yok'}`), 'bilgisayarlar oturum açılıp kapanınca ve ~15 dk\'da bir yazar'].join(' · ') }));
+    };
+    async function tazele(elle) {
+      if (!PK?.oturumlariTazele) return;
+      if (elle) tazeleBtn.disabled = true;
+      try { await PK.oturumlariTazele(); if (v.isConnected) ciz(); }
+      catch (e) { if (elle) bildir('Yenilenemedi: ' + e.message, 6000, 'hata'); }
+      finally { tazeleBtn.disabled = false; }
+    }
+    ciz();
+    canliTut(v, () => tazele(false), 60_000);
+    return v;
+  }
+  {
+    const asil = GORUNUM.oturumlar;
+    GORUNUM.oturumlar = () => {
+      if (MOBIL) return mobilOturumlar();
+      const v = asil();
+      if (MASA) { const k = kopruBant(el('div', { class: 'kopru-kutu', 'aria-label': 'Diğer bilgisayara bağlantı' })); const ac = v.querySelector('.arac-cubugu'); if (ac) ac.before(k); else v.append(k); }
+      return v;
+    };
+  }
+  // === /Faz 2 · Köprü ===
 
   // Proje hafızası (başka bir modülün ucu, /api/hafiza/<id>): yoksa ya da boşsa sessizce atlanır
   const hafizaOnbellek = {};
@@ -5187,6 +5447,48 @@ body.pencere-kip main { padding: 16px; }
     return v;
   };
   // === /Faz 3 · Terminal ===
+  // === Faz 2 · Köprü === "Claude'da aç" / "Devam et" uygulama içinde açılınca: Terminal görünümü ve o sekme (Faz 3'ün terminalAc'ı
+  // gibi, ama oturumu sunucu açtı). #terminal/<id>: sağ tıkla açılan pencere ya da "goster" olayı o sekmeyle gelir.
+  function trmSekmeyeGec(oz) {
+    if (!MASA || !oz?.id) return;
+    if (!TRM.kok) trmKur();
+    if (!trmOzet(oz.id)) TRM.liste.push(oz);
+    TRM.etkin = oz.id; TRM.odakla = true; yerelYaz('pk-terminal-etkin', oz.id);
+    if (rota.ad !== 'terminal') git('#terminal'); else { trmCubukCiz(); trmGoster(oz.id); }
+  }
+  /** Oturumlar satırı: uygulama içi terminalde çalışan oturum → "Terminal'de aç" (bu bilgisayar) ya da "İzle" (diğer bilgisayar, köprü) */
+  function kopruTerminalDugmesi(o) {
+    if (!o.uzak) return el('button', { class: 'btn kucuk ana', type: 'button', title: 'Bu oturum uygulamanın Terminal\'inde çalışıyor: o sekmeye geçer', onclick: (e) => { e.stopPropagation(); TRM.etkin = o.terminalId; yerelYaz('pk-terminal-etkin', o.terminalId); git('#terminal/' + o.terminalId); } }, svg(IK.terminal, 'ikon k'), 'Terminal\'de aç');
+    const ad = o.cihazAdTam || o.cihazAd || 'Diğer bilgisayar';
+    return el('button', { class: 'btn kucuk ana', type: 'button', title: `Bu oturum ${ad}${ekDa(ad)} uygulama içi terminalde çalışıyor: buradan canlı izlenir ve yazılır (köprü)`, onclick: (e) => { e.stopPropagation(); kopruTerminalPencere(o.cihaz, ad, { id: o.terminalId, ad: o.baslik, komut: o.arac, komutAd: OT_ARAC[o.arac] || o.arac, dizin: o.cwd || '' }); } }, svg(IK.terminal, 'ikon k'), 'İzle');
+  }
+  // Terminal görünümünün başlığına: diğer bilgisayarın uygulama içi terminalleri (köprü canlıysa)
+  {
+    const asil = GORUNUM.terminal;
+    if (asil) GORUNUM.terminal = () => {
+      // Kimlik bir kez uygulanır, adres #terminal'e döner: sonraki çizimler kullanıcının sekme seçimini geri almasın
+      const m = /^#terminal\/([0-9a-f]{8,64})$/.exec(location.hash);
+      if (m) { TRM.etkin = m[1]; TRM.odakla = true; yerelYaz('pk-terminal-etkin', m[1]); try { history.replaceState(null, '', '#terminal'); } catch (_) {} }
+      const v = asil();
+      const dg = MASA ? PK?.digerCihaz : null;
+      if (!dg?.ad) return v;
+      const ad = cAd('Diğer PC');
+      const b = el('button', { class: 'btn', type: 'button', title: `${ad}${ekDa(ad)} uygulama içinde açık terminaller (köprü: ${ad} açık ve eşleştirilmiş olmalı)`, onclick: async () => {
+        const r = await kopruDurumGetir(true);
+        if (r.durum !== 'tamam') { bildir('Köprü durumu okunamadı: ' + (r.hata || r.durum), 8000, 'hata'); return; }
+        if (!r.v.eslesti) { bildirEylem('Diğer bilgisayara köprü kurulmadı: iki bilgisayarda da bir kez eşleştirin.', 'Eşleştir', kopruEsle, 12000); return; }
+        const es = (r.v.esler || []).find((e) => e.cihaz === dg.ad);
+        if (!es || es.durum !== 'canli') { bildir(es?.mesaj || `${ad} ile bağlantı yok.`, 10000, 'uyari'); return; }
+        kopruTerminalListesi(es);
+      } }, svg(IK.pc), `${ad}${ekDa(ad)}ki terminaller`);
+      const bas = v.querySelector('.bas');
+      let sag = bas?.querySelector(':scope > .sag');
+      if (bas && !sag) { sag = el('div', { class: 'sag' }); bas.append(sag); }
+      sag?.append(b);
+      return v;
+    };
+  }
+  // === /Faz 2 · Köprü ===
   // === Faz 5 · Beyin === BİLGİ (kararlar, notlar, kaynaklar, görevler), YAKALA (gelen kutusu), HAFIZA DENETİMİ
   // Notlar kayıt deposunda Markdown (bilgi/…); bilgisayarda sunucudan (/api/bilgi), telefonda GitHub'dan (PK.bilgiGetir) ham okunur
   // ve burada aynı ayrıştırıcıyla (notAyristir) çözülür. Yazma bilgisayarda; telefon okur.
