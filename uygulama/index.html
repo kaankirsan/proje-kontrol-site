@@ -133,6 +133,11 @@ main:focus { outline: none; }
 .yan-surum.var b { color: var(--ink); }
 .yan-surum.var .pil { background: var(--info); color: var(--durum-ink); }
 .yan-surum.donuyor .yan-surum-ikon .ikon { animation: don .8s linear infinite; }
+/* Otomatik güncelleme bekliyor (ör. "2 terminal açık; kapanınca kendiliğinden güncellenir"): metin sarar, altında "Şimdi güncelle" */
+.yan-surum-kap { display: flex; flex-direction: column; gap: 4px; }
+.yan-surum.uzun small { white-space: normal; overflow: visible; }
+.yan-surum-simdi { align-self: flex-start; margin-left: 41px; }
+.yan-surum-simdi[hidden] { display: none; }
 .yan-cihaz span:nth-child(2) { min-width: 0; flex: 1; }
 .yan-cihaz b { display: block; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .yan-cihaz small { display: block; color: var(--muted); font-size: .72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -845,6 +850,72 @@ dialog.ot-pencere h3 { margin: 0; font-size: 1rem; }
 .kopru-bant .metin small { display: block; color: var(--muted); font-size: .76rem; margin-top: 2px; }
 .kopru-bant .sag { display: inline-flex; flex-wrap: wrap; gap: 8px; }
 dialog.ot-pencere.kopru-trm { width: min(1240px, calc(100vw - 32px)); }
+/* Oturum durumu (Claude kancaları): başlık altında çip şeridi; kırmızı yanıp söner = soru / izin, turuncu = hata, mavi döner =
+   çalışıyor, yeşil = sıra sende, gri = boşta (docs/plan-oturum-durumu.md) */
+.od-serit { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px 24px 0; }
+.od-cip { --od: var(--muted); display: inline-flex; align-items: center; gap: 7px; max-width: 340px; padding: 4px 10px 4px 8px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--od) 45%, var(--line2)); background: color-mix(in srgb, var(--od) 9%, var(--panel)); color: var(--ink); font: 550 .78rem var(--sans); cursor: pointer; }
+.od-cip:hover, .od-cip:focus-visible { background: color-mix(in srgb, var(--od) 16%, var(--panel)); }
+.od-cip > b { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.od-cip > span { color: var(--ink2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.od-cip > small { color: var(--muted); font-weight: 500; white-space: nowrap; }
+.od-nokta { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--od); }
+[data-durum="soru"], [data-durum="izin"] { --od: var(--bad); }
+[data-durum="hata"] { --od: var(--warn); }
+[data-durum="calisiyor"] { --od: var(--info); }
+[data-durum="bekliyor"] { --od: var(--ok); }
+[data-durum="soru"] .od-nokta, [data-durum="izin"] .od-nokta { animation: od-yanip 1s steps(2, jump-none) infinite; box-shadow: 0 0 0 3px color-mix(in srgb, var(--od) 30%, transparent); }
+.od-cip[data-yeni="1"] .od-nokta { animation: od-nabiz 1.6s ease-in-out infinite; } /* hata / sıra sende: görülene kadar */
+[data-durum="calisiyor"] .od-nokta { background: transparent; border: 2px solid var(--od); border-right-color: transparent; animation: od-don 0.9s linear infinite; width: 10px; height: 10px; }
+.od-cip.od-fazla { --od: var(--muted); }
+.od-cip.od-ses { padding: 4px 7px; color: var(--ink2); }
+.od-cip.od-ses svg { width: 14px; height: 14px; }
+.od-cip.od-ses[data-kapali] { color: var(--muted); text-decoration: line-through; opacity: .7; }
+.od-cip.od-ses[data-kapali] svg { opacity: .5; }
+@keyframes od-yanip { 0% { opacity: 1; } 100% { opacity: .2; } }
+@keyframes od-nabiz { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.45); } }
+@keyframes od-don { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .od-nokta { animation: none !important; } }
+@media (max-width: 760px) { .od-serit { padding: 6px 12px 2px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .od-serit::-webkit-scrollbar { display: none; } .od-cip { flex: none; max-width: 78vw; } }
+dialog.ot-pencere.od-p { width: min(620px, calc(100vw - 32px)); height: fit-content; max-height: calc(100vh - 48px); }
+.od-govde { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; overflow: auto; }
+.od-sorukutu { border: 1px solid var(--line2); border-radius: var(--r); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.od-sorukutu > b { font-size: .9rem; }
+.od-secenek { display: flex; flex-direction: column; gap: 1px; padding: 6px 8px; border-radius: var(--r-sm); background: var(--soft); font-size: .84rem; }
+.od-secenek small { color: var(--muted); }
+button.od-secenek { border: 1px solid transparent; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+button.od-secenek:hover, button.od-secenek:focus-visible { border-color: var(--accent-line); background: var(--accent-soft); }
+button.od-secenek[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+button.od-secenek:disabled { opacity: .6; cursor: progress; }
+.etiket.od-soru, .etiket.od-izin { color: var(--bad); border-color: var(--bad-bar, var(--bad)); background: var(--bad-soft); }
+.etiket.od-hata { color: var(--warn); border-color: var(--warn-bar, var(--warn)); background: var(--warn-soft); }
+/* Dosyalar: yedekteki dosyaların ağacı, araması ve dosya bilgisi */
+.ds-arama { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line2); background: var(--panel); border-radius: var(--r-lg); padding: 0 12px; }
+.ds-arama input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; color: var(--ink); padding: 11px 0; outline: none; }
+.ds-arama:focus-within { border-color: var(--ink); }
+.ds-agac { display: flex; flex-direction: column; }
+.ds-oge { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 8px 2px; border-top: 1px solid var(--line); }
+.ds-agac > .ds-oge:first-child { border-top: 0; }
+.ds-sol { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; }
+.ds-ad { display: inline-flex; align-items: center; gap: 8px; min-width: 0; max-width: 100%; background: none; border: 0; padding: 0; font: inherit; color: var(--ink); text-align: left; cursor: pointer; text-decoration: none; }
+.ds-ad > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-ad:hover > span, .ds-ad:focus-visible > span { text-decoration: underline; }
+.ds-rozet { font-size: .72rem; padding: 1px 8px; gap: 4px; }
+.ds-rozet.uyari { border-color: var(--uyari, #b7791f); color: var(--uyari, #b7791f); }
+.ds-yer { flex-basis: 100%; font-size: .76rem; color: var(--muted); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ds-olcu { display: flex; flex-direction: column; align-items: flex-end; font-size: .8rem; color: var(--muted); white-space: nowrap; }
+.ds-olcu small { font-size: .74rem; }
+dialog.ot-pencere.ds-p { width: min(640px, calc(100vw - 32px)); height: fit-content; max-height: calc(100vh - 48px); } /* modal kenarları 0: auto tüm boya yayılırdı */
+.ds-bilgi { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px; overflow: auto; }
+.ds-bilgi h4 { margin: 8px 0 0; font-size: .86rem; }
+.ds-satir { display: flex; justify-content: space-between; gap: 12px; font-size: .86rem; text-decoration: none; color: var(--ink); }
+.ds-satir > :first-child { overflow-wrap: anywhere; }
+.ds-satir > .soluk { white-space: nowrap; }
+.ds-liste { display: flex; flex-direction: column; gap: 4px; }
+.ds-serit { display: flex; flex-wrap: wrap; gap: 6px; }
+a.ds-konu { text-decoration: none; color: inherit; }
+a.ds-konu:hover h4, a.ds-konu:focus-visible h4 { text-decoration: underline; }
+.ds-altlar { margin: 0; font-size: .78rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+@media (max-width: 600px) { .ds-oge { grid-template-columns: 1fr; } .ds-olcu { flex-direction: row; gap: 8px; align-items: baseline; } }
 .kopru-trm-sahne { flex: 1; min-height: 0; overflow: auto; padding: 8px 4px 4px 12px; background: var(--trm-bg); }
 .kopru-trm-sahne .xterm .xterm-viewport { background-color: var(--trm-bg) !important; }
 .kopru-trm-durum { padding: 6px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
@@ -1215,6 +1286,7 @@ body.pencere-kip main { padding: 16px; }
       <button class="btn ikon-btn durum-btn" type="button" id="durumBtn" aria-label="Sistem durumu ve son bildirimler" aria-haspopup="dialog" aria-expanded="false" aria-controls="durumPanel"></button>
       <button class="btn ikon-btn" type="button" id="tema" aria-label="Temayı değiştir"></button>
     </header>
+    <div class="od-serit" id="odSerit" hidden role="region" aria-label="Claude oturumları: durum"></div>
     <div class="bant" id="bant" hidden role="status"></div>
     <main id="ana" tabindex="-1"></main>
   </div>
@@ -1257,6 +1329,7 @@ body.pencere-kip main { padding: 16px; }
   const yaz = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} };
   let ayar = oku(AYAR) || {};
   const test = new URLSearchParams(location.search).get('yerel'); // yerel deneme: ?yerel=1 (dosyalar aynı klasörde)
+  let bekleyenKabuk = null; // arayüz yüklenmeden gelen yeni kabuk sürümü
   const b64 = (s) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g, '')), (c) => c.charCodeAt(0)));
   const gh = async (yol, secenek = {}) => {
     const r = await fetch('https://api.github.com' + yol, { ...secenek, headers: { Authorization: 'Bearer ' + ayar.anahtar, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...(secenek.headers || {}) } });
@@ -1471,6 +1544,7 @@ body.pencere-kip main { padding: 16px; }
     };
     document.getElementById('veri').textContent = JSON.stringify(k);
     const b = document.createElement('script'); b.textContent = document.getElementById('anaBetik').textContent; document.body.append(b);
+    if (bekleyenKabuk && window.pkYeniSurum) window.pkYeniSurum(bekleyenKabuk); // arayüz yüklenmeden yeni kabuk gelmişti
     if (cevrimdisi) { const s = document.createElement('div'); s.id = 'serit'; s.textContent = 'Çevrimdışı · son veri ' + new Date(v.zaman).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' }); document.body.append(s); }
   }
   async function ac() {
@@ -1491,9 +1565,25 @@ body.pencere-kip main { padding: 16px; }
     }, { once: true });
   }
   if ('serviceWorker' in navigator && !test) {
-    // Yeni kabuk etkinleşince sessizce değişmesin: "Yeni sürüm" bandı (arayüzün bant alanı); ilk kurulumda gösterilmez
+    // Yeni kabuk etkinleşince sayfa güvenli olunca kendiliğinden yenilenir (arayüzün otomatik yenilemesi: yazılan metin, açık
+    // pencere, kaydedilmemiş değişiklik beklenir; adres korunur). Sayfa zaten yeni kabuksa (ağdan yüklendi) yenilenmez; ilk
+    // kurulumda da. Yeni servis çalışanı kendi sürümünü söyler (sw.js "kabuk-surumu"); yanıt gelmezse yeni sayılır.
+    const KABUK = 'mwprlg3e';
     const vardi = !!navigator.serviceWorker.controller;
-    navigator.serviceWorker.addEventListener('controllerchange', () => { if (vardi && window.pkBant) window.pkBant('Yeni sürüm hazır.', 'Yenile', () => location.reload()); });
+    const yeniKabuk = (v) => {
+      if (!v || v === KABUK) return;
+      if (window.pkYeniSurum) window.pkYeniSurum(v);
+      else if (window.pkBant) window.pkBant('Yeni sürüm hazır.', 'Yenile', () => location.reload());
+      else bekleyenKabuk = v; // arayüz henüz yüklenmedi (veri bekleniyor): yüklenince
+    };
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      const c = navigator.serviceWorker.controller;
+      if (!vardi || !c) return;
+      const k = new MessageChannel(); let yanit = false;
+      k.port1.onmessage = (e) => { yanit = true; yeniKabuk(e.data && e.data.kabuk); };
+      try { c.postMessage('kabuk-surumu', [k.port2]); } catch (_) {}
+      setTimeout(() => { if (!yanit) yeniKabuk('yanitsiz-' + Date.now()); }, 3000);
+    });
     navigator.serviceWorker.register('sw.js').then((r) => { setInterval(() => r.update().catch(() => {}), 30 * 60_000); }).catch(() => {});
   }
   if (test || ayar.anahtar) ac(); else girisGoster();
@@ -1826,9 +1916,105 @@ body.pencere-kip main { padding: 16px; }
   }
   const bantGoster = (ad, m, etiket, fn, { ton = '', oncelik = 1 } = {}) => { bantlar.set(ad, { m, etiket, fn, ton, oncelik }); bantCiz(); };
   const bantKaldir = (ad) => { if (bantlar.delete(ad)) bantCiz(); };
-  window.pkBant = (m, etiket, fn) => bantGoster('surum', m, etiket, fn); // telefon kabuğu (servis çalışanı yeni sürüm)
-  // --- Uygulama sürümü ve güncelleme (sol alt): etkin sürüm; GitHub'da yeni sürüm varsa ikon + sayı; tıklayınca yenilikler ve
-  // "Güncelle" (git pull, gerekirse beceri/paketler; ardından uygulama kendini yeniden başlatır). Yalnızca masaüstü.
+  window.pkBant = (m, etiket, fn) => bantGoster('surum', m, etiket, fn); // telefon kabuğu (eski derleme; yenisi pkYeniSurum)
+  // === Otomatik yenileme === (Kaan: "yeni sürüm hazır, yenile'ye basmak neden gerekiyor"). Yeni arayüz sürümü (sunucu yeni sürüme
+  // geçti; telefonda yeni kabuk), katalog ya da sekme yerleşimi değişince sayfa kendiliğinden yenilenir. Yalnızca güvenliyken:
+  // kaydedilmemiş kayıt ya da yazılmamış metin (görev taslağı, yakala, yeni iş, form alanı) varsa beklenir, hiçbir şey kaybolmaz;
+  // açık pencere ya da odakta alan varsa kullanıcı 30 sn boşta kalınca ya da pencere arka plana geçince. Adres (#…) ve kaydırma
+  // korunur; aynı hedef için en çok bir kez (döngü yok). Terminal sekmesi engel değil: oturumlar sunucuda sürer, sayfa yeniden
+  // bağlanır ve tutulan çıktıyı baştan yazar (Faz 3). data-otokayit: alan odaktan çıkınca kendisi kaydeder (wiki, makine kartı).
+  /*OTO-YENILE*/
+  const YENILE_BOS_MS = 30_000, YENILE_ETKIN_MS = 3_000;
+  /** Karar — saf. sert: 'kayit' | 'metin' | 'terminal' | null · yumusak: 'pencere' | 'odak' | null · bosMs: son etkinlikten beri · gizli: arka planda */
+  const yenilemeKarari = ({ sert = null, yumusak = null, bosMs = 0, gizli = false }) => {
+    if (sert) return { eylem: 'bekle', neden: sert, sonraMs: sert === 'kayit' ? 1000 : 5000 };
+    if (gizli) return { eylem: 'yenile', birak: yumusak === 'odak' }; // arka planda: odaktaki alan önce kaydını yapsın
+    if (yumusak) return bosMs >= YENILE_BOS_MS ? { eylem: 'yenile', birak: yumusak === 'odak' } : { eylem: 'bekle', neden: yumusak, sonraMs: Math.min(5000, YENILE_BOS_MS - bosMs) };
+    if (bosMs < YENILE_ETKIN_MS) return { eylem: 'bekle', neden: null, sonraMs: YENILE_ETKIN_MS - bosMs }; // tıklama / yazma tam o an
+    return { eylem: 'yenile', birak: false };
+  };
+  /** Bu hedef için az önce kendiliğinden yenilendi mi (döngü koruması) — saf */
+  const yenilendiMi = (k, hedef, simdi = Date.now()) => !!k && k.hedef === hedef && simdi - k.zaman < 10 * 60_000;
+  /** Yazılmış ama gönderilmemiş / kaydedilmemiş metin — saf: alanlar [{ bagli, deger, ilk }] · taslaklar: görev taslağı metinleri */
+  const yazilmamisVar = (alanlar = [], taslaklar = []) => alanlar.some((a) => a.bagli && String(a.deger || '').trim() !== '' && a.deger !== a.ilk) || taslaklar.some((m) => String(m || '').trim() !== '');
+  /*OTO-YENILE-SON*/
+  const YENI = { hedef: null, neden: null, z: null, son: Date.now(), birakildi: false }; // birakildi: odaktaki alan bir kez bırakıldı
+  const OTO_YENILE = 'pk-oto-yenile';
+  const kirliAlanlar = new Set();
+  const metinAlaniMi = (t) => !!t?.matches?.('textarea, input:not([type]), input[type=text], input[type=url], input[type=email], input[type=number], input[type=password], input[type=tel]') && !t.closest('.xterm, [data-otokayit]');
+  for (const t of ['pointerdown', 'keydown', 'wheel', 'touchstart']) addEventListener(t, () => { YENI.son = Date.now(); YENI.birakildi = false; }, { capture: true, passive: true });
+  document.addEventListener('input', (e) => { YENI.son = Date.now(); YENI.birakildi = false; if (metinAlaniMi(e.target)) kirliAlanlar.add(e.target); }, true);
+  /** Sayfada yazılıp gönderilmemiş metin var mı (yakala, yeni iş, form alanı; kendisi kaydeden alanlar hariç) */
+  const kirliMetinVar = () => { for (const t of [...kirliAlanlar]) if (!t.isConnected) kirliAlanlar.delete(t); return yazilmamisVar([...kirliAlanlar].map((t) => ({ bagli: t.isConnected, deger: t.value, ilk: t.defaultValue }))); };
+  const sertEngel = () => {
+    if (PK && (kaydediliyor || Object.keys(yerelYama(yerel, yerelIlk)).length)) return 'kayit';
+    // Terminal sekmesi açıkken (çalışan oturum varsa) yenilenmez: Terminal sekmesinde açılan sayfada xterm ekranı sık sık boş
+    // kalıyor (oturum sürüyor, çıktı görünmüyor; başsız Edge benzetiminde, CDP yenilemesi ve location.reload ile görüldü). Sekmeden çıkınca yenilenir, dönünce ekran düzgün gelir.
+    try { if (rota?.ad === 'terminal' && TRM.liste.some((o) => o.durum === 'calisiyor')) return 'terminal'; } catch (_) {}
+    let taslaklar = []; try { taslaklar = Object.values(GOREV.taslak).flatMap((T) => T.metinler || []); } catch (_) {}
+    return kirliMetinVar() || yazilmamisVar([], taslaklar) ? 'metin' : null;
+  };
+  const yumusakEngel = () => {
+    if (document.querySelector('dialog[open], .sor-arka, .modal[open]')) return 'pencere';
+    const a = document.activeElement;
+    return a && a !== document.body && a.matches?.('input, textarea, select, [contenteditable="true"]') && !a.closest('.xterm') ? 'odak' : null;
+  };
+  const YENILE_BASLIK = { surum: 'Yeni sürüm hazır', yeniden: 'Proje Kontrol yeniden başladı', katalog: 'Katalog güncellendi (yeni proje ya da kaynak)', yerlesim: 'Sekmeler ya da projelerin yeri değişti' };
+  const YENILE_NEDEN = { terminal: 'Terminal sekmesinden çıkınca kendiliğinden yenilenir (oturumlar sürer).', metin: 'yazdığınız metin kaybolmasın diye bekleniyor; gönderince ya da silince kendiliğinden yenilenir.', pencere: 'açık pencere kapanınca ya da 30 sn boşta kalınca kendiliğinden yenilenir.', odak: '30 sn boşta kalınca kendiliğinden yenilenir.' };
+  async function yenidenYukle() {
+    clearTimeout(YENI.z); YENI.z = null;
+    // Bilgisayardaki uygulama: sunucu o an yanıt vermiyorsa yenilenmez (pencere "bağlanılamıyor" sayfasında kalırdı); sonra yeniden
+    if (MASA && !(await fetch('/api/ping', { cache: 'no-store' }).then((r) => r.ok).catch(() => false))) { YENI.z = setTimeout(yenilemeDene, 2000); return; }
+    try { sessionStorage.setItem(OTO_YENILE, JSON.stringify({ hedef: YENI.hedef, neden: YENI.neden, zaman: Date.now(), kaydirma: Math.round(scrollY), hash: location.hash })); } catch (_) {}
+    location.reload();
+  }
+  async function simdiYenile() {
+    if (sertEngel() === 'metin' && !(await sor({ baslik: 'Sayfa şimdi yenilensin mi?', metin: 'Yazıp henüz göndermediğiniz metin (görev taslağı, yeni iş, form alanı) yenileyince kaybolur.', tamam: 'Yine de yenile', tehlike: true }))) return;
+    if (PK) { try { clearTimeout(kaydetZ); kaydetZ = null; await (kaydediliyor || Promise.resolve()); await yerelGonder(); } catch (e) { bildir('Kaydedilemedi, sayfa yenilenmedi: ' + e.message, 9000, 'hata'); return; } }
+    yenidenYukle();
+  }
+  function yenilemeDene() {
+    clearTimeout(YENI.z); YENI.z = null;
+    if (!YENI.hedef) return;
+    let sert = null, yumusak = null;
+    try { sert = sertEngel(); yumusak = yumusakEngel(); } catch (_) { sert = 'metin'; }
+    // Odaktaki alan bir kez bırakıldıysa (ve kullanıcı o zamandan beri dokunmadıysa) odak yeniden engel sayılmaz: görünüm alanı
+    // kendiliğinden yeniden odaklasa da (yakala penceresi) bırak / odakla döngüsü olmaz
+    if (YENI.birakildi && yumusak === 'odak') yumusak = null;
+    const k = yenilemeKarari({ sert, yumusak, bosMs: Date.now() - YENI.son, gizli: document.visibilityState === 'hidden' });
+    if (k.eylem === 'yenile') {
+      // Odaktaki alan önce bırakılır: kendisi kaydeden alan (data-otokayit) kaydını yapsın, sonra yeniden bakılır
+      if (k.birak && !YENI.birakildi) { try { document.activeElement?.blur(); } catch (_) {} YENI.birakildi = true; YENI.son = Date.now() - YENILE_BOS_MS; YENI.z = setTimeout(yenilemeDene, 1200); return; }
+      yenidenYukle(); return;
+    }
+    if (YENILE_NEDEN[k.neden]) bantGoster('yenile', `${YENILE_BASLIK[YENI.neden] || YENILE_BASLIK.surum} · ${YENILE_NEDEN[k.neden]}`, 'Şimdi yenile', simdiYenile, { oncelik: 2 });
+    YENI.z = setTimeout(yenilemeDene, k.sonraMs);
+  }
+  /** Yeni sürüm / katalog / yerleşim geldi: güvenli olunca kendiliğinden yenile. hedef: aynı hedefte ikinci kez kendiliğinden yenilenmez */
+  function yenilemeIste(hedef, neden = 'surum') {
+    let k = null; try { k = JSON.parse(sessionStorage.getItem(OTO_YENILE) || 'null'); } catch (_) {}
+    if (yenilendiMi(k, hedef)) { bantGoster('yenile', `${YENILE_BASLIK[neden] || YENILE_BASLIK.surum}.`, 'Yenile', () => location.reload(), { oncelik: 2 }); return; }
+    if (YENI.hedef && YENI.neden === 'surum' && neden !== 'surum') return; // sürüm yenilemesi zaten bekliyor (katalog da gelir)
+    YENI.hedef = hedef; YENI.neden = neden;
+    yenilemeDene();
+  }
+  addEventListener('visibilitychange', () => { if (YENI.hedef) yenilemeDene(); });
+  addEventListener('hashchange', () => { if (YENI.hedef) setTimeout(yenilemeDene, 300); }); // ör. Terminal sekmesinden çıkıldı
+  document.addEventListener('focusout', () => { if (YENI.hedef) setTimeout(yenilemeDene, 300); });
+  window.pkYeniSurum = (hedef) => yenilemeIste('kabuk:' + (hedef || Date.now()), 'surum'); // telefon kabuğu: yeni servis çalışanı
+  // Kendiliğinden yenilendikten sonra: kaydırma yeri ve kısa bilgi (ilk çizimden sonra)
+  setTimeout(() => {
+    let k = null; try { k = JSON.parse(sessionStorage.getItem(OTO_YENILE) || 'null'); } catch (_) {}
+    if (!k || k.gosterildi || Date.now() - k.zaman > 60_000) return;
+    try { sessionStorage.setItem(OTO_YENILE, JSON.stringify({ ...k, gosterildi: true })); } catch (_) {}
+    if (k.hash === location.hash && k.kaydirma > 0) scrollTo(0, k.kaydirma);
+    bildir(k.neden === 'katalog' ? 'Katalog güncellendi; sayfa kendiliğinden yenilendi.' : k.neden === 'yerlesim' ? 'Yerleşim güncellendi; sayfa kendiliğinden yenilendi.' : k.neden === 'yeniden' ? 'Proje Kontrol yeniden başladı; sayfa kendiliğinden yenilendi.' : 'Proje Kontrol yeni sürüme geçti.', 3500, 'tamam');
+  }, 300);
+  // === /Otomatik yenileme ===
+  // --- Uygulama sürümü ve güncelleme (sol alt): etkin sürüm; yeni sürüm otomatik gelir (sunucu güvenli olunca kendini günceller ve
+  // yeniden başlar, sayfa kendiliğinden yeni sürüme geçer). Beklerse sakin bilgi: "Yeni sürüm bekliyor · 2 terminal açık; kapanınca
+  // kendiliğinden güncellenir" + "Şimdi güncelle" (terminalleri kapatacaksa önce sorar). Otomatik kapalıysa (config.json
+  // "guncelleme": { "otomatik": false }) eskisi gibi: ikon + sayı, tıklayınca yenilikler ve "Güncelle". Yalnızca masaüstü.
   const surumTarih = (s) => (s ? new Date(s).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : '');
   // === Faz 3 · Terminal === yeniden başlatma çalışan terminal oturumlarını kapatır (PTY'ler sunucu sürecinde): önce sorulur
   async function yenidenBaslatIste() {
@@ -1841,49 +2027,86 @@ body.pencere-kip main { padding: 16px; }
       return api('/api/yeniden-baslat', { zorla: true });
     }
   }
-  async function yenidenBaslatVeYukle() {
-    bantGoster('surum', 'Yeniden başlatılıyor…', null, null, { oncelik: 3 });
-    try { await yenidenBaslatIste(); } catch (e) { bantKaldir('surum'); bildir(e.message, 8000, 'hata'); return false; }
-    for (let i = 0; i < 60; i++) { await new Promise((z) => setTimeout(z, 750)); if (await fetch('/api/ping').then((r) => r.ok).catch(() => false)) { location.reload(); return true; } }
-    bantGoster('surum', 'Uygulama yeniden başlamadı. Pencereyi kapatıp Proje Kontrol\'ü yeniden açın.', null, null, { ton: 'kotu', oncelik: 3 });
-    return false;
+  let surumSatiriTazele = () => {}; // sürüm satırı varsa (masaüstü) durumu yeniden çeker
+  const engelMetni = (e = {}) => {
+    const n = Number(e.terminal) || 0;
+    if (n && e.is) return `${n} terminal açık, süren iş var; bitince kendiliğinden güncellenir`;
+    if (n) return `${n} terminal açık; kapanınca kendiliğinden güncellenir`;
+    if (e.is) return 'süren iş var; bitince kendiliğinden güncellenir';
+    return 'birazdan kendiliğinden güncellenir';
+  };
+  /** "Şimdi güncelle" / "Güncelle": terminalleri kapatacaksa ÖNCE sorulur (onaysız hiçbir şey değişmez); sonra sunucu kendini günceller,
+   * gerekirse yeniden başlar; sayfa yeniden bağlanınca yeni sürüme kendiliğinden geçer */
+  async function simdiGuncelle() {
+    bantGoster('surum', 'Proje Kontrol güncelleniyor…', null, null, { oncelik: 3 });
+    let r;
+    try { r = await api('/api/uygulama-guncelle', {}); }
+    catch (e) {
+      bantKaldir('surum');
+      if (e.durum !== 409 || !e.veri?.terminal) { bildir(e.message, 9000, 'hata'); surumSatiriTazele(); return; }
+      const n = e.veri.terminal;
+      const ok = await sor({ baslik: `${n} terminal oturumu kapanacak`, metin: `Yeni sürüm uygulamayı yeniden başlatır; uygulamanın içindeki terminalde çalışan ${n} oturum ve içlerinde çalışanlar sonlanır (Claude / Codex konuşmaları sonra Oturumlar'dan "Devam et" ile sürdürülebilir). Beklerseniz terminaller kapanınca kendiliğinden güncellenir.`, tamam: 'Yine de güncelle', vazgec: 'Bekle', tehlike: true });
+      if (!ok) { bildir('Güncelleme bekliyor: terminaller kapanınca kendiliğinden yüklenecek.', 6000); return; }
+      bantGoster('surum', 'Proje Kontrol güncelleniyor…', null, null, { oncelik: 3 });
+      try { r = await api('/api/uygulama-guncelle', { zorla: true }); } catch (e2) { bantKaldir('surum'); bildir(e2.message, 9000, 'hata'); surumSatiriTazele(); return; }
+    }
+    for (const u of r.uyarilar || []) bildir(u, 9000, 'uyari');
+    // Yeniden başlatılacaksa sunucu az sonra "yeniden-basliyor" der (sakin bant onunla gelir); arada terminal açıldıysa bekler
+    bantKaldir('surum');
+    if (r.yenidenBaslatilacak) { surumSatiriTazele(); return; }
+    if (!r.degisti) bildir('Proje Kontrol zaten güncel.');
+    surumSatiriTazele(); // yalnızca arayüz değiştiyse şablon olayı sayfayı kendiliğinden yeniler
   }
   function surumSatiri() {
     const ikon = el('span', { class: 'yan-surum-ikon' }, svg(IK.yenile));
     const ad = el('b', { text: 'Proje Kontrol' }), alt = el('small', { text: 'sürüm okunuyor…' }), pil = el('span', { class: 'pil', hidden: true });
     const b = el('button', { class: 'yan-surum', type: 'button', id: 'surumSatir', 'aria-live': 'polite' }, ikon, el('span', {}, ad, alt), pil);
+    const simdiB = el('button', { class: 'btn kucuk yan-surum-simdi', type: 'button', hidden: true, onclick: () => simdiGuncelle() }, svg(IK.indir, 'ikon k'), 'Şimdi güncelle');
+    const kap = el('div', { class: 'yan-surum-kap' }, b, simdiB);
     let S = null, mesgul = false;
     const ciz = () => {
       if (!S) return;
-      const var_ = S.geride > 0;
-      b.classList.toggle('var', var_);
-      ikon.replaceChildren(svg(var_ ? IK.indir : S.hata ? IK.uyari : IK.tamam));
-      ad.textContent = var_ ? 'Güncelleme var' : 'Proje Kontrol';
-      alt.textContent = S.surum ? `sürüm ${S.surum} · ${surumTarih(S.tarih)}${var_ ? '' : S.hata ? ' · denetlenemedi' : ' · güncel'}` : (S.hata || 'sürüm okunamadı');
-      pil.hidden = !var_; pil.textContent = String(S.geride);
-      b.title = var_ ? `${S.geride} yenilik var; tıklayın: listele ve güncelle` : `Etkin sürüm ${S.surum || '?'}${S.konu ? ' · ' + S.konu : ''}${S.hata ? '\n' + S.hata : ''}\nSon denetim: ${S.kontrol ? zamanTR(S.kontrol) : '—'} · tıklayın: şimdi denetle`;
+      const o = S.oto?.acik ? S.oto : null, a = o?.asama, var_ = S.geride > 0 || (!!o && !!S.sunucuEski);
+      let baslik = 'Proje Kontrol', ik = S.hata ? IK.uyari : IK.tamam, simdi = false, uzun = false;
+      let altM = S.surum ? `sürüm ${S.surum} · ${surumTarih(S.tarih)}${var_ ? '' : S.hata ? ' · denetlenemedi' : ' · güncel'}` : (S.hata || 'sürüm okunamadı');
+      if (o && (a === 'guncelleniyor' || a === 'yeniden-basliyor')) { baslik = 'Güncelleniyor…'; altM = 'yeni sürüm yükleniyor; sayfa kendiliğinden yenilenir'; ik = IK.indir; }
+      else if (o && a === 'bekliyor') { baslik = 'Yeni sürüm bekliyor'; altM = engelMetni(o.engel); ik = IK.indir; simdi = true; uzun = true; }
+      else if (o && a === 'basarisiz') { baslik = 'Güncellenemedi'; altM = 'eski sürüm çalışıyor · ayrıntı için tıklayın'; ik = IK.uyari; simdi = var_; }
+      else if (o && (a === 'kirli' || a === 'ayrismis')) { baslik = 'Güncelleme yapılamıyor'; altM = a === 'kirli' ? 'uygulama klasöründe kaydedilmemiş değişiklik' : "uygulama klasöründe GitHub'da olmayan commit"; ik = IK.uyari; uzun = true; }
+      else if (var_) { baslik = 'Güncelleme var'; if (o) altM = 'kendiliğinden yüklenecek'; ik = IK.indir; }
+      b.classList.toggle('var', var_); b.classList.toggle('uzun', uzun);
+      ikon.replaceChildren(svg(ik));
+      ad.textContent = baslik; alt.textContent = altM;
+      pil.hidden = !S.geride; pil.textContent = String(S.geride || '');
+      simdiB.hidden = !simdi;
+      b.title = [o?.hata || null, var_ ? `${S.geride ? S.geride + ' yenilik' : 'Yeni sunucu kodu'}${o ? ' · otomatik güncelleme açık' : ''}; tıklayın: listele ve güncelle` : `Etkin sürüm ${S.surum || '?'}${S.konu ? ' · ' + S.konu : ''}${S.hata ? '\n' + S.hata : ''}`, `Son denetim: ${S.kontrol ? zamanTR(S.kontrol) : '—'}${var_ ? '' : ' · tıklayın: şimdi denetle'}`].filter(Boolean).join('\n');
     };
-    const yokla = (kontrol) => api('/api/uygulama-surum' + (kontrol ? '?kontrol=1' : '')).then((s) => { S = s; ciz(); return s; }, () => null);
+    const yokla = (kontrol) => api('/api/uygulama-surum' + (kontrol ? '?kontrol=1' : '')).then((s) => {
+      S = s; ciz();
+      // Yedek yol: şablon değiştiyse (olay kaçtıysa da) sayfa güvenli olunca yenilenir; sunucu eskiyse ve kendisi geçecekse beklenir
+      if (s.arayuz && PK?.surum && s.arayuz !== PK.surum && !(s.sunucuEski && s.oto?.acik)) yenilemeIste('surum:' + s.arayuz, 'surum');
+      return s;
+    }, () => null);
+    surumSatiriTazele = () => yokla(false);
     b.addEventListener('click', async () => {
       if (mesgul) return; mesgul = true; b.classList.add('donuyor');
       try {
         const s = (await yokla(true)) || S;
         if (!s) return bildir('Sürüm bilgisi alınamadı.', 5000, 'hata');
-        if (!s.geride) return bildir(s.hata ? s.hata : `Proje Kontrol güncel (sürüm ${s.surum}).`, 5000, s.hata ? 'hata' : '');
-        if (s.kirli) return bildir('Uygulama klasöründe kaydedilmemiş değişiklik var; güncelleme yapılamıyor.', 8000, 'hata');
-        const ok = await sor({ baslik: `Proje Kontrol güncellemesi · ${s.geride} yenilik`, metin: `Şu an: ${s.surum} (${surumTarih(s.tarih)}). Güncellenince uygulama kendini yeniden başlatır; projelere ve kasaya dokunulmaz.`, liste: s.yeniler.map((y) => `${y.mesaj} (${surumTarih(y.tarih)})`).concat(s.geride > s.yeniler.length ? [`… ve ${s.geride - s.yeniler.length} değişiklik daha`] : []), tamam: 'Güncelle' });
-        if (!ok) return;
-        bantGoster('surum', 'Proje Kontrol güncelleniyor…', null, null, { oncelik: 3 });
-        let g;
-        try { g = await api('/api/uygulama-guncelle', {}); } catch (e) { bantKaldir('surum'); return bildir(e.message, 9000, 'hata'); }
-        for (const u of g.uyarilar || []) bildir(u, 9000, 'hata');
-        if (!g.degisti) { bantKaldir('surum'); await yokla(false); return bildir('Proje Kontrol zaten güncel.'); }
-        await yenidenBaslatVeYukle();
+        const o = s.oto?.acik ? s.oto : null;
+        if (o?.hata && (o.asama === 'basarisiz' || o.asama === 'kirli' || o.asama === 'ayrismis')) bildir(o.hata, 12000, o.asama === 'basarisiz' ? 'hata' : 'uyari');
+        if (o && (o.asama === 'guncelleniyor' || o.asama === 'yeniden-basliyor')) return bildir('Proje Kontrol şu an güncelleniyor; sayfa kendiliğinden yenilenecek.', 5000);
+        if (!s.geride && !(o && s.sunucuEski)) return bildir(s.hata ? s.hata : `Proje Kontrol güncel (sürüm ${s.surum}).`, 5000, s.hata ? 'hata' : '');
+        if (s.geride && s.kirli) return o ? null : bildir('Uygulama klasöründe kaydedilmemiş değişiklik var; güncelleme yapılamıyor.', 8000, 'hata');
+        const liste = (s.yeniler || []).map((y) => `${y.mesaj} (${surumTarih(y.tarih)})`).concat(s.geride > (s.yeniler || []).length ? [`… ve ${s.geride - s.yeniler.length} değişiklik daha`] : []);
+        const bekliyor = o?.asama === 'bekliyor' ? ` Şu an ${engelMetni(o.engel)}.` : o ? ' Uygun anda kendiliğinden yüklenir; isterseniz şimdi de yükleyin.' : '';
+        const ok = await sor({ baslik: s.geride ? `Proje Kontrol güncellemesi · ${s.geride} yenilik` : 'Proje Kontrol yeni sürüme geçmeyi bekliyor', metin: `Şu an: ${s.surum} (${surumTarih(s.tarih)}).${bekliyor} Güncellenince uygulama gerekirse kendini yeniden başlatır ve açık sayfa yeni sürüme kendiliğinden geçer; projelere ve kasaya dokunulmaz.`, liste, tamam: o ? 'Şimdi güncelle' : 'Güncelle' });
+        if (ok) await simdiGuncelle();
       } finally { mesgul = false; b.classList.remove('donuyor'); }
     });
     setTimeout(() => yokla(false), 1500);
     setInterval(() => { if (document.visibilityState === 'visible') yokla(false); }, 10 * 60_000);
-    return b;
+    return kap;
   }
   /** Uygulama içi soru: { baslik, metin, liste, alanlar: [{ ad, etiket, deger, cok }], tamam, tehlike } → değerler ya da null */
   function sor({ baslik, metin = '', liste = [], alanlar = [], tamam = 'Tamam', vazgec = 'Vazgeç', tehlike = false }) {
@@ -1903,6 +2126,21 @@ body.pencere-kip main { padding: 16px; }
       form.addEventListener('submit', (e) => { e.preventDefault(); sonuc = Object.fromEntries(girdiler.map(([k, g]) => [k, g.value.trim()])); d.close(); });
       d.addEventListener('close', () => { d.remove(); coz(sonuc); });
       d.showModal(); (girdiler[0]?.[1] || ok).focus();
+    });
+  }
+  /** Uygulama içi seçim: { baslik, metin, liste, secenekler: [{ deger, ad, tur: 'ana' | 'tehlike' | '' }], vazgec } → seçilen değer ya da null */
+  function secimSor({ baslik, metin = '', liste = [], secenekler, vazgec = 'Vazgeç' }) {
+    return new Promise((coz) => {
+      const d = el('dialog', { class: 'soru', 'aria-label': baslik });
+      const form = el('form', { method: 'dialog' }, el('h3', { text: baslik }));
+      if (metin) form.append(el('p', { text: metin }));
+      if (liste.length) form.append(el('ul', {}, ...liste.map((m) => el('li', { text: m }))));
+      let sonuc = null;
+      const tuslar = el('div', { class: 'tuslar' }, el('button', { class: 'btn', type: 'button', text: vazgec, onclick: () => d.close() }),
+        ...secenekler.map((s) => el('button', { class: 'btn' + (s.tur ? ' ' + s.tur : ''), type: 'button', text: s.ad, onclick: () => { sonuc = s.deger; d.close(); } })));
+      form.append(tuslar); d.append(form); document.body.append(d);
+      d.addEventListener('close', () => { d.remove(); coz(sonuc); });
+      d.showModal(); (tuslar.querySelector('.ana') || tuslar.lastElementChild).focus();
     });
   }
   /**
@@ -2106,7 +2344,9 @@ body.pencere-kip main { padding: 16px; }
     const kat = (x.saglikKatalog ||= x.saglik || { puan: 0, oneriler: [] });
     const canli = CIHAZLAR.map((k) => [k, cd(x, k)]);
     const fark = canli.some(([, d]) => ['ileride', 'geride', 'cakisma'].includes(d.durum));
-    const l = (kat.oneriler || []).filter((o) => !DURUM_ONERI.test(o.metin) && !(/→ birleştir$/.test(o.metin) && !fark));
+    // "Programlar arşiv dosyası içinde": düzen iç arşivleri açıp sürüm geçmişine çevirdiyse (sürüm zinciri var) artık geçerli değil
+    const arsivIslendi = (x.surumZinciri?.zincir?.length || 0) > 0;
+    const l = (kat.oneriler || []).filter((o) => !DURUM_ONERI.test(o.metin) && !(/→ birleştir$/.test(o.metin) && !fark) && !(arsivIslendi && /arşiv dosyası içinde/.test(o.metin)));
     for (const [k, d] of canli) {
       if (d.durum === 'cakisma') l.push({ puan: 20, metin: `${cAd(k)}: hem bulutta yeni kayıt hem gönderilmemiş iş var → önce gönder, sonra güncelle` });
       // Sayısız metin: sayı değişince yapılacak kapanıp yenisi açılmasın
@@ -2535,6 +2775,7 @@ body.pencere-kip main { padding: 16px; }
     MASA ? { id: 'terminal', ad: 'Terminal', ikon: IK.terminal, grup: 'Genel' } : null, // === Faz 3 · Terminal ===
     { id: 'yedekler', ad: 'Yedekler', ikon: IK.bulut, grup: 'Depolama' },
     { id: 'yer-ac', ad: 'Yer aç', ikon: IK.disk, grup: 'Depolama' },
+    MASA ? { id: 'dosyalar', ad: 'Dosyalar', ikon: IK.belge, grup: 'Depolama' } : null, // yedekteki tüm dosyalar (dizin yalnızca bu bilgisayarda)
     { id: 'medya', ad: 'Medya', ikon: IK.medya, grup: 'Depolama', sayi: K.medya.length },
     { id: 'kasa', ad: 'Kasa', ikon: IK.kilit, grup: 'Güvenlik' },
     MASA ? { id: 'rapor', ad: 'Haftalık rapor', kisa: 'Rapor', ikon: IK.rapor, grup: 'Araçlar' } : null,
@@ -2545,7 +2786,7 @@ body.pencere-kip main { padding: 16px; }
   ].filter(Boolean);
   const ROTA_ID = Object.fromEntries(ROTALAR.map((r) => [r.id, r]));
   // Görünür menü 4 ana öğe; geri kalanlar katlanır "Diğer" grubunda (telefonda "Diğer" sayfası)
-  const ANA_MENU = MASA ? ['pano', 'projeler', 'oturumlar', 'terminal', 'ziyaret', 'kasa', 'medya'] : ['pano', 'projeler', 'kasa', 'medya'];
+  const ANA_MENU = MASA ? ['pano', 'projeler', 'dosyalar', 'oturumlar', 'terminal', 'ziyaret', 'kasa', 'medya'] : ['pano', 'projeler', 'kasa', 'medya'];
   const ALT_SEKME = ['pano', 'projeler', 'kasa', 'medya'];
   const DIGER = ROTALAR.filter((r) => !ANA_MENU.includes(r.id));
   const digerSay = DIGER.reduce((t, r) => t + (r.sayi || 0), 0);
@@ -2569,8 +2810,9 @@ body.pencere-kip main { padding: 16px; }
     for (const k of CIHAZLAR) {
       const s = cihazSayim(k);
       const alt2 = k === BU ? (PK ? 'canlı · ' + s.toplam + ' proje' : s.toplam + ' proje') : k === 'Diğer PC' && PK?.digerCihaz?.zaman ? 'son görülme ' + goreli(PK.digerCihaz.zaman, new Date()) : s.toplam + ' proje';
-      ya.append(el('a', { class: 'yan-cihaz', href: '#cihazlar' }, el('span', { class: 'nokta' + (k === BU && PK ? ' canli' : k === BU ? '' : ' gri') }), el('span', {}, el('b', { text: cAd(k) }), el('small', { text: alt2 })), k === BU ? buRozet() : null));
+      ya.append(el('a', { class: 'yan-cihaz', href: '#cihazlar', ...(k === 'Diğer PC' ? { id: 'yanCihazDiger' } : {}) }, el('span', { class: 'nokta' + (k === BU && PK ? ' canli' : k === BU ? '' : ' gri') }), el('span', {}, el('b', { text: cAd(k) }), el('small', { text: alt2 })), k === BU ? buRozet() : null));
     }
+    if (MASA) setTimeout(digerCihazCanli, 0); // diğer bilgisayarın kartı köprüden canlı (aşağıda)
     if (MOBIL) ya.prepend(el('div', { class: 'yan-cihaz' }, svg(IK.telefon), el('span', {}, el('b', { text: 'Telefon' }), el('small', { text: 'bu cihaz' }))));
     if (MASA) ya.append(surumSatiri());
     $('#altbaslik').textContent = PK ? (MOBIL ? 'Telefon' : 'Bu cihaz: ' + cAd('Bu PC')) : 'Taslak önizleme';
@@ -2672,6 +2914,7 @@ body.pencere-kip main { padding: 16px; }
     if (ad === 'posta' && ROTA_ID.posta && GORUNUM.posta) return { ad, sekme: parca[0] || '' };
     if (ad === 'bilgi') return { ad, proje: parca[0] || '' }; // === Faz 5 · Beyin === #bilgi/<proje>
     if (ad === 'yakala') return { ad, pencere: parca[0] === 'pencere' }; // #yakala, küçük pencere: #yakala/pencere
+    if (ad === 'dosyalar' && GORUNUM.dosyalar && ROTA_ID.dosyalar) return { ad, cihaz: parca[0] || '', yol: parca.slice(1).filter(Boolean).join('/') }; // #dosyalar/<cihaz>/<yol…>
     return { ad: GORUNUM[ad] && (ROTA_ID[ad] || ad === 'proje') ? ad : 'pano' };
   }
   const GORUNUM = {};
@@ -2698,13 +2941,199 @@ body.pencere-kip main { padding: 16px; }
   document.addEventListener('click', (e) => { const a = e.target.closest?.('a[href^="#"]'); if (a) tiklandi = true; });
   addEventListener('hashchange', ciz);
 
+  // ================= OTURUM DURUMU (üst şerit) =================
+  // Claude Code kancalarından kesin durum (sunucu: lib/oturum-durum.mjs, /api/oturum-durum, canlı "oturum-durum"). Her açık oturum
+  // bir çip; dikkat isteyenler önde. Tıklayınca durum penceresi (soru ve seçenekleri, izin, hata, son mesaj) ve "Terminali aç".
+  const OD = { liste: [], gorulen: new Set(), son: 0 };
+  try { OD.gorulen = new Set(JSON.parse(localStorage.getItem('pk-od-gorulen') || '[]')); } catch (_) {}
+  const OD_ETIKET = { soru: 'Soru soruyor', izin: 'İzin istiyor', hata: 'Hata', calisiyor: 'Çalışıyor', bekliyor: 'Sıra sende' };
+  const OD_EN_COK = 6;
+  const odSure = (t) => { const dk = Math.max(0, Math.round((Date.now() - t) / 60000)); return dk < 1 ? 'şimdi' : dk < 60 ? `${dk} dk` : dk < 1440 ? `${Math.floor(dk / 60)} sa ${dk % 60 ? (dk % 60) + ' dk' : ''}`.trim() : `${Math.floor(dk / 1440)} gün`; };
+  const odAnahtar = (o) => `${o.id}|${o.durum}|${o.beri}`;
+  const odEtiket = (o) => (o.durum === 'hata' && o.hata === 'takildi' ? 'Takıldı' : o.durum === 'hata' && /rate|kota/i.test(o.hata || '') ? 'Kota / hız sınırı' : OD_ETIKET[o.durum] || o.durum);
+  const odAd = (o) => o.projeAd || (o.cwd ? String(o.cwd).split(/[\\/]/).filter(Boolean).pop() : 'Claude');
+  const odIslem = (o) => (o.durum === 'calisiyor' ? (o.islem ? `${o.islem.ad}${o.islem.ozet ? ': ' + o.islem.ozet : ''}` : o.arka?.length ? `arka planda ${o.arka.length} iş` : o.ajan ? `${o.ajan} alt ajan çalışıyor` : '') : '');
+  const odYeni = (o) => (o.durum === 'bekliyor' || o.durum === 'hata') && !OD.gorulen.has(odAnahtar(o));
+  function odGordum(o) {
+    OD.gorulen.add(odAnahtar(o));
+    try { localStorage.setItem('pk-od-gorulen', JSON.stringify([...OD.gorulen].slice(-200))); } catch (_) {}
+  }
+  function odCip(o) {
+    const ad = odAd(o), alt = [o.uzak ? o.cihazAd : o.terminalAd, odEtiket(o)].filter(Boolean).join(' · ');
+    const ipucuMetni = [`${ad}${o.terminalAd ? ' · ' + o.terminalAd : ''} · ${o.cihazAd || ''}`, `${odEtiket(o)} · ${odSure(o.beri || o.son)}`, odIslem(o), o.mesaj, o.sonMesaj, o.tahmin ? 'Tahmini durum: bu oturum durum kancalarından önce açıldı (yeniden açılınca kesinleşir)' : null].filter(Boolean).join('\n');
+    return el('button', { class: 'od-cip', type: 'button', 'data-durum': o.durum, 'data-yeni': odYeni(o) ? '1' : null, title: ipucuMetni, onclick: () => odAc(o) },
+      el('span', { class: 'od-nokta', 'aria-hidden': 'true' }), el('b', { text: ad }), el('span', { text: alt }), el('small', { text: odSure(o.beri || o.son) }));
+  }
+  function odCiz() {
+    const s = $('#odSerit'); if (!s) return;
+    const l = OD.liste;
+    if (!l.length) { s.hidden = true; s.replaceChildren(); return; }
+    const gorunen = l.slice(0, OD_EN_COK), fazla = l.slice(OD_EN_COK);
+    s.replaceChildren(...gorunen.map(odCip), ...(fazla.length ? [el('button', { class: 'od-cip od-fazla', type: 'button', title: fazla.map((o) => `${odAd(o)} · ${odEtiket(o)}`).join('\n'), onclick: () => odListeAc() }, el('b', { text: `+${fazla.length}` }))] : []));
+    const ses = odSesAcik();
+    s.append(el('button', { class: 'od-cip od-ses', type: 'button', 'data-kapali': ses ? null : '1', title: ses ? 'Sesli uyarı açık (kapatmak için tıkla)' : 'Sesli uyarı kapalı (açmak için tıkla)', 'aria-label': ses ? 'Sesli uyarıyı kapat' : 'Sesli uyarıyı aç', onclick: () => { try { localStorage.setItem('pk-od-ses', ses ? '0' : '1'); } catch (_) {} if (!ses) odSes('bekliyor'); odCiz(); } }, svg(IK.zil)));
+    if ('Notification' in window && Notification.permission === 'default') s.append(el('button', { class: 'od-cip od-fazla', type: 'button', title: 'Soru, izin, hata ve sıra sende durumlarında Windows bildirimi', onclick: () => Notification.requestPermission().then(odCiz).catch(() => {}) }, el('b', { text: 'Bildirimleri aç' })));
+    s.hidden = false;
+    // Sekme başlığı: senden bir şey bekleyen varsa sayısı önde
+    const dikkat = l.filter((o) => o.durum === 'soru' || o.durum === 'izin').length;
+    document.title = (dikkat ? `(${dikkat}) ` : '') + document.title.replace(/^\(\d+\) /, '');
+  }
+  /** Telefon: kayıt deposundaki cihaz kayıtlarından soru / izin / hata bekleyen açık oturumlar (soru metni yayında yok) */
+  function odMobilListe(kayitlar) {
+    const L = [];
+    for (const c of Array.isArray(kayitlar) ? kayitlar : []) {
+      if (Date.now() - (Date.parse(c?.zaman) || 0) >= 25 * 60_000) continue; // lib/oturumlar.mjs KAYIT_TAZE_MS
+      const cihazAd = String(c?.gorunenAd || c?.cihaz || '').split(/[\s-]/)[0].toUpperCase();
+      for (const o of Array.isArray(c?.oturumlar) ? c.oturumlar : []) {
+        if (!o || typeof o.id !== 'string' || !o.acik || !['soru', 'izin', 'hata'].includes(o.durum)) continue;
+        const x = otProje(o);
+        L.push({ id: o.id, durum: o.durum, uzak: true, cihazAd, projeAd: x ? adSade(x) : null, baslik: o.baslik || null, beri: Number.isFinite(o.beri) ? o.beri : Date.parse(o.son) || Date.now(),
+          son: Date.parse(o.son) || null, uzakUrl: o.arac === 'claude' && OT_UZAK_RX.test(o.uzakUrl || '') ? o.uzakUrl : null, arka: [], ajan: 0 });
+      }
+    }
+    return L.sort((a, b) => (a.durum === 'hata') - (b.durum === 'hata') || (b.son || 0) - (a.son || 0));
+  }
+  let odMobilIlk = true;
+  async function odYenile() {
+    if (MOBIL) {
+      try {
+        const l = PK?.oturumlariTazele ? await PK.oturumlariTazele() : PK?.cihazOturumlari;
+        const once = new Set(OD.liste.map(odAnahtar));
+        OD.liste = odMobilListe(l); OD.son = Date.now(); odCiz();
+        // Uygulama açıkken yeni soru / izin / hata: ses, titreşim, bildirim (ilk yüklemede değil)
+        if (!odMobilIlk) for (const o of OD.liste) if (!once.has(odAnahtar(o))) { const t = `${odAd(o)} · ${o.cihazAd} · ${odEtiket(o).toLowerCase()}`; odUyari({ id: o.id, durum: o.durum, baslik: t, govde: o.baslik || '' }); try { navigator.vibrate?.([180, 90, 180]); } catch (_) {} }
+        odMobilIlk = false;
+      } catch (_) { /* çevrimdışı: şerit eski haliyle */ }
+      return;
+    }
+    if (!MASA) return;
+    try { const r = await api('/api/oturum-durum'); OD.liste = Array.isArray(r.liste) ? r.liste : []; OD.son = Date.now(); odCiz(); odBildirimTemizle(); } catch (_) { /* eski sunucu: şerit gizli kalır */ }
+  }
+  function odListeAc() {
+    const d = otPencere('Claude oturumları', el('header', {}, el('div', { class: 'bas-metin' }, el('h3', { text: `Claude oturumları (${OD.liste.length})` })), el('button', { class: 'btn kucuk', type: 'button', onclick: () => d.close() }, 'Kapat')),
+      el('div', { class: 'od-govde' }, ...OD.liste.map((o) => { const c = odCip(o); c.style.maxWidth = '100%'; c.addEventListener('click', () => d.close()); return c; })));
+    d.classList.add('od-p');
+  }
+  /** Durum penceresi: ne bekliyor, ne yapıyor; "Terminali aç" (uygulama içindeyse) */
+  function odAc(o) {
+    odGordum(o); odCiz();
+    const satir = (a, v) => (v ? el('div', { class: 'ds-satir' }, el('span', { class: 'soluk', text: a }), el('span', { text: v })) : null);
+    const govde = el('div', { class: 'od-govde' });
+    const sorular = Array.isArray(o.soru?.questions) ? o.soru.questions : [];
+    // Uygulama içi terminaldeyse buradan cevap: sunucu durumu ve terminal ekranını denetleyip tuşları gönderir (/api/oturum-durum/cevap)
+    const cevapla = async (govdeJ, dugme) => {
+      dugme && (dugme.disabled = true);
+      try {
+        await api('/api/oturum-durum/cevap', { id: o.id, beri: o.beri, ...govdeJ });
+        bildir('Cevap terminale gönderildi', 3000, 'tamam'); d.close(); setTimeout(odYenile, 1200);
+      } catch (e) { bildir(e.message || 'Gönderilemedi', 6000, 'hata'); dugme && (dugme.disabled = false); odYenile(); }
+    };
+    const soruCevaplanir = !!o.terminalId && sorular.length > 0 && sorular.every((q) => !q.multiSelect && Array.isArray(q.options) && q.options.length > 0 && q.options.length <= 9);
+    if (o.durum === 'soru') {
+      const secim = sorular.map(() => 0);
+      const gonderTus = sorular.length > 1 ? el('button', { class: 'btn ana', type: 'button', disabled: true, onclick: (e) => cevapla({ tur: 'soru', secimler: secim }, e.currentTarget) }, 'Cevapları gönder') : null;
+      if (sorular.length) sorular.forEach((q, qi) => {
+        const kutu = el('div', { class: 'od-sorukutu' }, el('b', { text: q.question || q.header || 'Soru' }));
+        (Array.isArray(q.options) ? q.options : []).forEach((sc, i) => {
+          const ic = [el('span', { text: `${i + 1}. ${sc.label || sc}` }), sc.description ? el('small', { text: sc.description }) : null].filter(Boolean);
+          if (!soruCevaplanir) return kutu.append(el('div', { class: 'od-secenek' }, ...ic));
+          kutu.append(el('button', { class: 'od-secenek', type: 'button', 'aria-pressed': 'false', onclick: (e) => {
+            if (sorular.length === 1) return cevapla({ tur: 'soru', secimler: [i + 1] }, e.currentTarget);
+            secim[qi] = i + 1;
+            for (const b of kutu.querySelectorAll('button.od-secenek')) b.setAttribute('aria-pressed', String(b === e.currentTarget));
+            gonderTus.disabled = secim.some((v) => !v);
+          } }, ...ic));
+        });
+        if (q.multiSelect) kutu.append(el('small', { class: 'soluk', text: 'Birden çok seçilebilir: terminalden cevapla' }));
+        govde.append(kutu);
+      });
+      else govde.append(bilgiKutu(IK.uyari, 'kotu', el('p', { text: o.mesaj || 'Claude senden bir seçim bekliyor.' })));
+      if (soruCevaplanir) govde.append(el('small', { class: 'soluk', text: sorular.length > 1 ? 'Her soru için bir seçenek seç, sonra gönder.' : 'Seçeneğe tıklayınca cevap terminale gider.' }));
+      if (gonderTus && soruCevaplanir) govde.append(el('div', { style: 'display:flex;justify-content:flex-end' }, gonderTus));
+    }
+    if (o.durum === 'izin') govde.append(bilgiKutu(IK.kilit, 'kotu', el('p', {}, el('b', { text: o.islem?.ad || 'Araç' }), ' kullanmak için izin istiyor', o.islem?.ozet ? el('span', { class: 'mono', style: 'display:block;margin-top:4px;font-size:.8rem;overflow-wrap:anywhere', text: o.islem.ozet }) : null, o.mesaj && !o.islem ? el('span', { style: 'display:block', text: o.mesaj }) : null)));
+    if (o.durum === 'izin' && o.terminalId) govde.append(el('div', { style: 'display:flex;gap:8px;justify-content:flex-end' },
+      el('button', { class: 'btn', type: 'button', onclick: (e) => cevapla({ tur: 'izin', karar: 'hayir' }, e.currentTarget) }, 'Hayır'),
+      el('button', { class: 'btn ana', type: 'button', onclick: (e) => cevapla({ tur: 'izin', karar: 'evet' }, e.currentTarget) }, svg(IK.tamam), 'Evet, izin ver')));
+    if (o.durum === 'hata') govde.append(bilgiKutu(IK.uyari, 'uyari', el('p', { text: o.hata === 'takildi' ? 'Uzun süredir hiçbir şey yapmıyor; terminale bakmak gerekebilir.' : `${o.hata || 'Hata'}${o.sonMesaj ? ': ' + o.sonMesaj : ''}` })));
+    if (o.durum === 'calisiyor') govde.append(...[satir('Şu an', odIslem(o) || 'Düşünüyor'), o.arka?.length ? satir('Arka planda', o.arka.join(' · ')) : null].filter(Boolean));
+    if (o.durum === 'bekliyor' && o.sonMesaj) govde.append(el('div', { class: 'od-sorukutu' }, el('small', { class: 'soluk', text: 'Son mesajı' }), el('span', { style: 'white-space:pre-wrap;font-size:.86rem', text: o.sonMesaj })));
+    govde.append(...[satir('İstem', o.istem), satir('Klasör', o.cwd), satir('Bilgisayar', o.cihazAd)].filter(Boolean));
+    const tuslar = el('div', { style: 'display:flex;gap:8px;justify-content:flex-end;margin-top:4px' });
+    const d = otPencere(odAd(o), el('header', {}, el('div', { class: 'bas-metin' }, el('h3', { text: `${odAd(o)}${o.terminalAd ? ' · ' + o.terminalAd : ''}` }),
+      el('small', { class: 'soluk', text: `${odEtiket(o)} · ${odSure(o.beri || o.son)}${o.baslik ? ' · ' + o.baslik : ''}` })), el('button', { class: 'btn kucuk', type: 'button', onclick: () => d.close() }, 'Kapat')), govde);
+    d.classList.add('od-p');
+    if (o.uzak) {
+      const izle = o.uzakTerminalId && MASA ? kopruTerminalDugmesi({ ...o, arac: 'claude', terminalId: o.uzakTerminalId }) : null;
+      izle?.addEventListener('click', () => d.close());
+      tuslar.append(...[el('p', { class: 'soluk', style: 'margin:0;font-size:.8rem;align-self:center', text: `Bu oturum ${o.cihazAd || 'diğer bilgisayar'}'da${o.canli ? ' (köprü: canlı)' : ''}.` }), izle,
+        o.uzakUrl ? el('a', { class: 'btn' + (izle ? '' : ' ana'), href: o.uzakUrl, target: '_blank', rel: 'noopener noreferrer', title: 'Uzaktan kontrol: claude.ai/code (telefonda Claude uygulaması) üzerinden cevapla' }, svg(IK.yz), "Claude'da aç") : null].filter(Boolean));
+    }
+    else if (o.terminalId) tuslar.append(el('a', { class: 'btn ana', href: '#terminal/' + o.terminalId, onclick: () => d.close() }, svg(IK.terminal), 'Terminali aç'));
+    else tuslar.append(el('p', { class: 'soluk', style: 'margin:0;font-size:.8rem;align-self:center', text: 'Bu oturum uygulama dışında (Windows Terminal ya da başka bir pencere) çalışıyor.' }));
+    govde.append(tuslar);
+  }
+  // Uyarı (sunucudan "oturum-uyari"; gecikme ve "uzun tur" kuralı sunucuda, lib/oturum-uyari.mjs). Birden çok pencere açıksa
+  // sesi ve bildirimi yalnızca biri verir (Web Locks); o terminale zaten bakılıyorsa uyarılmaz. Cevaplanınca bildirim kapanır.
+  let odLider = !(navigator.locks && navigator.locks.request);
+  try { if (!odLider) navigator.locks.request('pk-oturum-uyari', () => { odLider = true; return new Promise(() => {}); }).catch(() => { odLider = true; }); } catch (_) { odLider = true; }
+  const odBildirimler = new Map(); // oturum id → Notification
+  const odSesAcik = () => { try { return localStorage.getItem('pk-od-ses') !== '0'; } catch (_) { return true; } };
+  let odSesB = null;
+  const odSesHazir = () => { try { odSesB ??= new (window.AudioContext || window.webkitAudioContext)(); if (odSesB.state === 'suspended') odSesB.resume().catch(() => {}); return odSesB; } catch (_) { return null; } };
+  addEventListener('pointerdown', odSesHazir, { once: true, capture: true });
+  /** Durum başına ayrı ses: soru / izin iki kez yükselen, hata alçalan, sıra sende tek yumuşak çan */
+  function odSes(durum) {
+    if (!odSesAcik()) return;
+    const c = odSesHazir(); if (!c) return;
+    const t0 = c.currentTime + 0.03;
+    const notalar = durum === 'soru' || durum === 'izin' ? [[660, 0], [880, 0.15], [660, 0.48], [880, 0.63]] : durum === 'hata' ? [[523, 0], [392, 0.2], [330, 0.4]] : [[784, 0], [1175, 0.16]];
+    for (const [f, d] of notalar) {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(0.2, t0 + d + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + (durum === 'bekliyor' ? 0.5 : 0.2));
+      o.connect(g).connect(c.destination); o.start(t0 + d); o.stop(t0 + d + 0.55);
+    }
+  }
+  function odUyari(j) {
+    if (!odLider || !j || !j.id) return;
+    if (document.hasFocus() && j.terminalId && location.hash === '#terminal/' + j.terminalId) return; // zaten o terminale bakıyor
+    odSes(j.durum);
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try {
+      odBildirimler.get(j.id)?.close();
+      const n = new Notification(j.baslik || 'Claude', { body: j.govde || '', tag: 'pk-od-' + j.id, renotify: true, silent: true, requireInteraction: j.durum === 'soru' || j.durum === 'izin' });
+      n.onclick = () => {
+        try { window.focus(); } catch (_) {}
+        n.close();
+        const o = OD.liste.find((x) => x.id === j.id);
+        if (j.terminalId) location.hash = '#terminal/' + j.terminalId; else if (o) odAc(o);
+      };
+      odBildirimler.set(j.id, n);
+    } catch (_) {
+      // Telefon (Android Chrome): sayfa içinden Notification kurulamaz; uygulamanın Service Worker kaydıyla
+      try { navigator.serviceWorker?.getRegistration?.().then((r) => r?.showNotification(j.baslik || 'Claude', { body: j.govde || '', tag: 'pk-od-' + j.id, renotify: true })).catch(() => {}); } catch (_) {}
+    }
+  }
+  /** Soru / izin cevaplandı ya da durum değişti: açık bildirimi kapat */
+  function odBildirimTemizle() {
+    for (const [id, n] of odBildirimler) {
+      const o = OD.liste.find((x) => x.id === id);
+      if (!o || (o.durum !== 'soru' && o.durum !== 'izin' && o.durum !== 'hata' && o.durum !== 'bekliyor')) { try { n.close(); } catch (_) {} odBildirimler.delete(id); }
+    }
+  }
+  if (MOBIL) { setTimeout(odYenile, 1500); setInterval(() => { if (document.visibilityState === 'visible') odYenile(); }, 90_000); }
+  if (MASA) { setTimeout(odYenile, 400); setInterval(() => { if (document.visibilityState === 'visible') { if (Date.now() - OD.son > 60_000) odYenile(); else odCiz(); } }, 30_000); }
+
   // ================= CANLI GÜNCELLEME (F5 gerekmez) =================
   let canliTazele = async () => {}; // işlemden sonra durumları yerinde tazeler (bilgisayardaki uygulamada dolar)
   // Sunucu kayıt deposunu ve kataloğu izler, /api/olaylar ile "şu alan değişti" der; yalnızca o veri yeniden çekilip ekran yerinde
   // çizilir. Yazı yazılırken / pencere açıkken çizim bekler (metin ve açık panel kaybolmaz). SSE kopunca tarayıcı yeniden bağlanır;
   // bağlantı yoksa pencere odaklanınca ve dakikada bir yoklanır.
   if (MASA) {
-    const mesgul = () => { const a = document.activeElement; return !!(a && (a.matches?.('input, textarea, select, [contenteditable="true"]')) || document.querySelector('dialog[open], .sor-arka, .modal[open]')); };
+    // Yazılıp gönderilmemiş metin varken de (alan odakta olmasa da) yerinde çizim bekler: görünüm yeniden kurulunca alan boş gelirdi
+    // (ör. yakala penceresinde metin yazıp proje seçerken gelen durum güncellemesi metni siliyordu)
+    const mesgul = () => { const a = document.activeElement; return !!(a && (a.matches?.('input, textarea, select, [contenteditable="true"]')) || document.querySelector('dialog[open], .sor-arka, .modal[open]') || kirliMetinVar()); };
     let cizBekliyor = false;
     const yerindeCiz = () => {
       if (mesgul()) { cizBekliyor = true; return; }
@@ -2717,7 +3146,7 @@ body.pencere-kip main { padding: 16px; }
       if (!j || j.rev === yerelRev) return;
       yerelTazeUygula(yerel, yerelIlk, j.yerel || {}); yerelRev = j.rev;
       // Sekmeler ya da projelerin yeri başka pencerede / cihazda değişti: liste yapısı sayfa açılırken kurulur, yenilemek gerekir
-      if (yerlesimImza(yerel) !== yerlesimIlk) bantGoster('katalog', 'Sekmeler ya da projelerin yeri değişti.', 'Yenile', () => location.reload(), { oncelik: 1 });
+      if (yerlesimImza(yerel) !== yerlesimIlk) yenilemeIste('yerlesim:' + yerlesimImza(yerel), 'yerlesim'); // güvenli olunca kendiliğinden
       yerindeCiz();
     }
     async function durumYenile() {
@@ -2727,15 +3156,46 @@ body.pencere-kip main { padding: 16px; }
       if (j.yedekler) G.yedekler = j.yedekler;
       if ('yedekHata' in j) Object.assign(G, { yedekHata: j.yedekHata, yedekZamani: j.yedekZamani, gece: j.gece });
       if (j.digerCihaz && PK) PK.digerCihaz = j.digerCihaz;
+      if (j.cihaz?.bilgi) { G.cihaz = j.cihaz.bilgi; (G.depolama ??= {}).disk = j.cihaz.disk; }
       yerindeCiz();
     }
+    // Cihazlar sayfası açıkken disk / bellek / Tailscale / diğer bilgisayar dakikada bir tazelenir (sunucu da dakikada bir ölçer)
+    setInterval(() => { if (document.visibilityState === 'visible' && /^#cihazlar/.test(location.hash)) durumYenile().catch(() => {}); }, 60_000);
     // İşlemden sonra: sunucu durumları hemen yeniden hesaplar, ekran yerinde güncellenir (eskiden location.reload: süzgeçler,
     // bildirimler ve açık panel kayboluyordu)
     canliTazele = async () => { await api('/api/yenile', {}).catch(() => {}); await durumYenile(); };
+    // Sürüm: sunucu yeni koda geçecekse (otomatik güncelleme açık) sayfa bekler; şablon değiştiyse güvenli olunca kendiliğinden yenilenir
     const surumBak = (s) => {
       if (!s) return;
-      if (s.sunucuEski) { bantGoster('surum', 'Proje Kontrol güncellendi: yeni sürüm için uygulama yeniden başlatılmalı.', 'Yeniden başlat', async () => { bantGoster('surum', 'Yeniden başlatılıyor…', null, null, { oncelik: 3 }); if (!(await yenidenBaslatIste().then(() => true, (e) => { bildir(e.message, 6000, 'hata'); return false; }))) { surumBak(s); return; } for (let i = 0; i < 40; i++) { await new Promise((z) => setTimeout(z, 750)); if (await fetch('/api/ping').then((r) => r.ok).catch(() => false)) { location.reload(); return; } } }, { oncelik: 2 }); return; }
-      if (PK.surum && s.surum && s.surum !== PK.surum) bantGoster('surum', 'Yeni sürüm hazır.', 'Yenile', () => location.reload(), { oncelik: 2 });
+      // Otomatik güncelleme açık: sunucu yeni koda kendisi geçer, sayfa onu bekler (sürüm satırı bilgi verir). Geçmeyecekse
+      // (başarısız / kirli / ayrışmış: kod imzası geri almadan sonra da farklı kalır) şablon değişikliği beklemeden yenilenir.
+      if (s.sunucuEski && s.oto?.acik && !['basarisiz', 'kirli', 'ayrismis'].includes(s.oto.asama)) return;
+      if (s.sunucuEski && !s.oto?.acik) {
+        bantGoster('surum', 'Proje Kontrol güncellendi: yeni sürüm için uygulama yeniden başlatılmalı.', 'Yeniden başlat', async () => {
+          bantGoster('surum', 'Yeniden başlatılıyor…', null, null, { oncelik: 3 });
+          if (!(await yenidenBaslatIste().then(() => true, (e) => { bildir(e.message, 6000, 'hata'); return false; }))) { surumBak(s); return; }
+          bantGoster('surum', 'Proje Kontrol yeni sürüme geçiyor… birkaç saniye sürer.', null, null, { oncelik: 6 });
+        }, { oncelik: 2 });
+        return;
+      }
+      if (PK.surum && s.surum && s.surum !== PK.surum) yenilemeIste('surum:' + s.surum, 'surum');
+    };
+    // Yeniden başlatma (güncelleme): sunucu önceden "yeniden-basliyor" der; kopma beklenir (kötü bant yerine sakin bilgi). Yeniden
+    // bağlanınca süreç değiştiyse yeni sürüm çalışıyor; aynı süreçse yeni sürüm açılamamış, eski sürüm sürüyor (nedeni bildirilir).
+    const YB = { pid: null, bekleniyor: 0 };
+    const bildirilenler = new Map();
+    const bildirTekil = (m, sure, ton) => { const t = Date.now(); for (const [k, z] of bildirilenler) if (t - z > 60_000) bildirilenler.delete(k); if (bildirilenler.has(m)) return; bildirilenler.set(m, t); bildir(m, sure, ton); };
+    const surecBak = (j) => {
+      if (!j?.pid) return;
+      const onceki = YB.pid, bekleniyor = YB.bekleniyor; YB.pid = j.pid;
+      if (bekleniyor) { YB.bekleniyor = 0; bantKaldir('surum'); }
+      if (onceki && j.pid === onceki) {
+        if (bekleniyor) api('/api/uygulama-surum').then((v) => { surumSatiriTazele(); bildirTekil(v?.oto?.hata || 'Proje Kontrol yeniden başlatılamadı; eski sürüm çalışmaya devam ediyor.', 15000, 'hata'); }).catch(() => {});
+        return;
+      }
+      // Sunucu yeni süreçle açıldı (güncelleme, "Yeniden başlat", çökme sonrası pk arayuz): sayfa da yeni sürümle yeniden yüklenir
+      // (şablon aynı olsa da sayfaya gömülü sunucu parçaları değişmiş olabilir); güvenli olunca, adres korunarak
+      if (onceki) yenilemeIste('surec:' + j.pid, bekleniyor ? 'surum' : 'yeniden');
     };
     const isle = (alanlar) => {
       if (alanlar.includes('yerel')) yerelYenile();
@@ -2746,9 +3206,11 @@ body.pencere-kip main { padding: 16px; }
       if (alanlar.includes('gorevler')) GOREV.tazele?.(); // Faz 4.4 · Görevler: yalnızca açık Görevler sekmesi, yerinde
       if (alanlar.includes('hafiza')) for (const k of Object.keys(hafizaOnbellek)) delete hafizaOnbellek[k]; // === Faz 5 · Beyin === denetimden sonra
       if (alanlar.includes('bilgi')) { bilgiOnbellek = null; if (/^#(bilgi|proje)/.test(location.hash)) yerindeCiz(); } // === Faz 5 · Beyin ===
-      if (alanlar.includes('katalog')) bantGoster('katalog', 'Katalog güncellendi (yeni proje ya da kaynak).', 'Yenile', () => location.reload(), { oncelik: 1 });
+      if (alanlar.includes('katalog')) yenilemeIste('katalog:' + Date.now(), 'katalog'); // güvenli olunca kendiliğinden yenilenir
       if (alanlar.includes('surum')) api('/api/ping').then(surumBak).catch(() => {});
+      if (alanlar.includes('guncelleme')) surumSatiriTazele(); // otomatik güncelleme durumu (bekliyor, güncelleniyor, başarısız)
       if (alanlar.includes('terminal')) trmListeTazele(); // === Faz 3 · Terminal === sekme listesi ve durumlar (başka pencereden açılan da)
+      if (alanlar.includes('oturum-durum') || alanlar.includes('terminal') || alanlar.includes('durumlar')) odYenile(); // üst şerit: Claude oturumlarının durumu (kancalardan)
     };
     // Bağlantı: sunucu yeniden başlarsa (güncelleme, çökme, "pk arayuz") pencere kendiliğinden yeniden bağlanır. Belirteç
     // yeniden başlatmada korunur (arayuz.json); geçersizse (401) pencerenin yeniden açılması istenir — belirteç sayfaya taşınmaz.
@@ -2759,9 +3221,9 @@ body.pencere-kip main { padding: 16px; }
       if (d === 'acik') {
         bantKaldir('baglanti');
         if (onceki !== 'acik') {
-          bildir('Bağlantı yeniden kuruldu', 3000, 'tamam');
+          if (!YB.bekleniyor) bildir('Bağlantı yeniden kuruldu', 3000, 'tamam');
           if (Object.keys(yerelYama(yerel, yerelIlk)).length) kaydet(); else yerelYenile(); // koparken yazılan kayıt gönderilir
-          durumYenile(); saglikYenile(); api('/api/ping').then(surumBak).catch(() => {});
+          durumYenile(); saglikYenile(); api('/api/ping').then((j) => { surecBak(j); surumBak(j); }).catch(() => {});
         }
       } else if (d === 'yetki') bantGoster('baglanti', 'Oturum geçersiz (uygulama yeni belirteçle açılmış). Bu pencereyi kapatıp Proje Kontrol\'ü yeniden açın.', 'Yeniden dene', () => yokla(), { ton: 'kotu', oncelik: 5 });
       else bantGoster('baglanti', 'Uygulamayla bağlantı koptu · yeniden bağlanılıyor…', 'Şimdi dene', () => yokla(), { ton: 'kotu', oncelik: 5 });
@@ -2771,6 +3233,7 @@ body.pencere-kip main { padding: 16px; }
       let d;
       try { const r = await fetch('/api/ping', { cache: 'no-store' }); d = r.ok ? 'acik' : r.status === 401 ? 'yetki' : 'koptu'; } catch (_) { d = 'koptu'; }
       if (d === 'acik') { clearTimeout(kopukZ); kopukZ = null; baglantiDurumu('acik'); if (!kaynak || kaynak.readyState === 2) baglan(); return; }
+      if (YB.bekleniyor && Date.now() - YB.bekleniyor > 4 * 60_000) { YB.bekleniyor = 0; bantKaldir('surum'); } // yeni sürüm uzun süredir açılmadı
       baglantiDurumu(d);
       yoklaZ = setTimeout(yokla, d === 'yetki' ? 30_000 : 4_000);
     }
@@ -2778,8 +3241,11 @@ body.pencere-kip main { padding: 16px; }
       if (!window.EventSource) return;
       try { kaynak?.close(); } catch (_) {}
       kaynak = new EventSource('/api/olaylar');
-      kaynak.addEventListener('merhaba', (e) => { sseAcik = true; clearTimeout(kopukZ); kopukZ = null; baglantiDurumu('acik'); try { surumBak(JSON.parse(e.data)); } catch (_) {} });
+      kaynak.addEventListener('merhaba', (e) => { sseAcik = true; clearTimeout(kopukZ); kopukZ = null; let j = null; try { j = JSON.parse(e.data); } catch (_) {} surecBak(j); baglantiDurumu('acik'); surumBak(j); });
+      kaynak.addEventListener('yeniden-basliyor', () => { YB.bekleniyor = Date.now(); bantGoster('surum', 'Proje Kontrol yeni sürüme geçiyor… birkaç saniye sürer, sayfa kendiliğinden yenilenir.', null, null, { oncelik: 6 }); });
+      kaynak.addEventListener('bildirim', (e) => { try { const j = JSON.parse(e.data); if (j?.metin) bildirTekil(String(j.metin), Number(j.sure) || 8000, ['hata', 'uyari', 'tamam'].includes(j.ton) ? j.ton : ''); } catch (_) {} }); // sunucudan (otomatik güncelleme)
       kaynak.addEventListener('degisti', (e) => { try { isle(JSON.parse(e.data).alanlar || []); } catch (_) {} });
+      kaynak.addEventListener('oturum-uyari', (e) => { try { odUyari(JSON.parse(e.data)); } catch (_) {} });
       kaynak.addEventListener('goster', (e) => { try { const j = JSON.parse(e.data); if (/^[0-9a-f]{8,64}$/.test(j.terminal || '')) { location.hash = '#terminal/' + j.terminal; try { window.focus(); } catch (_) {} } } catch (_) {} }); // === Faz 2 · Köprü === sağ tık: o terminal sekmesine geç
       // Kısa kopmalar (tarayıcı 5 sn'de kendi bağlanır) bant göstermez; 4 sn içinde dönmezse yoklama başlar.
       // 401'de EventSource kapanır ve kendisi denemez: yoklama yeni bağlantıyı açar.
@@ -2859,7 +3325,7 @@ body.pencere-kip main { padding: 16px; }
   // ================= YAPAY ZEKÂ OTURUMLARI · GENEL BAKIŞ (yalnızca bilgisayardaki uygulama) =================
   // Satırda tek ana eylem (Devam et); konuşma ve ayrıntılar "⋯" menüsünde. Konuşma içeriği yalnızca bu bilgisayarda okunur.
   const OT_ARAC = { claude: 'Claude', codex: 'Codex', agy: 'Antigravity' };
-  const OT_DURUM = { calisiyor: ['Çalışıyor', 'guncel'], bekliyor: ['Yanıt bekliyor', 'ileride'], bosta: ['Boşta', 'yok'] };
+  const OT_DURUM = { soru: ['Soru soruyor', 'od-soru'], izin: ['İzin istiyor', 'od-izin'], hata: ['Hata', 'od-hata'], calisiyor: ['Çalışıyor', 'guncel'], bekliyor: ['Sıra sende', 'ileride'], bosta: ['Boşta', 'yok'] };
   const otZaman = (s) => { const dk = Math.round((Date.now() - new Date(s)) / 60000); if (!Number.isFinite(dk)) return ''; if (dk < 1) return 'şimdi'; if (dk < 60) return dk + ' dk önce'; if (dk < 1440) return Math.round(dk / 60) + ' saat önce'; return goreli(s, new Date()); };
   const otAracRozet = (o) => el('span', { class: 'ot-arac ' + o.arac, title: (OT_ARAC[o.arac] || o.arac) + ' ile açıldı', text: OT_ARAC[o.arac] || o.arac });
   const otCihazRozet = (o) => el('span', { class: 'ot-cihaz', title: o.uzak ? 'Diğer bilgisayarda' : 'Bu bilgisayarda', text: o.cihazAd || '' });
@@ -2885,19 +3351,47 @@ body.pencere-kip main { padding: 16px; }
   }
   /** Canlı bölüm: sayfa görünürken ve öğe ekrandayken 30 sn'de bir yenilenir */
   function canliTut(kutu, fn, ms = 30000) { const z = setInterval(() => { if (!kutu.isConnected) { clearInterval(z); return; } if (document.visibilityState === 'visible') fn(); }, ms); }
+  // === Cihaz kartı canlı === Kenar çubuğundaki (ve Pano'daki) diğer bilgisayar: köprü canlıysa yeşil "canlı · köprü bağlı";
+  // değilse kayıt deposundaki son görülme, göreli ("5 dk önce"). Sayfa açıldığından beri değişen durum 30 sn'de bir okunur.
+  function digerCihazCanli() {
+    const a = $('#yanCihazDiger'); if (!a || !MASA) return;
+    const nokta = a.querySelector('.nokta'), alt = a.querySelector('small');
+    const ciz = (d) => {
+      const l = d?.esler || [], e = l.find((x) => x.ad === cAd('Diğer PC')) || l[0];
+      const zaman = [e?.kayitZamani, PK?.digerCihaz?.zaman].filter(Boolean).sort().pop();
+      const canli = e?.durum === 'canli';
+      const yazi = canli ? 'canlı · köprü bağlı' : zaman ? 'son görülme ' + otZaman(zaman) : 'henüz görülmedi';
+      nokta.className = 'nokta ' + (canli ? 'canli' : 'gri'); alt.textContent = yazi;
+      a.title = canli ? `${cAd('Diğer PC')} açık: oturumları ve terminalleri buradan yönetilebilir (Oturumlar, Terminal)` : (e?.mesaj || '');
+      const pk = $('#digerKartDurum'); if (pk) pk.textContent = yazi;
+    };
+    const yokla = () => fetch('/api/kopru').then((r) => (r.ok ? r.json() : null)).then(ciz).catch(() => ciz(null));
+    yokla();
+    canliTut(a, yokla, 30_000);
+  }
+  // === /Cihaz kartı canlı ===
 
-  async function otDevam(o, { yer = 'terminal' } = {}) { // Faz 2: varsayılan uygulama içi terminal; yer 'pencere' Windows Terminal
+  async function otDevam(o, { yer = 'terminal', kopya = null } = {}) { // Faz 2: varsayılan uygulama içi terminal; yer 'pencere' Windows Terminal
     const x = otProje(o);
-    if (o.uzak && o.acik && !(await sor({ baslik: `${o.cihazAd}'deki oturum burada sürdürülsün mü?`, metin: `Oturum ${o.cihazAd}'de hâlâ açık; iki yerde aynı anda sürdürmek çakışma yaratır.`, tamam: 'Yine de devam et' }))) return;
-    surecGoster(o.uzak ? `Oturum ${o.cihazAd} bilgisayarından alınıyor…` : 'Oturum açılıyor…');
+    if (!kopya && o.uzak && o.acik && !(await sor({ baslik: `${o.cihazAd}'deki oturum burada sürdürülsün mü?`, metin: `Oturum ${o.cihazAd}'de hâlâ açık; iki yerde aynı anda sürdürmek çakışma yaratır.`, tamam: 'Yine de devam et' }))) return;
+    // === Faz 2 · Köprü === Claude dökümü yalnızca köprüyle gelir (büyük dökümler biraz sürer); içerik bu sayfaya gelmez
+    surecGoster(o.uzak && kopya !== 'yerel' ? `Oturum ${o.cihazAd} bilgisayarından ${o.arac === 'claude' ? 'köprüyle ' : ''}alınıyor… (büyük oturumlar biraz sürebilir)` : 'Oturum açılıyor…');
     try {
-      const r = await api('/api/oturum-devam', { id: o.id, arac: o.arac, cihaz: o.cihaz, yer });
+      const r = await api('/api/oturum-devam', { id: o.id, arac: o.arac, cihaz: o.cihaz, yer, ...(kopya ? { kopya } : {}) });
       surecGizle();
       if (r.onceKur) { if (x) bildirEylem(`${adSade(x)} bu bilgisayarda kurulu değil. Önce kurun, sonra devam edin.`, 'Kur', () => eylem(x, 'Kur')); else bildir('Bu oturumun klasörü bu bilgisayarda yok.', 7000); return; }
+      // Buradaki kopya daha uzun ya da ayrışmış: üzerine yazmadan önce sorulur (Kaan'ın kuralı)
+      if (r.soru) {
+        const s = await secimSor({ baslik: r.soru === 'uzun' ? 'Bu bilgisayardaki kopya daha uzun' : 'Oturum iki bilgisayarda ayrı ayrı sürdürülmüş', metin: r.mesaj,
+          liste: ['Buradakiyle devam: diğer bilgisayardaki alınmaz, buradaki aynen sürdürülür.', `${o.cihazAd}'dekini al: buradaki kopya önce yedeklenir (silinmez), sonra ${o.cihazAd}'deki kopya kullanılır.`],
+          secenekler: [{ deger: 'gelen', ad: `${o.cihazAd}'dekini al` }, { deger: 'yerel', ad: 'Buradakiyle devam et', tur: 'ana' }] });
+        if (s) otDevam(o, { yer, kopya: s });
+        return;
+      }
       if (r.terminal) trmSekmeyeGec(r.terminal); // === Faz 2 · Köprü ===
-      bildir([...(r.uyari || []), r.terminal ? 'Uygulamanın Terminal\'inde sürdürülüyor' : 'Yeni pencerede açıldı'].join(' · '), 7000);
+      bildir([...(r.sonuc || []).filter((m) => /köprüyle|kopya/.test(m)), ...(r.uyari || []), r.terminal ? 'Uygulamanın Terminal\'inde sürdürülüyor' : 'Yeni pencerede açıldı'].join(' · '), 9000);
       delete onbellek.oturumlar; delete onbellek.genel;
-    } catch (e) { surecGizle(); bildir('Devam edilemedi: ' + e.message, 9000); }
+    } catch (e) { surecGizle(); bildir('Devam edilemedi: ' + e.message, 12000, 'hata'); }
   }
   async function otAyrinti(o) {
     const x = otProje(o), t = o.tokenAyrinti;
@@ -2913,18 +3407,43 @@ body.pencere-kip main { padding: 16px; }
     const m = (ad, fn) => ic.append(el('button', { type: 'button', role: 'menuitem', onclick: (e) => { e.stopPropagation(); d.open = false; fn(); } }, ad));
     if (!o.uzak) m('Konuşmayı aç', () => otGoruntule(o));
     if (!o.terminalId && (o.uzak || !o.acik) && (o.kurulu || (!o.uzak && o.cwdVar))) m('Ayrı pencerede devam et', () => otDevam(o, { yer: 'pencere' })); // === Faz 2 · Köprü ===
+    // Diğer bilgisayarın uygulama içi terminalinde çalışan oturum: ana düğme "İzle"; buraya almak menüde (otDevam açık oturumu sorar)
+    if (o.uzak && o.terminalId && o.kurulu) m('Burada devam et', () => otDevam(o));
     m('Ayrıntılar', () => otAyrinti(o));
     if (otProje(o)) m('Projeyi aç', () => ac(otProje(o)));
+    if (o.terminalId || (!o.uzak && o.acik && o.arac === 'claude')) m('Oturumu kapat', () => otKapat(o)); // === Oturumu kapat ===
     d.append(ic); d.addEventListener('click', (e) => e.stopPropagation());
     return d;
   }
+  // === Oturumu kapat === Oturumlar ⋯ → "Oturumu kapat": uygulama içi terminalde (bu ya da diğer bilgisayar) ya da ayrı pencerede
+  // çalışan oturum. Yapay zekâ sekmesinde önce Esc (yaptığı iş düzgünce durur), sonra kapatılır; konuşma kaydı kalır ("Devam et").
+  async function otKapat(o) {
+    if (o.uzak && o.terminalId) {
+      if (await kopruTerminalKapat(o.cihaz, o.cihazAd, { id: o.terminalId, ad: o.baslik, komut: o.arac })) { bildir(`${o.cihazAd}${ekDa(o.cihazAd)}ki oturum kapatıldı.`, 4000, 'tamam'); delete onbellek.oturumlar; }
+      return;
+    }
+    const yer = o.terminalId ? 'uygulamanın Terminal\'inde' : 'ayrı bir pencerede';
+    if (!(await sor({ baslik: `“${o.baslik}” kapatılsın mı?`, metin: `${OT_ARAC[o.arac] || 'Oturum'} ${yer} çalışıyor. ${o.terminalId ? 'Önce yaptığı iş durdurulur (Esc), sonra kapatılır.' : 'Pencere ve içinde başlattığı her şey kapanır; yarım kalan iş durur.'} Konuşma kaydı kalır; "Devam et" ile sürdürülebilir.`, tamam: 'Oturumu kapat', tehlike: true }))) return;
+    try {
+      if (o.terminalId) {
+        await api('/api/terminal/yaz', { id: o.terminalId, veri: '\u001b' }).catch(() => {});
+        await new Promise((z) => setTimeout(z, 1500));
+        await api('/api/terminal/kapat', { id: o.terminalId }).catch((e) => { if (e.durum !== 404) throw e; });
+      } else await api('/api/oturum-kapat', { id: o.id });
+      delete onbellek.oturumlar;
+      bildir('Oturum kapatıldı.', 4000, 'tamam');
+    } catch (e) { bildir('Oturum kapatılamadı: ' + e.message, 8000, 'hata'); }
+  }
+  // === /Oturumu kapat ===
   function otDugme(o) {
     const x = otProje(o);
     if (o.terminalId) return kopruTerminalDugmesi(o); // === Faz 2 · Köprü === uygulama içi terminalde çalışıyor: "Terminal'de aç" / "İzle"
     if (!o.kurulu && (o.uzak || !o.cwdVar)) return x ? el('button', { class: 'btn kucuk', type: 'button', title: 'Proje bu bilgisayarda kurulu değil', onclick: (e) => { e.stopPropagation(); eylem(x, 'Kur'); } }, 'Önce Kur') : null;
     // Bu bilgisayarda zaten açık bir oturumu ikinci pencerede açmak aynı konuşmayı iki yerden yürütür: düğme yerine bilgi
     if (!o.uzak && o.acik) return el('span', { class: 'ot-acik-not', title: 'Bu oturum bu bilgisayarda zaten bir pencerede açık; o pencereye geçin' }, 'Zaten açık');
-    return el('button', { class: 'btn kucuk ana', type: 'button', title: o.uzak ? `${o.cihazAd}'deki oturumu bu bilgisayarda sürdürür` : 'Kaldığı yerden yeni pencerede açar', onclick: (e) => { e.stopPropagation(); otDevam(o); } }, 'Devam et');
+    // === Faz 2 · Köprü === diğer bilgisayarın oturumu: "Burada devam et" (Claude dökümü köprüyle gelir, projenin buradaki klasöründe sürer)
+    if (o.uzak) return el('button', { class: 'btn kucuk ana', type: 'button', title: o.arac === 'claude' ? `${o.cihazAd}'deki oturumu köprüyle bu bilgisayara alır ve uygulamanın Terminal'inde sürdürür (oradaki kopya değişmez)` : `${o.cihazAd}'deki oturumu bu bilgisayarda sürdürür`, onclick: (e) => { e.stopPropagation(); otDevam(o); } }, 'Burada devam et');
+    return el('button', { class: 'btn kucuk ana', type: 'button', title: 'Kaldığı yerden uygulamanın Terminal\'inde sürdürür', onclick: (e) => { e.stopPropagation(); otDevam(o); } }, 'Devam et');
   }
   /** Oturum satırı: başlık (ya da proje), zaman · bilgisayar · durum · Devam et · ⋯ */
   function otSatir(o, { proje = true, baslikProje = false } = {}) {
@@ -3032,8 +3551,8 @@ body.pencere-kip main { padding: 16px; }
   // Açık kalan ⋯ / ▾ menüleri dışarı tıklayınca kapanır (açık menü canlı yenilemeyi de bekletir)
   document.addEventListener('click', (e) => { for (const d of document.querySelectorAll('details.btn-grup-menu[open], details.ot-daha[open]')) if (!d.contains(e.target)) d.open = false; });
   // Durum: çalışıyor / yanıt bekliyor (lib/oturumlar.mjs oturumDurumu) · açık (süreç yaşıyor, boşta) · bitti
-  const OT_GORUNEN = { calisiyor: ['Çalışıyor', 'guncel'], bekliyor: ['Yanıt bekliyor', 'ileride'], acik: ['Açık', 'yerel'], bitti: ['Bitti', 'yok'] };
-  const otDurumu = (o) => (o.durum === 'calisiyor' || o.durum === 'bekliyor' ? o.durum : o.acik ? 'acik' : 'bitti');
+  const OT_GORUNEN = { soru: ['Soru soruyor', 'od-soru'], izin: ['İzin istiyor', 'od-izin'], hata: ['Hata', 'od-hata'], calisiyor: ['Çalışıyor', 'guncel'], bekliyor: ['Sıra sende', 'ileride'], acik: ['Açık', 'yerel'], bitti: ['Bitti', 'yok'] };
+  const otDurumu = (o) => (['soru', 'izin', 'hata', 'calisiyor', 'bekliyor'].includes(o.durum) ? o.durum : o.acik ? 'acik' : 'bitti');
   const otSure = (o) => {
     const ms = Date.parse(o.son) - Date.parse(o.baslangic); if (!Number.isFinite(ms) || ms < 0) return null;
     const dk = Math.round(ms / 60000);
@@ -3085,7 +3604,7 @@ body.pencere-kip main { padding: 16px; }
     const aramaKutu = el('div', { class: 'pd-kolon' }), liste = el('div', { class: 'pd-kolon' }, yukleniyor('Oturumlar okunuyor…'));
     v.append(el('div', { class: 'arac-cubugu' }, el('div', { class: 'arac-ust' }, el('label', { class: 'ara-kutu' }, svg(IK.ara), ara),
       secim('cihaz', 'Bilgisayar', [['', 'Tüm bilgisayarlar'], ['bu', cAd('Bu PC')], ['diger', cAd('Diğer PC')]]),
-      secim('durum', 'Durum', [['', 'Tüm durumlar'], ['calisiyor', 'Çalışıyor'], ['bekliyor', 'Yanıt bekliyor'], ['acik', 'Açık'], ['bitti', 'Bitti']]),
+      secim('durum', 'Durum', [['', 'Tüm durumlar'], ['soru', 'Soru soruyor'], ['izin', 'İzin istiyor'], ['hata', 'Hata'], ['calisiyor', 'Çalışıyor'], ['bekliyor', 'Sıra sende'], ['acik', 'Açık'], ['bitti', 'Bitti']]),
       secim('arac', 'Araç', [['', 'Tüm araçlar'], ['claude', 'Claude'], ['codex', 'Codex']])), ozet), aramaKutu, liste);
     let L = null, hata = null;
     const uygun = (o) => {
@@ -3216,7 +3735,7 @@ body.pencere-kip main { padding: 16px; }
       if (d.eslesti) {
         const dl = d.dinleyici || {};
         const bu = dl.dinliyor ? `köprü açık (${dl.adres}:${dl.port})` : `köprü kapalı${dl.hata ? ' — ' + dl.hata : d.kapali ? ' (config.json: kapalı)' : d.tailscale && !d.tailscale.calisiyor ? ' (Tailscale bağlı değil)' : ''}`;
-        parca.push(el('p', { class: 'soluk', style: 'margin:0;font-size:.76rem', text: `Bu bilgisayar: ${bu} · anahtar parmak izi ${d.parmakIzi}${d.kabuk ? ' · köprüden kabuk açık (config.json)' : ''}` }));
+        parca.push(el('p', { class: 'soluk', style: 'margin:0;font-size:.76rem', text: `Bu bilgisayar: ${bu} · anahtar parmak izi ${d.parmakIzi} · ${d.kabuk ? 'diğer bilgisayar buraya PowerShell / cmd açabilir' : 'köprüden kabuk kapalı (config.json: "kopru": { "kabuk": false })'}` }));
         if (!(d.esler || []).length) parca.push(solukP('Kayıt deposunda başka bir Proje Kontrol bilgisayarı görünmüyor.'));
       }
       kutu.replaceChildren(...parca);
@@ -3232,22 +3751,50 @@ body.pencere-kip main { padding: 16px; }
     canliTut(kutu, () => { if (!document.querySelector('dialog[open]')) yenile(true); }, 20_000);
     return kutu;
   }
+  /**
+   * Diğer bilgisayardaki terminal sekmesini kapatır (Kaan'ın kararı, 19.11.2026): o bilgisayarda köprüden ya da yerelden açılmış
+   * Claude / Codex / Antigravity sekmesi; kabuk sekmeleri de (köprüden kabuk açıkken). Çalışıyorsa önce uygulama içi onay.
+   * calisiyor: sekmenin canlı durumu (pencere akıştan bilir; liste sunucudan). → kapatıldıysa true
+   */
+  async function kopruTerminalKapat(cihaz, ad, oz, { calisiyor = true } = {}) {
+    const ne = oz.komutAd || OT_ARAC[oz.komut] || oz.komut || 'süreç';
+    if (calisiyor && !(await sor({ baslik: `“${oz.ad || ne}” ${ad}${ekDa(ad)} kapatılsın mı?`, metin: `Oturum ${ad}${ekDa(ad)} hâlâ çalışıyor. Kapatınca ${ne} ve içinde başlattığı her şey o bilgisayarda sonlandırılır.${oz.komut === 'claude' ? ' Konuşma silinmez; sonra Oturumlar\'dan sürdürülebilir.' : ''}`, tamam: 'Oturumu sonlandır', tehlike: true }))) return false;
+    try { await api('/api/kopru/terminal/kapat', { cihaz, id: oz.id }); delete onbellek.oturumlar; return true; }
+    catch (e) { if (e.durum === 404 && /bulunamadı/.test(e.message)) return true; bildir(`${ad}${ekDa(ad)}ki sekme kapatılamadı: ${e.message}`, 9000, 'hata'); return false; }
+  }
+  /** Diğer bilgisayarda düz kabuk sekmesi (PowerShell / cmd; o bilgisayarın kullanıcı klasöründe) açar ve izleme penceresini açar */
+  async function kopruKabukAc(es, komut) {
+    try {
+      const oz = await api('/api/kopru/terminal/ac', { cihaz: es.cihaz, komut });
+      kopruTerminalPencere(es.cihaz, es.ad, oz);
+      return true;
+    } catch (e) { bildir(`${es.ad}${ekDa(es.ad)} kabuk açılamadı: ${e.message}`, 9000, 'hata'); return false; }
+  }
   /** Diğer bilgisayarın uygulama içi terminal oturumları (pencere; 10 sn'de bir yenilenir) */
   function kopruTerminalListesi(es) {
     const yer = `${es.ad}${ekDa(es.ad)}`;
     const govde = el('div', {}, solukP('Yükleniyor…'));
-    const d = otPencere(`${es.ad} · terminaller`, el('header', {}, el('div', { class: 'bas-metin' }, el('h3', { text: `${es.ad} · uygulama içi terminaller` }), el('small', { class: 'soluk', text: 'Canlı izlenir; Claude, Codex ve Antigravity sekmelerine buradan yazılır' + (es.kabuk ? '' : ' · kabuk sekmeleri yalnızca izlenir') })),
-      el('div', { class: 'sag' }, el('button', { class: 'btn kucuk', type: 'button', onclick: () => { d.close(); kopruProjeSor(es); } }, svg(IK.arti, 'ikon k'), 'Claude aç'), el('button', { class: 'btn kucuk', type: 'button', onclick: () => d.close() }, 'Kapat'))), el('div', { class: 'ot-akis-kap' }, govde));
+    const alt = el('small', { class: 'soluk', text: '' });
+    const altYaz = (kabuk) => { alt.textContent = 'Canlı izlenir; Claude, Codex ve Antigravity sekmelerine buradan yazılır ve kapatılır' + (kabuk ? ' · PowerShell / cmd sekmeleri de' : ` · kabuk sekmeleri yalnızca izlenir (${yer}ki config.json: "kopru": { "kabuk": false })`); };
+    altYaz(es.kabuk);
+    // Düz kabuk (Kaan'ın kararı: köprüden varsayılan açık): o bilgisayarın kullanıcı klasöründe yeni sekme
+    const kabukBtn = (komut, etiket) => el('button', { class: 'btn kucuk', type: 'button', hidden: !es.kabuk, title: `${yer} ${etiket} sekmesi açar (o bilgisayarın kullanıcı klasöründe); buradan yazılır`, onclick: async () => { if (await kopruKabukAc(es, komut)) d.close(); } }, svg(IK.terminal, 'ikon k'), etiket);
+    const kabuklar = [kabukBtn('kabuk', 'PowerShell'), kabukBtn('cmd', 'Komut istemi')];
+    const d = otPencere(`${es.ad} · terminaller`, el('header', {}, el('div', { class: 'bas-metin' }, el('h3', { text: `${es.ad} · uygulama içi terminaller` }), alt),
+      el('div', { class: 'sag' }, ...kabuklar, el('button', { class: 'btn kucuk', type: 'button', onclick: () => { d.close(); kopruProjeSor(es); } }, svg(IK.arti, 'ikon k'), 'Claude aç'), el('button', { class: 'btn kucuk', type: 'button', onclick: () => d.close() }, 'Kapat'))), el('div', { class: 'ot-akis-kap' }, govde));
     const yukle = async () => {
       try {
         const r = await api('/api/kopru/terminal?cihaz=' + encodeURIComponent(es.cihaz));
         if (!d.isConnected) return;
+        altYaz(r.kabuk); for (const b of kabuklar) b.hidden = !r.kabuk;
         const l = r.oturumlar || [];
         govde.replaceChildren(l.length ? el('div', { class: 'satirlar' }, ...l.map((o) => {
           const salt = !r.kabuk && !['claude', 'codex', 'agy'].includes(o.komut);
-          return el('div', { class: 'satir' }, el('div', { class: 'ad' }, el('span', {}, el('span', { class: 'trm-nokta ' + (o.durum === 'calisiyor' ? 'canli' : o.cikisKodu ? 'kotu' : ''), 'aria-hidden': 'true', style: 'display:inline-block;margin-right:6px' }), o.ad),
-            el('small', { text: [o.komutAd, o.dizin, o.durum === 'bitti' ? `bitti${o.cikisKodu != null ? ' (çıkış kodu ' + o.cikisKodu + ')' : ''}` : 'çalışıyor', salt ? 'yalnızca izlenir' : null].filter(Boolean).join(' · ') })),
-            el('span', { class: 'sag' }, el('button', { class: 'btn kucuk ana', type: 'button', onclick: () => { d.close(); kopruTerminalPencere(es.cihaz, es.ad, o, { salt }); } }, o.durum === 'bitti' ? 'Çıktıyı gör' : 'İzle')));
+          const calisiyor = o.durum === 'calisiyor';
+          return el('div', { class: 'satir' }, el('div', { class: 'ad' }, el('span', {}, el('span', { class: 'trm-nokta ' + (calisiyor ? 'canli' : o.cikisKodu ? 'kotu' : ''), 'aria-hidden': 'true', style: 'display:inline-block;margin-right:6px' }), o.ad),
+            el('small', { text: [o.komutAd, o.dizin, !calisiyor ? `bitti${o.cikisKodu != null ? ' (çıkış kodu ' + o.cikisKodu + ')' : ''}` : 'çalışıyor', salt ? 'yalnızca izlenir' : null].filter(Boolean).join(' · ') })),
+            el('span', { class: 'sag' }, el('button', { class: 'btn kucuk ana', type: 'button', onclick: () => { d.close(); kopruTerminalPencere(es.cihaz, es.ad, o, { salt }); } }, !calisiyor ? 'Çıktıyı gör' : 'İzle'),
+              salt ? null : el('button', { class: 'btn kucuk hayalet', type: 'button', title: calisiyor ? `Sekmeyi ${yer} kapatır (süreç sonlanır; önce sorulur)` : 'Biten sekmeyi listeden kaldırır', 'aria-label': `${o.ad} sekmesini kapat`, onclick: async () => { if (await kopruTerminalKapat(es.cihaz, es.ad, o, { calisiyor })) yukle(); } }, svg(IK.kapat, 'ikon k'))));
         })) : solukP(`${yer} uygulama içinde açık terminal yok. "${yer} Claude aç" ile başlatılan oturumlar burada görünür.`));
       } catch (e) { if (d.isConnected) govde.replaceChildren(solukP('Terminaller alınamadı: ' + e.message)); }
     };
@@ -3262,10 +3809,12 @@ body.pencere-kip main { padding: 16px; }
   function kopruTerminalPencere(cihaz, ad, oz, { salt = false } = {}) {
     const sahne = el('div', { class: 'kopru-trm-sahne' }), durumS = el('div', { class: 'kopru-trm-durum', role: 'status', text: 'Bağlanıyor…' });
     const uydur = el('button', { class: 'btn kucuk', type: 'button', disabled: salt, title: `${ad}${ekDa(ad)}ki terminalin boyutunu bu pencereye uydurur (orada açık bir pencere varsa onun da boyutu değişir)` }, 'Boyutu uydur');
+    // === Kaan'ın kararı (19.11.2026) === sekmeyi o bilgisayarda kapatır; çalışıyorsa önce uygulama içi onay (pencerenin "Kapat"ı yalnızca bu pencereyi kapatır)
+    const sonlandir = el('button', { class: 'btn kucuk tehlike', type: 'button', hidden: salt, title: `Bu sekmeyi ${ad}${ekDa(ad)} kapatır: çalışan süreç sonlanır (önce sorulur)`, onclick: async () => { if (await kopruTerminalKapat(cihaz, ad, oz, { calisiyor: !bitti })) d.close(); } }, 'Oturumu sonlandır');
     const d = otPencere(`${ad} · ${oz.ad}`, el('header', {}, el('div', { class: 'bas-metin' }, el('h3', { text: oz.ad }), el('small', { class: 'soluk', text: [ad, oz.komutAd || oz.komut, oz.dizin, salt ? 'yalnızca izlenir (kabuk sekmesi)' : null].filter(Boolean).join(' · ') })),
-      el('div', { class: 'sag' }, uydur, el('button', { class: 'btn kucuk', type: 'button', onclick: () => d.close() }, 'Kapat'))), sahne, durumS);
+      el('div', { class: 'sag' }, uydur, sonlandir, el('button', { class: 'btn kucuk', type: 'button', title: 'Yalnızca bu pencereyi kapatır; oturum sürer', onclick: () => d.close() }, 'Kapat'))), sahne, durumS);
     d.classList.add('kopru-trm');
-    let es = null, term = null, fit = null, konum = 0, girdi = '', ucusta = false, bitti = false, hataZ = 0;
+    let es = null, term = null, fit = null, konum = 0, girdi = '', ucusta = false, bitti = oz.durum === 'bitti', hataZ = 0;
     d.addEventListener('cancel', (e) => { if (sahne.contains(document.activeElement)) e.preventDefault(); });
     d.addEventListener('close', () => { try { es?.close(); } catch (_) {} es = null; try { term?.dispose(); } catch (_) {} });
     const gonder = () => {
@@ -3287,8 +3836,8 @@ body.pencere-kip main { padding: 16px; }
         durumS.textContent = `${ad} · canlı${salt ? ' · yalnızca izleniyor' : ''}`;
       });
       es.addEventListener('veri', (e) => { const s = coz(e); if (typeof s !== 'string') return; term.write(s); konum = Number(e.lastEventId) || konum + s.length; });
-      es.addEventListener('bitti', (e) => { es.close(); bitti = true; const j = coz(e); term.write(`\r\n\x1b[2m[Süreç bitti${j?.cikisKodu != null ? ' · çıkış kodu ' + j.cikisKodu : ''}]\x1b[0m\r\n`); durumS.textContent = `${ad} · süreç bitti`; });
-      es.addEventListener('yok', () => { es.close(); bitti = true; durumS.textContent = `Bu terminal oturumu ${ad}${ekDa(ad)} artık yok (kapatılmış ya da uygulama yeniden başlamış).`; });
+      es.addEventListener('bitti', (e) => { es.close(); bitti = true; const j = coz(e); term.write(`\r\n\x1b[2m[Süreç bitti${j?.cikisKodu != null ? ' · çıkış kodu ' + j.cikisKodu : ''}]\x1b[0m\r\n`); durumS.textContent = `${ad} · süreç bitti`; sonlandir.textContent = 'Listeden kaldır'; sonlandir.className = 'btn kucuk'; });
+      es.addEventListener('yok', () => { es.close(); bitti = true; sonlandir.hidden = true; durumS.textContent = `Bu terminal oturumu ${ad}${ekDa(ad)} artık yok (kapatılmış ya da uygulama yeniden başlamış).`; });
       es.addEventListener('hata', (e) => { es.close(); const j = coz(e); durumS.textContent = j?.hata || `${ad} ile bağlantı kurulamadı.`; });
       es.onerror = () => { if (es && es.readyState !== 2) durumS.textContent = `${ad} ile bağlantı koptu; yeniden bağlanılıyor…`; };
     };
@@ -3434,7 +3983,7 @@ body.pencere-kip main { padding: 16px; }
       const dg = PK?.digerCihaz, dAcik = L.filter((o) => o.uzak && o.acik);
       const dBugun = TUM.filter((x) => (Date.parse(cd(x, 'Diğer PC').son) || 0) >= bugun.getTime());
       for (const o of L) if (o.uzak && Date.parse(o.son) >= bugun.getTime()) { const x = otProje(o); if (x && !dBugun.includes(x)) dBugun.push(x); }
-      const digerKart = kart({ baslik: cAd('Diğer PC'), ikon: IK.pc, cls: 'c5', sag: dg?.zaman ? 'son görülme ' + otZaman(dg.zaman) : 'henüz görülmedi' },
+      const digerKart = kart({ baslik: cAd('Diğer PC'), ikon: IK.pc, cls: 'c5', sag: el('span', { id: 'digerKartDurum', text: $('#yanCihazDiger small')?.textContent || (dg?.zaman ? 'son görülme ' + otZaman(dg.zaman) : 'henüz görülmedi') }) },
         tsSatir('Diğer PC') || '',
         el('h6', { class: 'ot-bolum', text: 'Şu an açık' }), besli(dAcik.map((o) => otSatir(o, { baslikProje: true })), `${cAd('Diğer PC')}'da şu an açık oturum yok.`, 3),
         el('h6', { class: 'ot-bolum', text: 'Bugün değişenler' }), besli(dBugun.map((x) => el('a', { class: 'satir', href: projeYolu(x) }, el('div', { class: 'ad' }, el('span', { text: adSade(x) })))), 'Bugün bir değişiklik görünmüyor.', 3));
@@ -3598,11 +4147,34 @@ body.pencere-kip main { padding: 16px; }
       el('div', { class: 'isi-alt' }, el('span', { text: enAktif.length ? 'En aktif: ' + enAktif.map((x) => `${x.ad} (${x.adet})`).join(' · ') : 'commit ve iş dosyalarından' }),
         el('span', { class: 'lejant' }, 'Az ', ...[0, 1, 2, 3, 4].map((s) => el('i', { style: `background:var(--h${s})` })), ' Çok')));
   }
+  // === Dikkat canlı === Katalogdaki "kaydedilmemiş iş", "senkron" ve "depolama" maddeleri ilk taramadan (16.11) kalma sabit
+  // listeydi ve hiç güncellenmiyordu. Bunlar artık her projenin bu ve diğer bilgisayardaki bugünkü git durumundan (ileride,
+  // çakışma, bağsız, geride) ve bu cihazın diskinden hesaplanır; çözülen madde kendiliğinden kalkar. Gizli bilgi, kopya ve
+  // GitHub maddeleri katalogdan gelir (katalog üreticisi günceller).
+  function dikkatListesi() {
+    const sabit = (G.dikkat || []).filter((d) => !['Kaydedilmemiş iş', 'Senkron', 'Depolama'].includes(d.tur));
+    const canli = [];
+    for (const x of TUM) for (const k of CIHAZLAR) {
+      const d = cd(x, k), ad = adSade(x), yer = cAd(k);
+      if (d.durum === 'cakisma') canli.push({ seviye: 'yuksek', tur: 'Senkron', baslik: `${ad}: hem bulutta yeni kayıt hem gönderilmemiş iş var → önce gönder, sonra güncelle`, yer, x });
+      else if (d.durum === 'bagsiz') canli.push({ seviye: 'orta', tur: 'Senkron', baslik: `${ad}: klasör GitHub reposuna bağlı değil → Bağla`, yer, x });
+      else if (d.durum === 'ileride') canli.push({ seviye: /\d{2,}/.test(d.metin || '') ? 'orta' : 'dusuk', tur: 'Kaydedilmemiş iş', baslik: `${ad}: ${d.metin || 'gönderilmemiş değişiklik'} → Gönder`, yer, x });
+      else if (d.durum === 'geride') canli.push({ seviye: 'dusuk', tur: 'Senkron', baslik: `${ad}: bulutta yeni kayıt var → Güncelle`, yer, x });
+    }
+    const disk = G.depolama?.disk;
+    if (disk?.kullanilan && disk?.bos) {
+      const o = disk.kullanilan / (disk.kullanilan + disk.bos);
+      if (o >= 0.85) canli.push({ seviye: o >= 0.93 ? 'yuksek' : 'orta', tur: 'Depolama', baslik: `C: diski %${Math.round(o * 100)} dolu → Yer aç`, yer: cAd(BU || 'Bu PC') });
+    }
+    const sira = { yuksek: 0, orta: 1, dusuk: 2 };
+    return [...canli, ...sabit].sort((a, b) => (sira[a.seviye] ?? 3) - (sira[b.seviye] ?? 3));
+  }
+  // === /Dikkat canlı ===
   function dikkatKarti(cls) {
-    const dk = G.dikkat || [];
+    const dk = dikkatListesi();
     const say = { yuksek: dk.filter((x) => x.seviye === 'yuksek').length, orta: dk.filter((x) => x.seviye === 'orta').length };
     const ul = el('ul', { class: 'dikkat-liste' });
-    const ciz_ = (l) => ul.replaceChildren(...l.map((x) => el('li', {}, el('span', { class: 'sev ' + x.seviye, text: x.seviye === 'yuksek' ? '!' : x.seviye === 'orta' ? '•' : '·', 'aria-label': x.seviye }), el('span', {}, x.baslik, el('small', { text: `${x.tur} · ${kaynakAdi(x.yer)}` })))));
+    const ciz_ = (l) => ul.replaceChildren(...l.map((x) => el('li', {}, el('span', { class: 'sev ' + x.seviye, text: x.seviye === 'yuksek' ? '!' : x.seviye === 'orta' ? '•' : '·', 'aria-label': x.seviye }), el('span', {}, x.x ? el('a', { href: projeYolu(x.x), text: x.baslik }) : x.baslik, el('small', { text: `${x.tur} · ${kaynakAdi(x.yer)}` })))));
     ciz_(dk.slice(0, 6));
     const tum = el('button', { class: 'bag', type: 'button', text: `Tümünü göster (${dk.length})`, onclick: () => { ciz_(dk); tum.remove(); } });
     return kart({ baslik: 'Dikkat isteyenler', ikon: IK.uyari, ton: 'uyari', cls, sag: `${say.yuksek} önemli · ${say.orta} orta` }, dk.length ? ul : bosDurum(IK.tamam, 'Dikkat isteyen bir şey yok', null, 'iyi'), dk.length > 6 ? el('div', {}, tum) : null);
@@ -4356,7 +4928,7 @@ body.pencere-kip main { padding: 16px; }
     if (turler.length) sag.append(kart({ baslik: 'Açılacak programlar', ikon: IK.kod }, el('div', { class: 'cihazlar' }, ...turler.map((p_) => el('span', { class: 'cr yerel', text: p_ })))));
     if (IS_KAT.has(x.kategori)) {
       const mk = pd(x.id).makine || {};
-      const alan = (ad, anahtar, ph) => { const i = el('input', { id: `mk-${anahtar}`, value: mk[anahtar] ?? (anahtar === 'musteri' ? (x.musteri || (x.anaTur === 'Müşteri' ? x.ana : '')) : ''), placeholder: ph }); i.addEventListener('change', () => { pd(x.id).makine = { ...(pd(x.id).makine || {}), [anahtar]: i.value }; kaydet(); bildir(PK ? 'Makine kartı kaydedildi' : 'Makine kartı kaydedildi (bu tarayıcıda)'); }); return el('label', { for: `mk-${anahtar}` }, ad, i); };
+      const alan = (ad, anahtar, ph) => { const i = el('input', { id: `mk-${anahtar}`, 'data-otokayit': '', value: mk[anahtar] ?? (anahtar === 'musteri' ? (x.musteri || (x.anaTur === 'Müşteri' ? x.ana : '')) : ''), placeholder: ph }); i.addEventListener('change', () => { pd(x.id).makine = { ...(pd(x.id).makine || {}), [anahtar]: i.value }; kaydet(); bildir(PK ? 'Makine kartı kaydedildi' : 'Makine kartı kaydedildi (bu tarayıcıda)'); }); return el('label', { for: `mk-${anahtar}` }, ad, i); };
       sol.append(kart({ baslik: 'Makine kartı', ikon: IK.makine }, el('div', { class: 'makine' }, alan('Müşteri', 'musteri', '—'), alan('Makine', 'makine', 'ör. 150T pres'), alan('PLC', 'plc', 'ör. Delta DVP-SE, fw 2.0'), alan('HMI', 'hmi', 'ör. DOP-107'), alan('PLC IP', 'ip', '192.168.1.5'), alan('Sahadaki sürüm', 'saha', 'ör. v21 · 12.03.2026'))));
       sag.append(kart({ baslik: 'Uzaktan erişim', ikon: IK.sunucu }, el('p', { class: 'soluk', style: 'margin:0;font-size:.84rem', text: 'VPN / TeamViewer / IP bilgisi kasada tutulur; değer burada gösterilmez. Kayda bu projenin adını "projeler" alanına yazın.' }), el('div', {}, el('button', { class: 'btn kucuk', type: 'button', onclick: () => eylem(x, 'Uzaktan erişim') }, svg(IK.arti, 'ikon k'), 'Kasaya erişim bilgisi ekle'))));
     }
@@ -4601,7 +5173,7 @@ body.pencere-kip main { padding: 16px; }
       }, '');
     }
     function duzenle(i, kartN) {
-      const inp = el('input', { class: 'is-duzen', value: i.metin, 'aria-label': 'İşi düzenle' });
+      const inp = el('input', { class: 'is-duzen', value: i.metin, 'aria-label': 'İşi düzenle', 'data-otokayit': '' }); // odaktan çıkınca kaydeder
       let bitti = false;
       const bitir = (kaydetMi) => { if (bitti) return; bitti = true; const v = inp.value.trim(); if (kaydetMi && v && v !== i.metin) { i.metin = v; if (i.kaynak === 'sağlık önerisi') i.kaynak = 'sağlık önerisi (düzenlendi)'; degisti(); } else ciz_(); };
       inp.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); bitir(true); } if (e.key === 'Escape') { e.preventDefault(); bitir(false); } });
@@ -4648,7 +5220,7 @@ body.pencere-kip main { padding: 16px; }
   function wikiSekme(x, govde) {
     const d = pd(x.id);
     const varsayilan = `# ${x.ad}\n\n**Durum:** ${durumOf(x)}${x.musteri ? '  \n**Müşteri:** ' + x.musteri : ''}\n\n## Açıklama\n${x.aciklama || 'Bu projenin ne yaptığını yazın.'}\n\n## Kullanım notları\n- Devreye alma adımları\n- Dikkat edilecekler`;
-    const ta = el('textarea', { id: 'wikiMetin', 'aria-label': 'Wiki metni (Markdown)' }); ta.value = d.wiki ?? varsayilan;
+    const ta = el('textarea', { id: 'wikiMetin', 'aria-label': 'Wiki metni (Markdown)', 'data-otokayit': '' }); ta.value = d.wiki ?? varsayilan;
     const on = el('div', { class: 'onizleme', 'aria-label': 'Önizleme' }); on.innerHTML = md(ta.value);
     ta.addEventListener('input', () => { on.innerHTML = md(ta.value); d.wiki = ta.value; kaydet(); });
     govde.append(kart({ baslik: 'Wiki / README', ikon: IK.kitap, sag: 'Markdown · yazdıkça kaydedilir' }, el('div', { class: 'wiki' }, ta, on)));
@@ -4916,6 +5488,289 @@ body.pencere-kip main { padding: 16px; }
     v.append(el('div', { class: 'alt-baslik' }, el('h3', { text: `Yedeklenmeyenler · ${fmtGB(hTop)}` })));
     v.append(el('p', { class: 'soluk', style: 'margin:-8px 0 0;font-size:.86rem', text: 'Proje olarak takip edilmez ve yedeğe girmez: yeniden indirilebilen ya da geçici olanlar.' }));
     v.append(el('div', { class: 'kart-izgara' }, ...K.haric.map((h) => el('div', { class: 'kucuk-kart' }, el('h4', { text: h.ad }), h.mb ? el('span', { class: 'mb', text: fmtGB(h.mb * 1048576) }) : null, el('p', { class: 'soluk', text: h.neden })))));
+    return v;
+  };
+
+  // ================= DOSYALAR =================
+  // Şifreli yedekteki proje dışı dosyalar (sunucu: lib/dosyalar.mjs). Yedekler bir kez okunup BU BİLGİSAYARDA dizine alınır;
+  // dosya adları telefona / kayıt deposuna gitmez. Ağaç birleşiktir: aynı yol farklı yedeklerde tek satır (en yeni hali).
+  const DS = { sorgu: '', is: null, tamam: new Set() };
+  const dsHash = (cihaz, yol) => '#dosyalar' + (cihaz ? '/' + encodeURIComponent(cihaz) + (yol ? '/' + String(yol).split('/').map(encodeURIComponent).join('/') : '') : '');
+  const dsBoyut = (b) => (b == null ? '' : b < 1024 ? `${b} B` : b < 1024 ** 2 ? `${Math.max(1, Math.round(b / 1024))} KB` : fmtGB(b));
+  const dsTarih = (s) => { const t = new Date(s); return Number.isNaN(+t) || t.getFullYear() < 1990 ? '' : t.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' }); };
+  /** Sunucudaki işi (dizinleme, getirme) bitene kadar izler; ortak ilerleme çubuğunda gösterir */
+  const dsIsBekle = async (is, mesaj = '') => {
+    for (;;) {
+      await new Promise((z) => setTimeout(z, 1000));
+      const j = await api('/api/is/' + is);
+      if (j.durum === 'suruyor') surecGoster(j.mesajlar?.at(-1) || mesaj, j.ilerleme);
+      if (j.durum === 'bitti') { surecGizle(); return j.sonuc || {}; }
+      if (j.durum === 'hata') { surecGizle(); throw new Error(j.hata); }
+    }
+  };
+  /** Sunucudaki dosya işini (dizinleme, konulara ayırma) izler; bitince Dosyalar sayfası yeniden çizilir */
+  async function dsIsIzle(is, { mesaj = 'Yedekler dizine alınıyor…', tamam = null } = {}) {
+    if (DS.is === is) return;
+    DS.is = is;
+    try {
+      const s = await dsIsBekle(is, mesaj);
+      bildir(tamam || (s.yeni != null ? `Dizin hazır: ${sayiTR(s.yeni)} yeni yedek okundu${s.hatali?.length ? `, ${s.hatali.length} yedek okunamadı` : ''}; konular güncellendi.` : `Konulara ayrıldı: ${sayiTR(s.dosya || 0)} dosya.`), 7000, s.hatali?.length ? 'uyari' : '');
+    } catch (e) { bildir('Dosya işi bitmedi: ' + e.message, 10000, 'hata'); }
+    DS.is = null;
+    if (rota.ad === 'dosyalar') ciz();
+  }
+  async function dsDizinle() {
+    if (DS.is) return;
+    try { const r = await api('/api/dosyalar/dizinle', {}); if (rota.ad === 'dosyalar') ciz(); await dsIsIzle(r.is); }
+    catch (e) { bildir('Dizine alınamadı: ' + e.message, 10000, 'hata'); }
+  }
+  async function dsDuzenle() {
+    if (DS.is) return;
+    try { const r = await api('/api/dosyalar/duzenle', {}); if (rota.ad === 'dosyalar') ciz(); await dsIsIzle(r.is, { mesaj: 'Konulara ayrılıyor…' }); }
+    catch (e) { bildir('Konulara ayrılamadı: ' + e.message, 10000, 'hata'); }
+  }
+  // ---- Konuya göre kütüphane (kurallar: lib/dosya-kurallar.mjs; kullanıcı kuralları yalnızca bu bilgisayarda) ----
+  const DS_KONU_IKON = { Projeler: IK.klasor, 'Kişisel belgeler': IK.kisi, 'CV ve portföy': IK.belge, 'DoKa iş dosyaları': IK.makine, 'PLC ve HMI programları': IK.kod, 'Çizimler (CAD)': IK.kalem,
+    'Kılavuzlar ve teknik': IK.kitap, Medya: IK.medya, Yazışmalar: IK.posta, 'Oyun ve mod yedekleri': IK.disk, 'Arşiv dosyaları': IK.bulut, 'Programlar ve kurulumlar': IK.pc, 'Kod ve yazılım': IK.kod, 'Belgeler (genel)': IK.belge, Diğer: IK.klasor };
+  const DS_KONULAR = Object.keys(DS_KONU_IKON);
+  const dsKonuHash = (konu, alt) => '#dosyalar/konu/' + encodeURIComponent(konu) + (alt == null ? '' : '/' + (alt === '' ? '~' : encodeURIComponent(alt)));
+  const DS_ALAN = { yol: 'Klasör yolu', ad: 'Dosya adı', uzanti: 'Uzantı' };
+  const DS_TUR = { icerir: 'içinde geçerse', baslar: 'ile başlarsa', esit: 'tam olarak buysa', herhangi: 'şunlardan biri geçerse', regex: 'düzenli ifadeye uyarsa' };
+  const dsKuralOzet = (x, cAdi = (c) => c) => `${DS_ALAN[x.alan] || x.alan} ${DS_TUR[x.tur] || x.tur}: “${x.deger}”${x.cihaz ? ' · yalnızca ' + cAdi(x.cihaz) : ''}`;
+  const dsRegexGecerli = (s) => { try { new RegExp(s, 'i'); return true; } catch (_) { return false; } };
+  const dsKuralAlanlari = (x0, cihazSec) => [
+    { ad: 'konu', etiket: 'Konu', deger: x0?.konu || '', ipucu: 'ör. Kişisel belgeler', yardim: `Var olan bir konu (${DS_KONULAR.slice(1, 5).join(', ')}…) ya da yeni bir ad`, uzunluk: 80 },
+    { ad: 'alt', etiket: 'Alt konu (isteğe bağlı)', deger: x0?.alt || '', ipucu: 'ör. Araç', uzunluk: 80 },
+    { ad: 'alan', etiket: 'Neye bakılsın', tur: 'secim', deger: x0?.alan || 'yol', secenekler: Object.entries(DS_ALAN) },
+    { ad: 'tur', etiket: 'Nasıl eşleşsin', tur: 'secim', deger: x0?.tur || 'icerir', secenekler: Object.entries(DS_TUR) },
+    { ad: 'deger', etiket: 'Değer', deger: x0?.deger || '', uzunluk: 500, ipucu: 'ör. Masaüstü/Opel/  ya da  poliçe,kasko', yardim: 'Türkçe harf ve büyük/küçük harf fark etmez' },
+    { ad: 'cihaz', etiket: 'Cihaz', tur: 'secim', deger: x0?.cihaz || '', secenekler: cihazSec },
+  ];
+  const dsKuralDogrula = (v) => (!v.konu ? 'Konu boş olamaz.' : !v.deger ? 'Değer boş olamaz.' : v.tur === 'regex' && !dsRegexGecerli(v.deger) ? 'Düzenli ifade geçersiz.' : null);
+  /** Kuralları kaydeder ve konulara yeniden ayırmayı başlatır */
+  async function dsKurallariKaydet(kullanici, kapali) {
+    const r = await api('/api/dosyalar/kurallar', { kullanici, kapali });
+    dsIsIzle(r.is, { mesaj: 'Kurallar uygulanıyor…', tamam: 'Kurallar uygulandı; konular güncellendi.' });
+  }
+  /** Ağaçtaki klasörü bir konuya ata: "yol bu klasörle başlarsa" kuralı en üste eklenir */
+  async function dsKonuyaAta(cihaz, yol, cihazAdi) {
+    let k; try { k = await api('/api/dosyalar/kurallar'); } catch (e) { bildir('Kurallar okunamadı: ' + e.message, 8000, 'hata'); return; }
+    const v = await formSor({ baslik: 'Klasörü konuya ata', metin: `${cihazAdi} › ${yol.split('/').join(' › ')} ve altındaki her şey bu konuda görünür. Dosyalar taşınmaz.`,
+      alanlar: [{ ad: 'konu', etiket: 'Konu', ipucu: 'ör. Kişisel belgeler', uzunluk: 80 }, { ad: 'alt', etiket: 'Alt konu (isteğe bağlı)', uzunluk: 80 }], tamam: 'Ata ve uygula', dogrula: (x) => (x.konu ? null : 'Konu boş olamaz.') });
+    if (!v) return;
+    try { await dsKurallariKaydet([{ konu: v.konu, alt: v.alt, alan: 'yol', tur: 'baslar', deger: yol + '/', cihaz }, ...k.kullanici], k.kapali); }
+    catch (e) { bildir('Atanamadı: ' + e.message, 9000, 'hata'); }
+  }
+  function dsKonular() {
+    const kutu = el('div', { class: 'pd-kolon' }, yukleniyor('Konular okunuyor…'));
+    api('/api/dosyalar/konular').then((k) => {
+      if (k.is && DS.is !== k.is) dsIsIzle(k.is, { mesaj: 'Konulara ayrılıyor…' });
+      const calisiyor = DS.is || k.is;
+      if (!k.konular.length) {
+        kutu.replaceChildren(kart({}, bosDurum(IK.etiket, 'Dosyalar henüz konulara ayrılmadı', 'Kurallar her dosyayı bir konuya koyar: kişisel belgeler, DoKa işleri müşteriye göre, kılavuzlar, medya… Dosyalar yedekte yerinde kalır, yalnızca burada gruplanır.', null,
+          calisiyor ? yukleniyor('Konulara ayrılıyor…') : el('button', { class: 'btn ana', type: 'button', onclick: () => dsDuzenle() }, svg(IK.etiket), 'Konulara ayır'))));
+        return;
+      }
+      kutu.replaceChildren(...[
+        !k.guncel ? bilgiKutu(IK.yenile, 'uyari', el('p', {}, 'Kurallar, katalog ya da yedekler son ayırmadan beri değişti. ', calisiyor ? el('b', { text: 'Ayrılıyor…' }) : el('button', { class: 'btn kucuk', type: 'button', onclick: () => dsDuzenle() }, 'Yeniden ayır'))) : null,
+        el('div', { class: 'kart-izgara' }, ...k.konular.map((x) => el('a', { class: 'kucuk-kart ds-konu', href: dsKonuHash(x.konu) },
+          el('h4', {}, svg(DS_KONU_IKON[x.konu] || IK.etiket), x.konu),
+          el('p', { class: 'soluk', text: `${sayiTR(x.adet)} dosya · ${dsBoyut(x.bayt)}` }),
+          x.altlar.length ? el('p', { class: 'ds-altlar', text: x.altlar.slice(0, 4).map((a) => `${a.alt} (${sayiTR(a.adet)})`).join(' · ') + (x.altlar.length > 4 ? ` · +${x.altlar.length - 4}` : '') }) : null))),
+        k.duzenlendi ? el('p', { class: 'soluk', style: 'font-size:.8rem;margin:0', text: `Son ayırma: ${tarihTR(k.duzenlendi)} · dosyalar yedekte yerinde durur · konuları "Kurallar"dan değiştirebilirsin` }) : null].filter(Boolean));
+    }, (e) => kutu.replaceChildren(bilgiKutu(IK.uyari, 'kotu', el('p', { text: 'Konular okunamadı: ' + e.message }))));
+    return kutu;
+  }
+  function dsKonu(r) {
+    const [konu, altHam] = r.yol.split('/'), alt = altHam == null ? null : altHam === '~' ? '' : altHam;
+    const kutu = el('div', { class: 'pd-kolon' }, yukleniyor('Konu açılıyor…'));
+    api('/api/dosyalar/konular').then(async (k) => {
+      const x = k.konular.find((y) => y.konu === konu);
+      const iz = el('nav', { class: 'yol-izi', 'aria-label': 'Konum' }, el('a', { href: '#dosyalar', text: 'Dosyalar' }), svg(IK.sag), alt == null ? el('span', { text: konu }) : el('a', { href: dsKonuHash(konu), text: konu }), alt != null ? [svg(IK.sag), el('span', { text: alt || 'Diğer' })] : null);
+      if (!x) { kutu.replaceChildren(iz, kart({}, bosDurum(IK.etiket, 'Bu konuda dosya yok', 'Kurallar değişmiş olabilir.'))); return; }
+      const say = alt == null ? x : alt === '' ? x.genel : x.altlar.find((a) => a.alt === alt);
+      const cip = (h, t, a) => el('a', { class: 'chip', href: h, 'aria-pressed': String(a) }, t);
+      const seritler = x.altlar.length ? el('div', { class: 'ds-serit' }, cip(dsKonuHash(konu), `Tümü · ${sayiTR(x.adet)}`, alt == null), ...x.altlar.map((a) => cip(dsKonuHash(konu, a.alt), `${a.alt} · ${sayiTR(a.adet)}`, alt === a.alt)),
+        x.genel ? cip(dsKonuHash(konu, ''), `Diğer · ${sayiTR(x.genel.adet)}`, alt === '') : null) : null;
+      const proje = konu === 'Projeler' && alt ? TUM.find((p) => p.ad === alt) : null;
+      const liste = el('div', { class: 'ds-agac', role: 'list' }), devam = el('div', {});
+      let sayfa = 0;
+      const yukle = async () => {
+        devam.replaceChildren(yukleniyor('Dosyalar okunuyor…'));
+        try {
+          const l = await api('/api/dosyalar/konu?' + new URLSearchParams({ konu, ...(alt != null ? { alt } : {}), sayfa }));
+          for (const o of l.ogeler) {
+            const s = dsSatir(o.cihaz, o.ust, o);
+            if (o.kopya > 1) s.firstChild.append(el('span', { class: 'chip ds-rozet', title: 'Aynı ad ve boyutta başka yerlerde de var; dosya bilgisinde listelenir' }, `${o.kopya} kopya`));
+            s.firstChild.append(el('a', { class: 'ds-yer', href: dsHash(o.cihaz, o.ust), text: [o.cihazAd, ...(o.ust ? o.ust.split('/') : [])].join(' › ') }));
+            liste.append(s);
+          }
+          sayfa++;
+          devam.replaceChildren(l.fazla ? el('button', { class: 'btn', type: 'button', style: 'margin-top:8px', onclick: () => yukle() }, 'Daha fazla göster') : !liste.childElementCount ? el('p', { class: 'soluk', text: 'Dosya yok.' }) : null);
+        } catch (e) { devam.replaceChildren(bilgiKutu(IK.uyari, 'kotu', el('p', { text: 'Okunamadı: ' + e.message }))); }
+      };
+      kutu.replaceChildren(...[iz, seritler,
+        proje ? bilgiKutu(IK.klasor, '', el('p', {}, 'Bu dosyalar ', el('a', { class: 'bag', href: '#proje/' + encodeURIComponent(proje.id), text: proje.ad }), ' projesinin; proje kartından Kur ile bilgisayara iner.')) : null,
+        kart({ baslik: `${sayiTR(say?.adet || 0)} dosya · ${dsBoyut(say?.bayt || 0)}`, ikon: DS_KONU_IKON[konu] || IK.etiket, sag: el('span', { class: 'soluk', style: 'font-size:.8rem', text: 'en yeniden eskiye · aynı ad ve boyut tek satır' }) }, liste, devam)].filter(Boolean));
+      await yukle();
+    }, (e) => kutu.replaceChildren(bilgiKutu(IK.uyari, 'kotu', el('p', { text: 'Konu okunamadı: ' + e.message }))));
+    return kutu;
+  }
+  function dsKurallar(dz) {
+    const kutu = el('div', { class: 'pd-kolon' }, yukleniyor('Kurallar okunuyor…'));
+    api('/api/dosyalar/kurallar').then((k) => {
+      const d = { kullanici: [...k.kullanici], kapali: new Set(k.kapali) };
+      const cAdi = (c) => dz.cihazlar.find((x) => x.cihaz === c)?.ad || c;
+      const cihazSec = [['', 'Bütün cihazlar'], ...dz.cihazlar.map((c) => [c.cihaz, c.ad])];
+      const kaydet = el('button', { class: 'btn ana kucuk', type: 'button', disabled: true }, svg(IK.tamam), 'Kaydet ve uygula');
+      const degisti = () => { kaydet.disabled = !!DS.is; };
+      kaydet.addEventListener('click', async () => { kaydet.disabled = true; try { await dsKurallariKaydet(d.kullanici, [...d.kapali]); } catch (e) { kaydet.disabled = false; bildir('Kaydedilemedi: ' + e.message, 9000, 'hata'); } });
+      const benim = el('div', { class: 'ds-agac', role: 'list' });
+      const tus = (t, ik, fn, etiket) => el('button', { class: 'btn kucuk', type: 'button', title: etiket, 'aria-label': etiket, onclick: fn }, ik ? svg(ik) : null, t);
+      const tasi = (i, j) => { const [x] = d.kullanici.splice(i, 1); d.kullanici.splice(j, 0, x); degisti(); cizBenim(); };
+      async function form(i) {
+        const x0 = i == null ? null : d.kullanici[i];
+        const v = await formSor({ baslik: x0 ? 'Kuralı düzenle' : 'Yeni kural', alanlar: dsKuralAlanlari(x0, cihazSec), dogrula: dsKuralDogrula, tamam: x0 ? 'Tamam' : 'Ekle', ek: x0 ? { ad: 'sil', etiket: 'Sil', tehlike: true } : null });
+        if (!v) return;
+        if (v === 'sil') d.kullanici.splice(i, 1);
+        else { const y = { ...(x0 || {}), ...v, cihaz: v.cihaz || null }; if (x0) d.kullanici[i] = y; else d.kullanici.unshift(y); }
+        degisti(); cizBenim();
+      }
+      function cizBenim() {
+        benim.replaceChildren(...(d.kullanici.length ? d.kullanici.map((x, i) => el('div', { class: 'ds-oge', role: 'listitem' },
+          el('span', { class: 'ds-sol' }, el('b', { text: x.konu + (x.alt ? ' › ' + x.alt : '') }), el('span', { class: 'ds-yer', text: dsKuralOzet(x, cAdi) })),
+          el('span', { style: 'display:flex;gap:4px' }, i > 0 ? tus('↑', null, () => tasi(i, i - 1), 'Yukarı taşı') : null, i < d.kullanici.length - 1 ? tus('↓', null, () => tasi(i, i + 1), 'Aşağı taşı') : null, tus('', IK.kalem, () => form(i), 'Düzenle'))))
+          : [el('p', { class: 'soluk', style: 'margin:0', text: 'Henüz kuralın yok. Ağaçta bir klasörü açıp "Konuya ata" diyebilir ya da buradan kural ekleyebilirsin.' })]));
+      }
+      cizBenim();
+      const hazir = [{ id: 'katalog', konu: 'Projeler · DoKa iş dosyaları', aciklama: 'Katalogdan: proje klasörü → Projeler › proje; iş no klasörü ("25010 - …") ve müşteri adı → DoKa › müşteri' }, ...k.hazir];
+      const hazirListe = el('div', { class: 'ds-agac', role: 'list' }, ...hazir.map((h) => {
+        const cb = el('input', { type: 'checkbox', checked: !d.kapali.has(h.id), 'aria-label': `${h.konu} kuralı açık` });
+        cb.addEventListener('change', () => { if (cb.checked) d.kapali.delete(h.id); else d.kapali.add(h.id); degisti(); });
+        return el('label', { class: 'ds-oge', role: 'listitem', style: 'cursor:pointer' }, el('span', { class: 'ds-sol' }, cb, el('b', { text: h.konu + (h.alt ? ' › ' + h.alt : '') }), el('span', { class: 'ds-yer', text: h.aciklama || dsKuralOzet(h, cAdi) })), el('span'));
+      }));
+      kutu.replaceChildren(
+        kart({ baslik: 'Senin kuralların', ikon: IK.kalem, sag: el('span', { style: 'display:flex;gap:6px' }, tus('Yeni kural', IK.arti, () => form(null), 'Yeni kural'), kaydet) },
+          el('p', { class: 'soluk', style: 'margin:0 0 6px;font-size:.84rem', text: 'İlk eşleşen kural kazanır; seninkiler hazır kurallardan önce gelir. Yalnızca bu bilgisayarda saklanır.' }), benim),
+        kart({ baslik: `Hazır kurallar (${hazir.length})`, ikon: IK.liste }, el('p', { class: 'soluk', style: 'margin:0 0 6px;font-size:.84rem', text: 'İşaretini kaldırdığın kural uygulanmaz. Hiçbiri eşleşmeyen dosya "Diğer"e düşer.' }), hazirListe));
+    }, (e) => kutu.replaceChildren(bilgiKutu(IK.uyari, 'kotu', el('p', { text: 'Kurallar okunamadı: ' + e.message }))));
+    return kutu;
+  }
+  async function dsGetir(cihaz, yol, { ad, tur, gizli, boyut } = {}) {
+    if (gizli && !(await secimSor({ baslik: 'Gizli bilgi içerebilir', metin: `"${ad}" şifre ya da anahtar taşıyor olabilir; güncel değerler kasada. Yine de bu bilgisayara şifresiz olarak çıkarılsın mı?`, secenekler: [{ ad: 'Getir', deger: true, tur: 'ana' }] }))) return;
+    if (tur === 'klasor' && boyut > 2 * 1024 ** 3 && !(await secimSor({ baslik: 'Büyük klasör', metin: `${ad} yaklaşık ${fmtGB(boyut)}; Drive'dan indirilmesi uzun sürebilir.`, secenekler: [{ ad: 'Getir', deger: true, tur: 'ana' }] }))) return;
+    try {
+      const r = await api('/api/dosyalar/getir', { cihaz, yol });
+      surecGoster(`${ad} yedekten getiriliyor…`);
+      const s = await dsIsBekle(r.is, `${ad} yedekten getiriliyor…`);
+      bildirEylem(`${ad} getirildi → İndirilenler\\ProjeKontrol-Getirilen\\${String(s.klasor || '').split('\\').pop()}${s.baglantilar ? ` · ${s.baglantilar} bağlantı atlandı` : ''}`, 'Klasörü aç',
+        () => api('/api/dosyalar/ac', { hedef: s.hedef }).catch((e) => bildir('Açılamadı: ' + e.message, 6000, 'hata')), 20000);
+    } catch (e) { surecGizle(); bildir(`${ad} getirilemedi: ${e.message}`, 10000, 'hata'); }
+  }
+  /** Dosya / klasör bilgisi: yedeklerdeki halleri, aynı ad ve boyuttaki kopyalar, getir */
+  async function dsBilgi(cihaz, yol) {
+    const ad = String(yol).split('/').pop();
+    const govde = el('div', { class: 'ds-bilgi' }, yukleniyor('Yedeklerdeki halleri okunuyor…'));
+    const d = otPencere('Dosya bilgisi', el('header', {}, el('div', { class: 'bas-metin' }, el('h3', { text: ad })), el('button', { class: 'btn kucuk', type: 'button', onclick: () => d.close() }, 'Kapat')), govde);
+    d.classList.add('ds-p');
+    let b; try { b = await api('/api/dosyalar/bilgi?' + new URLSearchParams({ cihaz, yol })); } catch (e) { govde.replaceChildren(bilgiKutu(IK.uyari, 'kotu', el('p', { text: 'Okunamadı: ' + e.message }))); return; }
+    const satir = (a, v) => el('div', { class: 'ds-satir' }, el('span', { class: 'soluk', text: a }), typeof v === 'string' ? el('span', { text: v }) : v);
+    const ust = String(yol).split('/').slice(0, -1);
+    govde.replaceChildren(...[
+      satir('Yer', el('a', { class: 'bag', href: dsHash(cihaz, ust.join('/')), onclick: () => d.close(), text: [b.cihazAd, ...ust].join(' › ') })),
+      satir('Boyut', b.tur === 'klasor' ? `${dsBoyut(b.boyut)} · ${sayiTR(b.dosya || 0)} dosya` : dsBoyut(b.boyut)),
+      b.zaman && dsTarih(b.zaman) ? satir('Değiştirilme', tarihTR(b.zaman)) : null,
+      b.proje ? satir('Proje', el('a', { class: 'bag', href: '#proje/' + encodeURIComponent(b.proje.id), onclick: () => d.close(), text: b.proje.ad })) : null,
+      b.gizli ? bilgiKutu(IK.kilit, 'uyari', el('p', { text: 'Şifre, anahtar ya da .env içerebilir. Güncel değerler kasada; bu eski kopya şifresiz olarak çıkarılır.' })) : null,
+      el('h4', { text: `Yedeklerdeki halleri (${b.surumler.length})` }),
+      el('div', { class: 'ds-liste' }, ...b.surumler.map((s) => satir(tarihTR(s.yedek) + (s.etiket?.length ? ' · ' + s.etiket.join(', ') : ''), s.tur === 'klasor' ? 'klasör' : dsBoyut(s.boyut)))),
+      b.kopyalar.length ? el('h4', { text: `Aynı ad ve boyutta başka yerlerde (${b.kopyalar.length})` }) : null,
+      b.kopyalar.length ? el('div', { class: 'ds-liste' }, ...b.kopyalar.map((k) => el('a', { class: 'ds-satir', href: dsHash(k.cihaz, k.yol.split('/').slice(0, -1).join('/')), onclick: () => d.close() }, el('span', { text: k.yol.split('/').join(' › ') }), el('span', { class: 'soluk', text: k.cihazAd })))) : null,
+      el('div', { class: 'tuslar', style: 'display:flex;justify-content:flex-end;gap:8px;margin-top:8px' },
+        el('button', { class: 'btn ana', type: 'button', onclick: () => { d.close(); dsGetir(cihaz, yol, { ad: b.ad, tur: b.tur, gizli: b.gizli, boyut: b.boyut }); } }, svg(IK.indir), b.tur === 'klasor' ? 'Klasörü bu PC\'ye getir' : 'Bu PC\'ye getir')),
+    ].filter(Boolean));
+  }
+  function dsSatir(cihaz, ustYol, o) {
+    const tam = ustYol ? ustYol + '/' + o.ad : o.ad;
+    const ad = o.tur === 'klasor'
+      ? el('a', { class: 'ds-ad', href: dsHash(cihaz, tam) }, svg(IK.klasor, 'ikon k'), el('span', { text: o.ad }))
+      : el('button', { class: 'ds-ad', type: 'button', onclick: () => dsBilgi(cihaz, tam) }, svg(o.gizli ? IK.kilit : IK.belge, 'ikon k'), el('span', { text: o.ad }));
+    const rozet = [
+      o.proje ? el('a', { class: 'chip ds-rozet', href: '#proje/' + encodeURIComponent(o.proje.id), title: 'Bu klasör bir projenin; proje kartını aç' }, svg(IK.klasor, 'ikon k'), o.proje.ad) : null,
+      o.yalnizEski ? el('span', { class: 'chip ds-rozet uyari', title: `En son ${tarihTR(o.yedek)} yedeğinde var; daha yeni yedekte yok (silinmiş ya da yedek dışı bırakılmış)` }, 'son yedekte yok') : null,
+      o.gizli ? el('span', { class: 'chip ds-rozet', title: 'Şifre / anahtar içerebilir; güncel değer kasada' }, 'gizli') : null,
+    ];
+    const olcu = el('span', { class: 'ds-olcu' }, el('span', { text: o.tur === 'klasor' ? `${dsBoyut(o.boyut)}${o.dosya != null ? ' · ' + sayiTR(o.dosya) + ' dosya' : ''}` : dsBoyut(o.boyut) }), o.zaman && dsTarih(o.zaman) ? el('small', { text: dsTarih(o.zaman) }) : null);
+    return el('div', { class: 'ds-oge', role: 'listitem' }, el('span', { class: 'ds-sol' }, ad, ...rozet), olcu);
+  }
+  function dsAramaSonuc(s, q) {
+    if (!s.sonuclar.length) return el('p', { class: 'soluk', style: 'margin:0', text: `"${q}" için sonuç yok.` });
+    return kart({ baslik: `${sayiTR(s.sonuclar.length)}${s.fazla ? '+' : ''} sonuç`, ikon: IK.ara }, el('div', { class: 'ds-agac', role: 'list' }, ...s.sonuclar.map((o) => {
+      const r = dsSatir(o.cihaz, o.ust, o);
+      r.firstChild.append(el('a', { class: 'ds-yer', href: dsHash(o.cihaz, o.ust), text: [o.cihazAd, ...(o.ust ? o.ust.split('/') : [])].join(' › ') }));
+      return r;
+    })), s.fazla ? el('p', { class: 'soluk', style: 'margin:8px 0 0', text: 'Daha fazla sonuç var; aramayı daraltın.' }) : null);
+  }
+  function dsKlasor(r) {
+    const kutu = el('div', { class: 'pd-kolon' }, yukleniyor('Klasör açılıyor…'));
+    api('/api/dosyalar/agac?' + new URLSearchParams({ cihaz: r.cihaz, yol: r.yol })).then((a) => {
+      const parca = r.yol ? r.yol.split('/') : [];
+      const iz = el('nav', { class: 'yol-izi', 'aria-label': 'Konum' }, el('a', { href: '#dosyalar', text: 'Dosyalar' }), svg(IK.sag),
+        parca.length ? el('a', { href: dsHash(r.cihaz), text: a.ad }) : el('span', { text: a.ad }),
+        ...parca.flatMap((s, i) => [svg(IK.sag), i === parca.length - 1 ? el('span', { text: s }) : el('a', { href: dsHash(r.cihaz, parca.slice(0, i + 1).join('/')), text: s })]));
+      const ust = [iz];
+      if (a.proje) ust.push(bilgiKutu(IK.klasor, '', el('p', {}, 'Bu klasör ', el('a', { class: 'bag', href: '#proje/' + encodeURIComponent(a.proje.id), text: a.proje.ad }), ' projesine ait; proje kartından Kur ile de iner.')));
+      if (!a.ogeler.length) { kutu.replaceChildren(...ust, kart({}, bosDurum(IK.klasor, 'Bu klasör boş ya da dizinde yok'))); return; }
+      const anahtar = r.cihaz + '|' + r.yol, sinir = DS.tamam.has(anahtar) ? Infinity : 400;
+      const nK = a.ogeler.filter((o) => o.tur === 'klasor').length, nD = a.ogeler.length - nK, top = a.ogeler.reduce((t, o) => t + (o.boyut || 0), 0);
+      const getirTus = parca.length ? el('span', { style: 'display:flex;gap:6px' },
+        el('button', { class: 'btn kucuk', type: 'button', title: 'Bu klasördeki her şey seçtiğin konuda görünür (dosyalar taşınmaz)', onclick: () => dsKonuyaAta(r.cihaz, r.yol, a.ad) }, svg(IK.etiket), 'Konuya ata'),
+        el('button', { class: 'btn kucuk', type: 'button', onclick: () => dsGetir(r.cihaz, r.yol, { ad: parca.at(-1), tur: 'klasor', boyut: top }) }, svg(IK.indir), 'Bu klasörü getir')) : null;
+      kutu.replaceChildren(...ust, kart({ baslik: `${sayiTR(nK)} klasör · ${sayiTR(nD)} dosya · ${dsBoyut(top)}`, ikon: IK.klasor, sag: getirTus },
+        el('div', { class: 'ds-agac', role: 'list' }, ...a.ogeler.slice(0, sinir).map((o) => dsSatir(r.cihaz, r.yol, o))),
+        a.ogeler.length > sinir ? el('button', { class: 'btn', type: 'button', style: 'margin-top:8px', onclick: () => { DS.tamam.add(anahtar); ciz(); } }, `${sayiTR(a.ogeler.length - sinir)} öğe daha göster`) : null));
+    }, (e) => kutu.replaceChildren(bilgiKutu(IK.uyari, 'kotu', el('p', { text: 'Klasör okunamadı: ' + e.message }))));
+    return kutu;
+  }
+  const dsCihazlar = (dz) => el('div', { class: 'pd-kolon' },
+    el('div', { class: 'kart-izgara' }, ...dz.cihazlar.map((c) => el('a', { class: 'kucuk-kart', href: dsHash(c.cihaz), style: 'text-decoration:none;color:inherit' },
+      el('h4', {}, svg(/Laptop$/.test(c.ad) ? IK.pc : c.cihaz === 'Posta' ? IK.posta : IK.bulut), c.ad),
+      el('p', { class: 'soluk', text: `${sayiTR(c.hazir)} yedek · en büyüğünde ${sayiTR(c.dosya)} dosya` }),
+      c.sonYedek ? el('p', { class: 'soluk', text: 'Son yedek: ' + tarihTR(c.sonYedek) }) : null))),
+    dz.hatalar?.length ? bilgiKutu(IK.uyari, 'uyari', el('p', { text: `${dz.hatalar.length} yedek okunamadı (${dz.hatalar.map((h) => h.snap).join(', ')}); "Yeni yedekleri dizine al" yeniden dener.` })) : null);
+  GORUNUM.dosyalar = (r) => {
+    // #dosyalar → Konular · #dosyalar/cihazlar · #dosyalar/kurallar · #dosyalar/konu/<konu>/<alt> · #dosyalar/<cihaz>/<yol> (ağaç)
+    const sekme = !r.cihaz ? 'konular' : ['cihazlar', 'kurallar', 'konu'].includes(r.cihaz) ? r.cihaz : 'agac';
+    const cihazFiltre = sekme === 'agac' ? r.cihaz : null;
+    const yen = el('button', { class: 'btn', type: 'button', disabled: !!DS.is, onclick: () => dsDizinle() }, svg(IK.yenile), DS.is ? 'Sürüyor…' : 'Yeni yedekleri dizine al');
+    const v = gorunum('Dosyalar', 'Şifreli yedekteki bütün dosyalar · konulara ayrılır, aranır, gezilir, bu PC\'ye getirilir · dizin yalnızca bu bilgisayarda', yen);
+    const sekmeler = el('nav', { class: 'ds-serit', 'aria-label': 'Dosyalar görünümü' }, ...[['konular', '#dosyalar', 'Konular'], ['cihazlar', '#dosyalar/cihazlar', 'Cihazlar'], ['kurallar', '#dosyalar/kurallar', 'Kurallar']]
+      .map(([id, h, t]) => el('a', { class: 'chip', href: h, 'aria-pressed': String(sekme === id || (id === 'konular' && sekme === 'konu') || (id === 'cihazlar' && sekme === 'agac')) }, t)));
+    const girdi = el('input', { type: 'search', placeholder: cihazFiltre ? 'Bu cihazın yedeklerinde ara' : 'Dosya ya da klasör ara (ör. poliçe, AC310, Kırşan CV)', 'aria-label': 'Dosyalarda ara' });
+    girdi.value = DS.sorgu;
+    const sonucKutu = el('div', {}), govde = el('div', {}, yukleniyor('Dizin okunuyor…'));
+    let zz = null, son = '';
+    const ara = async () => {
+      const q = girdi.value.trim(); DS.sorgu = q;
+      if (q === son) return; son = q;
+      if (!q) { sonucKutu.replaceChildren(); govde.hidden = false; return; }
+      sonucKutu.replaceChildren(yukleniyor('Aranıyor…'));
+      try { const s = await api('/api/dosyalar/ara?' + new URLSearchParams({ q, ...(cihazFiltre ? { cihaz: cihazFiltre } : {}) })); if (girdi.value.trim() === q) { sonucKutu.replaceChildren(dsAramaSonuc(s, q)); govde.hidden = true; } }
+      catch (e) { sonucKutu.replaceChildren(bilgiKutu(IK.uyari, 'kotu', el('p', { text: 'Aranamadı: ' + e.message }))); }
+    };
+    girdi.addEventListener('input', () => { clearTimeout(zz); zz = setTimeout(ara, 300); });
+    v.append(el('label', { class: 'ds-arama' }, svg(IK.ara, 'ikon k'), girdi), sekmeler, sonucKutu, govde);
+    if (DS.sorgu) ara();
+    api('/api/dosyalar/durum').then((dz) => {
+      if (!dz.destek) { yen.disabled = true; govde.replaceChildren(bilgiKutu(IK.uyari, 'kotu', el('p', { text: dz.hata }))); return; }
+      if (dz.is && DS.is !== dz.is) dsIsIzle(dz.is); // sayfa yenilenmişken süren iş
+      if (!dz.yedek) {
+        govde.replaceChildren(kart({}, bosDurum(IK.bulut, 'Dizin henüz hazır değil', 'Yedekler bir kez okunup bu bilgisayarda dizine alınır. İlk seferde Drive\'dan okunduğu için 10-20 dakika sürebilir; sonra yalnızca yeni yedekler okunur.', null,
+          DS.is || dz.is ? yukleniyor('Dizine alınıyor…') : el('button', { class: 'btn ana', type: 'button', onclick: () => dsDizinle() }, svg(IK.indir), 'Dizini hazırla'))));
+        return;
+      }
+      govde.replaceChildren(sekme === 'konular' ? dsKonular() : sekme === 'cihazlar' ? dsCihazlar(dz) : sekme === 'kurallar' ? dsKurallar(dz) : sekme === 'konu' ? dsKonu(r) : dsKlasor(r));
+    }, (e) => govde.replaceChildren(bilgiKutu(IK.uyari, 'kotu', el('p', { text: e.durum === 404 || /yok/i.test(e.message) ? 'Bu özellik uygulama yeniden başlatılınca açılır (sunucu eski sürümde).' : 'Dosyalar okunamadı: ' + e.message }))));
     return v;
   };
 
@@ -5268,7 +6123,9 @@ body.pencere-kip main { padding: 16px; }
       el('div', { class: 'trm-menu', role: 'menu' }, ...trmKomutlar().map((k) => el('button', { type: 'button', role: 'menuitem', disabled: !k.var, title: k.var ? null : `${k.ad} bu bilgisayarda kurulu değil`, onclick: () => { yeni.open = false; terminalAc({ komut: k.komut }); } }, svg(TRM_YZ.has(k.komut) ? IK.yz : IK.terminal, 'ikon k'), el('span', { text: k.ad }), k.var ? null : el('small', { text: 'kurulu değil' })))));
     const o = trmOzet(TRM.etkin);
     const yol = o ? (o.dizin.length > 64 ? '…' + o.dizin.slice(-63) : o.dizin) : '';
-    TRM.cubuk.replaceChildren(...[el('div', { class: 'trm-sekmeler', role: 'tablist', 'aria-label': 'Terminal oturumları' }, ...sekmeler), yeni, o ? el('span', { class: 'trm-bilgi', title: o.dizin, text: yol }) : null].filter(Boolean));
+    // === Oturumu kapat === açık sekmenin oturumunu kapatan görünür düğme (sekmedeki × ile aynı; çalışıyorsa önce sorar)
+    const kapatDugme = o && o.durum === 'calisiyor' ? el('button', { class: 'btn kucuk hayalet', type: 'button', title: `“${o.ad}” oturumunu kapatır (önce sorulur; yapay zekâ sekmesinde önce iş durdurulur)`, onclick: () => trmKapat(o.id) }, svg(IK.kapat, 'ikon k'), 'Oturumu kapat') : null;
+    TRM.cubuk.replaceChildren(...[el('div', { class: 'trm-sekmeler', role: 'tablist', 'aria-label': 'Terminal oturumları' }, ...sekmeler), yeni, kapatDugme, o ? el('span', { class: 'trm-bilgi', title: o.dizin, text: yol }) : null].filter(Boolean));
   }
   function trmBosCiz() {
     if (!TRM.bos) return;
@@ -5401,6 +6258,8 @@ body.pencere-kip main { padding: 16px; }
   async function trmKapat(id) {
     const o = trmOzet(id); if (!o) return;
     if (o.durum === 'calisiyor' && !(await sor({ baslik: `“${o.ad}” kapatılsın mı?`, metin: `Oturum hâlâ çalışıyor. Kapatınca ${o.komutAd} ve içinde başlattığı her şey sonlandırılır.`, tamam: 'Kapat', tehlike: true }))) return;
+    // === Oturumu kapat === yapay zekâ sekmesinde önce Esc: yaptığı iş düzgünce durur, konuşma kaydı tam kalır
+    if (o.durum === 'calisiyor' && TRM_YZ.has(o.komut)) { await api('/api/terminal/yaz', { id, veri: '\u001b' }).catch(() => {}); await new Promise((z) => setTimeout(z, 1200)); }
     try { await api('/api/terminal/kapat', { id }); } catch (e) { if (e.durum !== 404) { bildir('Terminal kapatılamadı: ' + e.message, 6000, 'hata'); return; } }
     const i = TRM.liste.findIndex((x) => x.id === id);
     TRM.liste = TRM.liste.filter((x) => x.id !== id);
