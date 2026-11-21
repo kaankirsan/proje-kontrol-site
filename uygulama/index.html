@@ -1565,7 +1565,7 @@ body.pencere-kip main { padding: 16px; }
     };
     // Yapay zekâyla incele (dilim 3b): son incelemenin maskeli özeti (incelemeler/<proje>.json) ve seçilen bilgisayara istek
     // (istekler/<cihaz>/<id>.json; bilgisayarın sunucusu depoyu çekince toplu sıraya alır ve isteği siler)
-    window.PK.incelemeOku = async (proje) => { const d = await dosyaOku('proje-kontrol-veri', 'incelemeler/' + proje + '.json'); try { return d ? JSON.parse(d.metin) : null; } catch (_) { return null; } };
+    window.PK.incelemeOku = async (proje, kapsam = 'tam') => { const d = await dosyaOku('proje-kontrol-veri', 'incelemeler/' + proje + (kapsam === 'bagimlilik' ? '.bagimlilik' : '') + '.json'); try { return d ? JSON.parse(d.metin) : null; } catch (_) { return null; } };
     window.PK.incelemeIste = async ({ proje, cihaz, arac, kapsam }) => {
       if (test) throw new Error('Yerel denemede istek gönderilmez.');
       if (!/^[A-Za-z0-9_-]{1,40}$/.test(String(cihaz || ''))) throw new Error('Bilgisayar seçilmedi.');
@@ -1601,7 +1601,7 @@ body.pencere-kip main { padding: 16px; }
     // Yeni kabuk etkinleşince sayfa güvenli olunca kendiliğinden yenilenir (arayüzün otomatik yenilemesi: yazılan metin, açık
     // pencere, kaydedilmemiş değişiklik beklenir; adres korunur). Sayfa zaten yeni kabuksa (ağdan yüklendi) yenilenmez; ilk
     // kurulumda da. Yeni servis çalışanı kendi sürümünü söyler (sw.js "kabuk-surumu"); yanıt gelmezse yeni sayılır.
-    const KABUK = 'mwpweiqb';
+    const KABUK = 'mwpwv626';
     const vardi = !!navigator.serviceWorker.controller;
     const yeniKabuk = (v) => {
       if (!v || v === KABUK) return;
@@ -5490,7 +5490,7 @@ body.pencere-kip main { padding: 16px; }
       catch (e) { bildir(e.message, 7000, 'hata'); }
       btn.disabled = false;
     });
-    const sonYer = el('div', {}, yukleniyor('Son inceleme okunuyor…'));
+    const sonYer = el('div', {}, yukleniyor('Son inceleme okunuyor…')), bagYer = el('div');
     const yenileB = el('button', { class: 'btn kucuk', type: 'button', onclick: () => yukle() }, svg(IK.yenile, 'ikon k'), 'Yenile');
     govde.append(
       kart({ baslik: 'Yapay zekâyla incele', ikon: IK.yz, sag: 'bilgisayarda çalışır' },
@@ -5498,11 +5498,15 @@ body.pencere-kip main { padding: 16px; }
         cihazlar.length ? null : solukP('Kayıtta bilgisayar yok.'),
         el('div', { class: 'gorev-secim' }, el('label', {}, 'Bilgisayar', cSec), el('label', {}, 'İnceleyen', aSec), el('label', {}, 'Tür', kSec)),
         el('div', { style: 'display:flex;justify-content:flex-end' }, btn)),
-      kart({ baslik: 'Son inceleme', ikon: IK.rapor, sag: yenileB }, sonYer));
+      kart({ baslik: 'Son inceleme', ikon: IK.rapor, sag: yenileB }, sonYer), bagYer);
     async function yukle() {
-      let o = null;
-      try { o = await PK?.incelemeOku?.(x.id); } catch (e) { sonYer.replaceChildren(solukP('Okunamadı: ' + e.message)); return; }
-      if (!o) { sonYer.replaceChildren(solukP('Bu proje için yayınlanmış inceleme yok.')); return; }
+      let o = null, ob = null;
+      try { [o, ob] = await Promise.all([PK?.incelemeOku?.(x.id, 'tam'), PK?.incelemeOku?.(x.id, 'bagimlilik')]); } catch (e) { sonYer.replaceChildren(solukP('Okunamadı: ' + e.message)); return; }
+      bagYer.replaceChildren(...(ob ? [kart({ baslik: 'Son bağımlılık taraması', ikon: IK.ara }, ozetCiz(ob))] : []));
+      if (!o) { sonYer.replaceChildren(solukP('Bu proje için yayınlanmış uçtan uca inceleme yok.')); return; }
+      sonYer.replaceChildren(ozetCiz(o));
+    }
+    function ozetCiz(o) {
       const [dAd, dTon] = INC_DURUM[o.durum] || [o.durum, ''];
       const s = o.sayilar;
       const ust = el('div', { class: 'serit-ust' }, el('span', { class: 'etiket ' + dTon, text: dAd }), el('span', { class: 'soluk serit-bilgi', text: [o.kapsam === 'bagimlilik' ? 'bağımlılık taraması' : null, o.arac === 'codex' ? 'Codex' : 'Claude', cihazlar.find((c) => c.cihaz === o.cihaz)?.gorunenAd || o.cihaz, otZaman(o.bitis || o.olusturma), s ? `${s.toplam} bulgu${s.dogru != null ? ` · ${s.dogru} doğrulandı` : ''}` : null].filter(Boolean).join(' · ') }));
@@ -5516,7 +5520,7 @@ body.pencere-kip main { padding: 16px; }
         ].filter(Boolean));
       };
       const k = o.proje_karti || {};
-      sonYer.replaceChildren(...[
+      return el('div', { class: 'inc-rapor', style: 'border-top:0;margin-top:0;padding-top:0' }, ...[
         ust,
         incEtkin(o) && o.adim ? solukP(o.adim) : null,
         o.hata ? el('p', { class: 'serit-hata', text: o.hata }) : null,
