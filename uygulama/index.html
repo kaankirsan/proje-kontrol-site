@@ -890,6 +890,25 @@ button.od-secenek[aria-pressed="true"] { border-color: var(--accent); background
 button.od-secenek:disabled { opacity: .6; cursor: progress; }
 .etiket.od-soru, .etiket.od-izin { color: var(--bad); border-color: var(--bad-bar, var(--bad)); background: var(--bad-soft); }
 .etiket.od-hata { color: var(--warn); border-color: var(--warn-bar, var(--warn)); background: var(--warn-soft); }
+.inc-bilgi { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 240px; font-size: .82rem; }
+.inc-rapor { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.inc-rapor h4 { margin: 6px 0 0; font-size: .9rem; }
+.inc-ozet { margin: 0; line-height: 1.55; }
+.inc-kart { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r); background: var(--soft); font-size: .84rem; }
+.inc-cipler { display: flex; flex-wrap: wrap; gap: 6px; }
+.inc-bulgular { display: flex; flex-direction: column; gap: 8px; }
+.inc-bulgu { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--line2); border-radius: var(--r); font-size: .86rem; }
+.inc-bulgu[data-karar="yanlis"] { opacity: .65; }
+.inc-bulgu p { margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
+.inc-bulgu-ust { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.inc-yer { display: flex; gap: 6px; align-items: center; font-size: .8rem; overflow-wrap: anywhere; }
+.inc-kanit, .inc-dogrulama { font-size: .82rem; }
+.inc-yol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: .86rem; }
+.inc-yol li { display: flex; gap: 8px; align-items: flex-start; justify-content: space-between; }
+.inc-ek { display: flex; flex-direction: column; gap: 10px; }
+.inc-ek-is { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.inc-ek-is small { font-size: .78rem; }
+.inc-toplu-liste { display: flex; flex-direction: column; gap: 4px; max-height: 50vh; overflow: auto; padding: 4px 2px; }
 /* Dosyalar: yedekteki dosyaların ağacı, araması ve dosya bilgisi */
 .ds-arama { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line2); background: var(--panel); border-radius: var(--r-lg); padding: 0 12px; }
 .ds-arama input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; color: var(--ink); padding: 11px 0; outline: none; }
@@ -1544,6 +1563,18 @@ body.pencere-kip main { padding: 16px; }
       window.PK.cihazOturumlari = oturumOzetleri(l);
       return window.PK.cihazOturumlari;
     };
+    // Yapay zekâyla incele (dilim 3b): son incelemenin maskeli özeti (incelemeler/<proje>.json) ve seçilen bilgisayara istek
+    // (istekler/<cihaz>/<id>.json; bilgisayarın sunucusu depoyu çekince toplu sıraya alır ve isteği siler)
+    window.PK.incelemeOku = async (proje) => { const d = await dosyaOku('proje-kontrol-veri', 'incelemeler/' + proje + '.json'); try { return d ? JSON.parse(d.metin) : null; } catch (_) { return null; } };
+    window.PK.incelemeIste = async ({ proje, cihaz, arac, kapsam }) => {
+      if (test) throw new Error('Yerel denemede istek gönderilmez.');
+      if (!/^[A-Za-z0-9_-]{1,40}$/.test(String(cihaz || ''))) throw new Error('Bilgisayar seçilmedi.');
+      const id = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14) + '-' + Math.random().toString(36).slice(2, 8);
+      const icerik = { tur: 'inceleme', proje, arac, kapsam, zaman: new Date().toISOString(), kaynak: 'telefon' };
+      const r = await gh('/repos/' + SAHIP + '/proje-kontrol-veri/contents/istekler/' + encodeURIComponent(cihaz) + '/' + id + '.json', { method: 'PUT', body: JSON.stringify({ message: 'Telefon: inceleme isteği', content: b64yaz(JSON.stringify(icerik, null, 2)) }) });
+      if (!r.ok) throw new Error('İstek gönderilemedi (' + r.status + ')');
+      return { id };
+    };
     document.getElementById('veri').textContent = JSON.stringify(k);
     const b = document.createElement('script'); b.textContent = document.getElementById('anaBetik').textContent; document.body.append(b);
     if (bekleyenKabuk && window.pkYeniSurum) window.pkYeniSurum(bekleyenKabuk); // arayüz yüklenmeden yeni kabuk gelmişti
@@ -1570,7 +1601,7 @@ body.pencere-kip main { padding: 16px; }
     // Yeni kabuk etkinleşince sayfa güvenli olunca kendiliğinden yenilenir (arayüzün otomatik yenilemesi: yazılan metin, açık
     // pencere, kaydedilmemiş değişiklik beklenir; adres korunur). Sayfa zaten yeni kabuksa (ağdan yüklendi) yenilenmez; ilk
     // kurulumda da. Yeni servis çalışanı kendi sürümünü söyler (sw.js "kabuk-surumu"); yanıt gelmezse yeni sayılır.
-    const KABUK = 'mwproeyj';
+    const KABUK = 'mwpweiqb';
     const vardi = !!navigator.serviceWorker.controller;
     const yeniKabuk = (v) => {
       if (!v || v === KABUK) return;
@@ -2948,7 +2979,7 @@ body.pencere-kip main { padding: 16px; }
   // bir çip; dikkat isteyenler önde. Tıklayınca durum penceresi (soru ve seçenekleri, izin, hata, son mesaj) ve "Terminali aç".
   const OD = { liste: [], gorulen: new Set(), son: 0 };
   try { OD.gorulen = new Set(JSON.parse(localStorage.getItem('pk-od-gorulen') || '[]')); } catch (_) {}
-  const OD_ETIKET = { soru: 'Soru soruyor', izin: 'İzin istiyor', hata: 'Hata', calisiyor: 'Çalışıyor', bekliyor: 'Sıra sende' };
+  const OD_ETIKET = { soru: 'Soru soruyor', izin: 'İzin istiyor', hata: 'Hata', calisiyor: 'Çalışıyor', bekliyor: 'Sıra sende', bosta: 'Boşta' };
   const OD_EN_COK = 6;
   const odSure = (t) => { const dk = Math.max(0, Math.round((Date.now() - t) / 60000)); return dk < 1 ? 'şimdi' : dk < 60 ? `${dk} dk` : dk < 1440 ? `${Math.floor(dk / 60)} sa ${dk % 60 ? (dk % 60) + ' dk' : ''}`.trim() : `${Math.floor(dk / 1440)} gün`; };
   const odAnahtar = (o) => `${o.id}|${o.durum}|${o.beri}`;
@@ -2962,7 +2993,7 @@ body.pencere-kip main { padding: 16px; }
   }
   function odCip(o) {
     const ad = odAd(o), alt = [o.uzak ? o.cihazAd : o.terminalAd, odEtiket(o)].filter(Boolean).join(' · ');
-    const ipucuMetni = [`${ad}${o.terminalAd ? ' · ' + o.terminalAd : ''} · ${o.cihazAd || ''}`, `${odEtiket(o)} · ${odSure(o.beri || o.son)}`, odIslem(o), o.mesaj, o.sonMesaj, o.tahmin ? 'Tahmini durum: bu oturum durum kancalarından önce açıldı (yeniden açılınca kesinleşir)' : null].filter(Boolean).join('\n');
+    const ipucuMetni = [`${ad}${o.terminalAd ? ' · ' + o.terminalAd : ''} · ${o.cihazAd || ''}`, `${odEtiket(o)} · ${odSure(o.beri || o.son)}`, odIslem(o), o.mesaj, o.sonMesaj, o.tahmin ? 'Tahmini durum: bu oturumdan henüz kanca olayı gelmedi (bir sonraki mesajda kesinleşir)' : null].filter(Boolean).join('\n');
     return el('button', { class: 'od-cip', type: 'button', 'data-durum': o.durum, 'data-yeni': odYeni(o) ? '1' : null, title: ipucuMetni, onclick: () => odAc(o) },
       el('span', { class: 'od-nokta', 'aria-hidden': 'true' }), el('b', { text: ad }), el('span', { text: alt }), el('small', { text: odSure(o.beri || o.son) }));
   }
@@ -3212,6 +3243,7 @@ body.pencere-kip main { padding: 16px; }
       if (alanlar.includes('saglik')) saglikYenile();
       if (alanlar.includes('islemler')) { for (const k of Object.keys(onbellek)) if (/^islem/.test(k)) delete onbellek[k]; if (/^#proje/.test(location.hash)) yerindeCiz(); }
       if (alanlar.includes('hafiza') || alanlar.includes('posta')) { for (const k of Object.keys(onbellek)) if (/^(hafiza|posta)/.test(k)) delete onbellek[k]; if (/^#(proje|posta)/.test(location.hash)) yerindeCiz(); }
+      if (alanlar.includes('incelemeler')) INC.tazele?.(); // Yapay zekâyla incele: açık İnceleme sekmesi, yerinde
       if (alanlar.includes('gorevler')) GOREV.tazele?.(); // Faz 4.4 · Görevler: yalnızca açık Görevler sekmesi, yerinde
       if (alanlar.includes('hafiza')) for (const k of Object.keys(hafizaOnbellek)) delete hafizaOnbellek[k]; // === Faz 5 · Beyin === denetimden sonra
       if (alanlar.includes('bilgi')) { bilgiOnbellek = null; if (/^#(bilgi|proje)/.test(location.hash)) yerindeCiz(); } // === Faz 5 · Beyin ===
@@ -4757,7 +4789,8 @@ body.pencere-kip main { padding: 16px; }
     // Yerleşim: ana projeyi (bütün projeleriyle) taşı · kullanıcının açtığı sekmeyi düzenle / sil
     const anaTasiB = anaP && PK ? el('button', { class: 'btn kucuk', type: 'button', title: 'Bu ana projeyi tüm projeleriyle başka sekmeye ya da başka bir ana projenin altına taşı', onclick: () => tasi(anaP.altlar, { baslik: `"${anaP.ad}" ana projesini taşı`, anaAdi: anaP.ad }) }, svg(IK.sag, 'ikon k'), 'Ana projeyi taşı') : null;
     const sekmeB = kat && !anaP && kat.kullanici && PK ? el('button', { class: 'btn kucuk', type: 'button', onclick: () => sekmeDuzenle(kat) }, svg(IK.kalem, 'ikon k'), 'Sekmeyi düzenle') : null;
-    const v = gorunum(baslik, altM, anaTasiB, sekmeB, secici);
+    const topluB = MASA ? el('button', { class: 'btn kucuk', type: 'button', title: 'Görünen projelerden seçtiklerini sırayla yapay zekâyla incelet', onclick: () => topluInceleSor(kapsam, baslik) }, svg(IK.yz, 'ikon k'), 'Toplu incele') : null;
+    const v = gorunum(baslik, altM, anaTasiB, sekmeB, topluB, secici);
     if (kat) v.firstChild.firstChild.prepend(el('nav', { class: 'yol-izi', 'aria-label': 'Konum' }, el('a', { href: '#projeler', text: 'Projeler' }), anaP ? [svg(IK.sag), el('a', { href: '#projeler/' + kat.slug, text: kat.ad })] : null));
     // Ağaç (geniş ekran) ve kategori şeridi (dar ekran)
     const agac = el('nav', { class: 'pj-agac', 'aria-label': 'Kategoriler' });
@@ -4884,7 +4917,7 @@ body.pencere-kip main { padding: 16px; }
     if (MOBIL) ey.append(el('span', { class: 'soluk', style: 'font-size:.8rem', text: 'Kur, Gönder ve Buluta kaldır bilgisayarda yapılır.' }));
     v.append(ey);
     // Sekmeler
-    const SEK = [['genel', 'Genel'], ['cihaz', 'Cihazlar'], ['surum', 'Sürümler', surumSayisi(x)], ['yapilacak', 'Yapılacaklar', isler(x).filter((i) => i.k !== 'bitti').length], ['wiki', 'Wiki'], ['kaynak', 'Kaynaklar', x.kaynaklar.length], ['not', 'Notlar', x.notlar.length], ...(MASA ? [['gorev', 'Görevler']] : [])];
+    const SEK = [['genel', 'Genel'], ['cihaz', 'Cihazlar'], ['surum', 'Sürümler', surumSayisi(x)], ['yapilacak', 'Yapılacaklar', isler(x).filter((i) => i.k !== 'bitti').length], ['wiki', 'Wiki'], ['kaynak', 'Kaynaklar', x.kaynaklar.length], ['not', 'Notlar', x.notlar.length], ...(MASA ? [['gorev', 'Görevler'], ['inceleme', 'İnceleme']] : MOBIL ? [['inceleme', 'İnceleme']] : [])];
     const sekme = SEK.some(([k]) => k === r.sekme) ? r.sekme : 'genel';
     const sekmeler = el('div', { class: 'sekmeler', role: 'tablist', 'aria-label': 'Proje bölümleri' });
     const govde = el('div', { role: 'tabpanel' });
@@ -4892,7 +4925,7 @@ body.pencere-kip main { padding: 16px; }
       sekmeler.querySelectorAll('button').forEach((b) => { const s = b.dataset.k === k; b.setAttribute('aria-selected', String(s)); b.tabIndex = s ? 0 : -1; if (s && odak) b.focus(); });
       history.replaceState(null, '', projeYolu(x, k)); sonAnahtar = location.hash;
       govde.replaceChildren(); govde.setAttribute('aria-labelledby', 'sk-' + k);
-      ({ genel: genelSekme, cihaz: cihazSekme, surum: surumSekme, yapilacak: kanbanSekme, wiki: wikiSekme, kaynak: kaynakSekme, not: notSekme, gorev: gorevSekme })[k](x, govde, () => { const b = sekmeler.querySelector('[data-k="yapilacak"] small'); if (b) b.textContent = String(isler(x).filter((i) => i.k !== 'bitti').length); });
+      ({ genel: genelSekme, cihaz: cihazSekme, surum: surumSekme, yapilacak: kanbanSekme, wiki: wikiSekme, kaynak: kaynakSekme, not: notSekme, gorev: gorevSekme, inceleme: MASA ? incelemeSekme : incelemeSekmeMobil })[k](x, govde, () => { const b = sekmeler.querySelector('[data-k="yapilacak"] small'); if (b) b.textContent = String(isler(x).filter((i) => i.k !== 'bitti').length); });
     };
     for (const [k, ad, n] of SEK) sekmeler.append(el('button', { type: 'button', role: 'tab', id: 'sk-' + k, 'data-k': k, 'aria-selected': String(k === sekme), tabindex: k === sekme ? '0' : '-1', onclick: () => sec(k) }, ad, n != null ? el('small', { text: String(n) }) : null));
     sekmeler.addEventListener('keydown', (e) => { if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) return; e.preventDefault(); const i = SEK.findIndex(([k]) => k === sekmeler.querySelector('[aria-selected="true"]').dataset.k); const j = e.key === 'Home' ? 0 : e.key === 'End' ? SEK.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + SEK.length) % SEK.length; sec(SEK[j][0], true); });
@@ -5241,6 +5274,262 @@ body.pencere-kip main { padding: 16px; }
   function notSekme(x, govde) {
     govde.append(kart({ baslik: 'Notlar', ikon: IK.not }, x.notlar.length ? el('ul', { class: 'not-liste' }, ...x.notlar.map((n) => el('li', { text: n }))) : bosDurum(IK.not, 'Not yok', 'Katalogda bu proje için not yok. Kalıcı notlar için Wiki sekmesini kullanın.')));
   }
+
+  // === Yapay zekâyla incele (lib/yz-inceleme.mjs, docs/plan-yz-inceleme.md) ===
+  // Proje sayfası → İnceleme: Codex (yoksa Claude) projenin geçici kopyasında inceler, Claude bulguları doğrular. Liste "incelemeler"
+  // olayıyla yerinde tazelenir; açık raporlar, günlükler ve süzgeçler sayfa yeniden çizilse de kalır. Sunucu metinleri textContent ile.
+  const INC = { tazele: null, acik: new Set(), gunlukAcik: new Set(), rapor: new Map(), gunluk: new Map(), filtre: new Map(), eklenen: new Set() };
+  const INC_DURUM = { bekliyor: ['bekliyor', 'bekliyor'], hazirlaniyor: ['kopya hazırlanıyor', 'suruyor'], inceleniyor: ['inceleniyor', 'suruyor'], dogrulaniyor: ['Claude doğruluyor', 'suruyor'], bitti: ['bitti', 'tamam'], hata: ['hata', 'kotu'], durduruldu: ['durduruldu', 'uyari'] };
+  const incEtkin = (v) => ['bekliyor', 'hazirlaniyor', 'inceleniyor', 'dogrulaniyor'].includes(v.durum);
+  const INC_ONEM = { kritik: ['Kritik', 'kotu'], yuksek: ['Yüksek', 'uyari'], orta: ['Orta', 'bekliyor'], dusuk: ['Düşük', 'yok'] };
+  const INC_KARAR = { dogru: ['Doğrulandı', 'tamam'], kismen: ['Kısmen', 'uyari'], kanitsiz: ['Kanıtsız', 'bekliyor'], yanlis: ['Yanlış', 'yok'] };
+  const INC_TUR = { hata: 'Hata', guvenlik: 'Güvenlik', mimari: 'Mimari', eksik: 'Eksik', bagimlilik: 'Bağımlılık', olu_kod: 'Ölü kod' };
+  const INC_ARAC = [['otomatik', 'Otomatik (Codex, yoksa Claude)'], ['codex', 'Codex'], ['claude', 'Claude (salt okunur)']];
+  const incSatir = (a, v) => (v ? el('div', { class: 'ds-satir' }, el('span', { class: 'soluk', text: a }), el('span', { text: v })) : null);
+  const incKota = (k) => (Array.isArray(k) && k.length ? k.map((p) => `${Number(p.pencereDk) >= 10080 ? 'haftalık' : '5 saatlik'} %${Math.round(Number(p.kullanilan) || 0)}`).join(' · ') : null);
+  function incelemeSekme(x, govde) {
+    const basYer = el('div', {}, yukleniyor('Okunuyor…')), durumYer = el('p', { class: 'serit-hata', role: 'status', hidden: true }), listeYer = el('div', { class: 'inc-liste' });
+    const ekYer = el('div', { class: 'inc-ek' });
+    govde.append(kart({ baslik: 'Yapay zekâyla incele', ikon: IK.yz, sag: 'Codex inceler, Claude doğrular' }, basYer), kart({ baslik: 'Ek işler', ikon: IK.kalem, sag: 'kalıcı çıktı: üyelik bitse de bizde kalır' }, ekYer), kart({ baslik: 'İncelemeler', ikon: IK.rapor }, durumYer, listeYer));
+    let V = null;
+    async function yukle() {
+      try { V = await api('/api/incelemeler?proje=' + encodeURIComponent(x.id)); }
+      catch (e) {
+        const m = /^(yok|not found)$/i.test(e.message) ? 'Sunucu eski sürüm: uygulamayı yeniden başlatın.' : 'İncelemeler okunamadı: ' + e.message;
+        if (!V) { basYer.replaceChildren(solukP(m)); listeYer.replaceChildren(); }
+        durumYer.textContent = m; durumYer.hidden = false; return;
+      }
+      durumYer.hidden = true;
+      basCiz(); ekCiz(); listeCiz();
+      for (const id of INC.acik) if (!INC.rapor.has(id) && V.incelemeler.some((v) => v.id === id && v.durum === 'bitti')) raporGetir(id);
+      for (const id of INC.gunlukAcik) gunlukGetir(id);
+    }
+    function basCiz() {
+      const suren = V.incelemeler.find(incEtkin);
+      const sec = el('select', { 'aria-label': 'İnceleyen' }, ...INC_ARAC.map(([k, ad]) => el('option', { value: k, text: ad, selected: k === yerelOku('pk-inceleme-arac', 'otomatik') })));
+      sec.addEventListener('change', () => yerelYaz('pk-inceleme-arac', sec.value));
+      const btn = el('button', { class: 'btn ana', type: 'button', disabled: !!suren || !V.gitleaks }, svg(IK.yz, 'ikon k'), suren ? 'İnceleme sürüyor' : 'İncelemeyi başlat');
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        try { const r = await api('/api/inceleme/baslat', { proje: x.id, arac: sec.value }); bildir(r.zatenVar ? 'Bu projede zaten süren bir inceleme var.' : `İnceleme başladı (${r.inceleme.arac === 'codex' ? 'Codex' : 'Claude'}${r.inceleme.aracNedeni ? ': ' + r.inceleme.aracNedeni : ''}).`, 4000, 'tamam'); yukle(); }
+        catch (e) { bildir(e.message, 7000, 'hata'); btn.disabled = false; }
+      });
+      const kota = incKota(V.kota);
+      basYer.replaceChildren(...[
+        el('p', { class: 'gorev-not soluk', text: 'Projenin geçici bir kopyasında hatalar ve güvenlik, mimari, eksikler ve yol haritası incelenir, durum raporu çıkar; inceleyen testleri / komutları kopyada çalıştırabilir. Asıl klasöre dokunulmaz, gizli değer içeren dosyalar kopyaya girmez. 5–60 dk sürer.' }),
+        el('div', { class: 'gorev-secim' }, el('label', {}, 'İnceleyen', sec),
+          el('div', { class: 'inc-bilgi' }, incSatir('Kaynak', V.yol ? 'Bu bilgisayardaki klasör · ' + V.yol : 'Yedekten geçici kopya (bu bilgisayarda kurulu değil)'),
+            incSatir('Codex', V.araclar?.codex ? `${V.model}${kota ? ' · kota ' + kota : ''}` : 'bu bilgisayarda yok: Claude inceler'))),
+        !V.gitleaks ? bilgiKutu(IK.uyari, 'kotu', el('p', { text: 'gitleaks bulunamadı: gizli değer taraması olmadan inceleme başlamaz (winget install gitleaks).' })) : null,
+        siraKutu(V.sira),
+        el('div', { style: 'display:flex;gap:8px;justify-content:flex-end' }, btn),
+      ].filter(Boolean));
+    }
+    /** Ek işler: README ve testler görev şeridi (ayrı dal, Görevler sekmesinden onayla birleşir); bağımlılık taraması inceleme türü */
+    function ekCiz() {
+      if (ekYer.childElementCount) return; // bir kez çizilir (seçim ve düğme durumları kalsın)
+      const sec = el('select', { 'aria-label': 'Ek işi yapan' }, ...INC_ARAC.map(([k, ad]) => el('option', { value: k, text: ad.replace(' (salt okunur)', ''), selected: k === yerelOku('pk-inceleme-arac', 'otomatik') })));
+      const is = (tur, ad, aciklama) => {
+        const b = el('button', { class: 'btn', type: 'button' }, svg(tur === 'bagimlilik' ? IK.ara : tur === 'readme' ? IK.belge : IK.tamam, 'ikon k'), ad);
+        b.addEventListener('click', async () => {
+          b.disabled = true;
+          try {
+            const r = await api('/api/inceleme/ek-is', { proje: x.id, tur, arac: sec.value });
+            if (tur === 'bagimlilik') { bildir(r.zatenVar ? 'Bu projede zaten süren bir inceleme var.' : 'Bağımlılık ve ölü kod taraması başladı.', 4000, 'tamam'); yukle(); }
+            else bildir(`${ad} başladı (${r.arac === 'codex' ? 'Codex' : 'Claude'}${r.aracNedeni ? ': ' + r.aracNedeni : ''}). Sonuç Görevler sekmesinde; birleştirme senin onayınla.`, 7000, 'tamam');
+          } catch (e) { bildir(e.message, 8000, 'hata'); }
+          b.disabled = false;
+        });
+        return el('div', { class: 'inc-ek-is' }, b, el('small', { class: 'soluk', text: aciklama }));
+      };
+      ekYer.replaceChildren(
+        el('div', { class: 'gorev-secim' }, el('label', {}, 'Yapan', sec)),
+        is('readme', 'README ve çalıştırma kartı', 'README.md yazılır / tamamlanır (ne işe yarar, kurulum, nasıl çalıştırılır, yapılandırma); ayrı dalda, Görevler sekmesinden onaylarsın.'),
+        is('test', 'Eksik testleri yazdır', 'Önemli ama testsiz modüllere test yazılır ve çalıştırılır; uygulama koduna dokunulmaz, bulunan hatalar raporda. Ayrı dalda.'),
+        is('bagimlilik', 'Bağımlılık ve ölü kod taraması', 'Kullanılmayan / eski / riskli bağımlılıklar ve çağrılmayan kod; rapor olarak bu listeye gelir (koda dokunulmaz).'));
+    }
+    /** Toplu sıra (Projeler → Toplu incele): bekleyen sayısı, Codex kotası doluysa ne zaman süreceği, boşaltma */
+    function siraKutu(sira) {
+      const n = sira?.bekleyen?.length || 0;
+      if (!n) return null;
+      const surer = sira.bekleme?.surer ? new Date(sira.bekleme.surer).toLocaleString('tr-TR', { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : null;
+      const bos = el('button', { class: 'btn kucuk', type: 'button' }, 'Sırayı boşalt');
+      bos.addEventListener('click', async () => { bos.disabled = true; try { await api('/api/inceleme/sira-bosalt', {}); bildir('Toplu inceleme sırası boşaltıldı.', 3000, 'tamam'); yukle(); } catch (e) { bildir(e.message, 6000, 'hata'); bos.disabled = false; } });
+      return bilgiKutu(IK.saat, sira.bekleme ? 'uyari' : '', el('p', {}, el('b', { text: `Toplu sıra: ${n} proje bekliyor` }),
+        sira.bekleme ? el('span', { style: 'display:block', text: `${sira.bekleme.neden}${surer ? ' · ' + surer + "'de sürer" : '; kota yenilenince sürer'}` }) : el('span', { style: 'display:block', class: 'soluk', text: 'Biri bitince sıradaki başlar.' })),
+        el('div', { style: 'margin-top:6px' }, bos));
+    }
+    function listeCiz() {
+      if (!V.incelemeler.length) { listeYer.replaceChildren(solukP('Henüz inceleme yok.')); return; }
+      listeYer.replaceChildren(el('ul', { class: 'serit-liste' }, ...V.incelemeler.map(oge)));
+    }
+    function oge(v) {
+      const [ad, ton] = INC_DURUM[v.durum] || [v.durum, ''];
+      const etkin = incEtkin(v), acik = INC.acik.has(v.id), gAcik = INC.gunlukAcik.has(v.id);
+      const s = v.sayilar;
+      const bilgi = [v.kapsam === 'bagimlilik' ? 'bağımlılık taraması' : null, v.arac === 'codex' ? `Codex · ${v.model || ''}${v.derinlik ? ' · ' + v.derinlik : ''}` : 'Claude', v.kaynak === 'yedek' ? 'yedekten' : null, etkin ? v.adim : null,
+        s ? `${s.toplam} bulgu${s.dogru != null ? ` · ${s.dogru} doğrulandı${s.yanlis ? ', ' + s.yanlis + ' yanlış' : ''}` : ''}` : null, otZaman(v.bitis || v.olusturma)].filter(Boolean).join(' · ');
+      const tus = el('div', { class: 'serit-tus' }, ...[
+        v.durum === 'bitti' ? el('button', { class: 'btn kucuk' + (acik ? '' : ' ana'), type: 'button', 'aria-expanded': String(acik), onclick: () => { if (acik) INC.acik.delete(v.id); else { INC.acik.add(v.id); if (!INC.rapor.has(v.id)) raporGetir(v.id); } listeCiz(); } }, svg(IK.rapor, 'ikon k'), acik ? 'Raporu kapat' : 'Raporu aç') : null,
+        el('button', { class: 'btn kucuk', type: 'button', 'aria-expanded': String(gAcik), onclick: () => { if (gAcik) INC.gunlukAcik.delete(v.id); else { INC.gunlukAcik.add(v.id); gunlukGetir(v.id); } listeCiz(); } }, svg(IK.liste, 'ikon k'), gAcik ? 'Günlüğü kapat' : 'Günlük'),
+        etkin ? el('button', { class: 'btn kucuk', type: 'button', onclick: async () => { try { await api('/api/inceleme/durdur', { id: v.id }); bildir('Durdurma istendi.', 3000, 'tamam'); } catch (e) { bildir(e.message, 6000, 'hata'); } } }, 'Durdur') : null,
+      ].filter(Boolean));
+      const ek = [];
+      if (v.hata) ek.push(el('p', { class: 'serit-hata', text: v.hata }));
+      if (v.aracNedeni && v.arac !== 'codex') ek.push(el('p', { class: 'serit-uyari', text: 'Codex kullanılmadı: ' + v.aracNedeni }));
+      if (gAcik) { const pre = el('pre', { class: 'kod-blok serit-gunluk', 'data-id': v.id, tabindex: '0', 'aria-label': 'Günlük ' + v.id }); pre.textContent = INC.gunluk.get(v.id) ?? 'Okunuyor…'; ek.push(pre); }
+      if (acik) ek.push(INC.rapor.has(v.id) ? raporCiz(v, INC.rapor.get(v.id)) : yukleniyor('Rapor okunuyor…'));
+      return el('li', { class: 'serit' }, el('div', { class: 'serit-ust' }, el('span', { class: 'etiket ' + ton, text: ad }), el('span', { class: 'mono serit-id', text: v.id }), el('span', { class: 'soluk serit-bilgi', text: bilgi }), tus), ...ek);
+    }
+    async function raporGetir(id) {
+      try { INC.rapor.set(id, await api('/api/inceleme/rapor?id=' + encodeURIComponent(id))); } catch (e) { INC.rapor.set(id, { hata: e.message }); }
+      if (govde.isConnected) listeCiz();
+    }
+    async function gunlukGetir(id) {
+      let t; try { t = (await api('/api/inceleme/gunluk?id=' + encodeURIComponent(id))).metin || '(henüz çıktı yok)'; } catch (e) { t = 'Günlük okunamadı: ' + e.message; }
+      INC.gunluk.set(id, t);
+      const pre = [...listeYer.querySelectorAll('pre.serit-gunluk')].find((p) => p.dataset.id === id);
+      if (pre && pre.textContent !== t) { const altta = pre.scrollHeight - pre.scrollTop - pre.clientHeight < 30; pre.textContent = t; if (altta) pre.scrollTop = pre.scrollHeight; }
+    }
+    function sirayaEkle(r, govdeJ, dugme, anahtar) {
+      return async () => {
+        dugme.disabled = true;
+        try { await api('/api/inceleme/sirayaekle', { id: r.id, ...govdeJ }); INC.eklenen.add(anahtar); dugme.textContent = "Sıradaki'ye eklendi"; bildir("Projenin hafızasında Sıradaki'ye eklendi.", 3000, 'tamam'); }
+        catch (e) { bildir(e.message, 6000, 'hata'); dugme.disabled = false; }
+      };
+    }
+    function raporCiz(v, r) {
+      if (r.hata) return el('p', { class: 'serit-hata', text: 'Rapor okunamadı: ' + r.hata });
+      const k = r.proje_karti || {};
+      const f = INC.filtre.get(r.id) ?? new Set(['dogru', 'kismen', 'kanitsiz', 'yok']);
+      const say = (kr) => r.bulgular.filter((b) => (b.karar || 'yok') === kr).length;
+      const cipler = el('div', { class: 'inc-cipler', role: 'group', 'aria-label': 'Bulgu süzgeci' }, ...[['dogru', 'Doğrulanan'], ['kismen', 'Kısmen'], ['kanitsiz', 'Kanıtsız'], ['yanlis', 'Yanlış'], ['yok', 'Doğrulanmadı']]
+        .filter(([kr]) => say(kr)).map(([kr, ad]) => el('button', { class: 'chip', type: 'button', 'aria-pressed': String(f.has(kr)), onclick: () => { const y = new Set(f); if (y.has(kr)) y.delete(kr); else y.add(kr); INC.filtre.set(r.id, y); listeCiz(); } }, `${ad} (${say(kr)})`)));
+      const kopyala = (b) => { const t = `${V.yol ? V.yol.replace(/[\\/]+$/, '') + '\\' : ''}${b.dosya.replace(/\//g, '\\')}${b.satir ? ':' + b.satir : ''}`; navigator.clipboard?.writeText(t).then(() => bildir('Kopyalandı: ' + t, 2500, 'tamam'), () => bildir(t, 6000)); };
+      const bulgu = (b) => {
+        const [oAd, oTon] = INC_ONEM[b.onem] || [b.onem, ''], [kAd, kTon] = INC_KARAR[b.karar] || ['Doğrulanmadı', 'yok'];
+        const an = r.id + ':' + b.no;
+        const ekleB = el('button', { class: 'btn kucuk', type: 'button', disabled: INC.eklenen.has(an) }, INC.eklenen.has(an) ? "Sıradaki'ye eklendi" : "Sıradaki'ye ekle");
+        ekleB.addEventListener('click', sirayaEkle(r, { no: b.no }, ekleB, an));
+        return el('article', { class: 'inc-bulgu', 'data-karar': b.karar || 'yok' }, ...[
+          el('div', { class: 'inc-bulgu-ust' }, el('span', { class: 'etiket ' + oTon, text: oAd + (b.onemCodex ? ` (Codex: ${INC_ONEM[b.onemCodex]?.[0] || b.onemCodex})` : '') }), el('span', { class: 'etiket ' + kTon, text: kAd }), el('span', { class: 'soluk', text: INC_TUR[b.tur] || b.tur }), el('b', { text: b.baslik })),
+          el('div', { class: 'inc-yer' }, el('span', { class: 'mono', text: b.dosya + (b.satir ? ':' + b.satir : '') }), el('button', { class: 'btn kucuk', type: 'button', title: 'Dosya yolunu kopyala', onclick: () => kopyala(b) }, svg(IK.kopya, 'ikon k'))),
+          b.aciklama ? el('p', { text: b.aciklama }) : null,
+          b.kanit ? el('p', { class: 'inc-kanit' }, el('span', { class: 'soluk', text: b.kanit_turu === 'calistirdim' ? 'Çalıştırarak: ' : 'Kod okunarak: ' }), b.kanit) : null,
+          b.oneri ? el('p', {}, el('span', { class: 'soluk', text: 'Öneri: ' }), b.oneri) : null,
+          b.dogrulamaNotu ? el('p', { class: 'inc-dogrulama' }, el('span', { class: 'soluk', text: 'Claude: ' }), b.dogrulamaNotu) : null,
+          el('div', { style: 'display:flex;justify-content:flex-end' }, ekleB),
+        ].filter(Boolean));
+      };
+      const gorunen = r.bulgular.filter((b) => f.has(b.karar || 'yok'));
+      const det = (baslik, ...c) => el('details', {}, el('summary', { text: baslik }), ...c);
+      return el('div', { class: 'inc-rapor' }, ...[
+        el('p', { class: 'soluk', style: 'margin:0;font-size:.8rem', text: [r.kapsam === 'bagimlilik' ? 'Bağımlılık ve ölü kod taraması' : null, r.arac === 'codex' ? `Codex ${r.model} · ${r.derinlik}` : 'Claude (salt okunur)', r.dogrulayan ? `doğrulama: Claude ${r.dogrulayan}` : null, r.kaynak === 'yedek' ? 'yedekten geçici kopya' : 'bu bilgisayardaki klasör', `${r.dosyaSayisi} dosya`].filter(Boolean).join(' · ') }),
+        r.ozet ? el('p', { class: 'inc-ozet', text: r.ozet }) : null,
+        el('div', { class: 'inc-kart' }, incSatir('Ne işe yarar', k.ne_ise_yarar), incSatir('Nasıl çalıştırılır', k.nasil_calistirilir), incSatir('Durum', k.durum)),
+        el('h4', { text: `Bulgular (${r.bulgular.length})` }), cipler,
+        gorunen.length ? el('div', { class: 'inc-bulgular' }, ...gorunen.map(bulgu)) : solukP(r.bulgular.length ? 'Süzgeçte gösterilecek bulgu yok.' : 'Bulgu yok.'),
+        r.yol_haritasi?.length ? el('h4', { text: 'Yol haritası' }) : null,
+        r.yol_haritasi?.length ? el('ul', { class: 'inc-yol' }, ...r.yol_haritasi.map((m, i) => { const an = r.id + ':y' + i; const b = el('button', { class: 'btn kucuk', type: 'button', disabled: INC.eklenen.has(an) }, INC.eklenen.has(an) ? 'Eklendi' : "Sıradaki'ye ekle"); b.addEventListener('click', sirayaEkle(r, { yol: i }, b, an)); return el('li', {}, el('span', { text: m }), b); })) : null,
+        r.komutlar?.length ? det(`Çalıştırılan komutlar (${r.komutlar.length})`, el('ul', { class: 'serit-dosyalar' }, ...r.komutlar.map((c) => el('li', {}, el('span', { class: 'mono', text: c.komut }), el('small', { class: 'soluk', text: ' → ' + c.sonuc }))))) : null,
+        r.gizliCikan?.length ? det(`İncelenmeyen dosyalar: gizli değer (${r.gizliCikan.length})`, el('ul', { class: 'serit-dosyalar' }, ...r.gizliCikan.map((g) => el('li', {}, el('span', { class: 'mono', text: g.dosya + (g.satir ? ':' + g.satir : '') }), el('small', { class: 'soluk', text: ' · ' + g.neden }))))) : null,
+        r.dokunulan?.length ? det(`İnceleyenin kopyada değiştirdiği dosyalar (geri alındı, ${r.dokunulan.length})`, el('ul', { class: 'serit-dosyalar' }, ...r.dokunulan.map((d) => el('li', { class: 'mono', text: d })))) : null,
+        r.uyarilar?.length ? el('div', {}, ...r.uyarilar.map((u) => el('p', { class: 'serit-uyari', text: 'Not: ' + u }))) : null,
+      ].filter(Boolean));
+    }
+    const tazele = () => { if (govde.isConnected) yukle(); else if (INC.tazele === tazele) INC.tazele = null; };
+    INC.tazele = tazele;
+    // Süren incelemede açık günlük 3 sn'de bir
+    const z = setInterval(() => { if (!govde.isConnected) { clearInterval(z); return; } if (V?.incelemeler.some(incEtkin)) for (const id of INC.gunlukAcik) gunlukGetir(id); }, 3000);
+    yukle();
+  }
+  /** Projeler sayfası: görünen kapsamdaki projelerden seçilenler sırayla incelenir (sunucuda sıra; biri bitince sıradaki) */
+  function topluInceleSor(projeler, baslik) {
+    const ara = el('input', { type: 'search', placeholder: 'Süz…', 'aria-label': 'Projeleri süz' });
+    const sec = el('select', { 'aria-label': 'İnceleyen' }, ...INC_ARAC.map(([k, ad]) => el('option', { value: k, text: ad, selected: k === yerelOku('pk-inceleme-arac', 'otomatik') })));
+    const secili = new Set();
+    const liste = el('div', { class: 'inc-toplu-liste' });
+    const sayac = el('small', { class: 'soluk' });
+    const ciz = () => {
+      const q = ara.value.trim().toLocaleLowerCase('tr');
+      liste.replaceChildren(...projeler.filter((p) => !q || `${p.ad} ${p.ana || ''}`.toLocaleLowerCase('tr').includes(q)).slice(0, 300).map((p) => {
+        const cb = el('input', { type: 'checkbox', checked: secili.has(p.id) });
+        cb.addEventListener('change', () => { if (cb.checked) secili.add(p.id); else secili.delete(p.id); sayac.textContent = `${secili.size} seçili`; tamamB.disabled = !secili.size; });
+        return el('label', { class: 'gorev-onay' }, cb, el('span', {}, p.ad, p.ana ? el('small', { class: 'soluk', text: ' · ' + p.ana }) : null));
+      }));
+    };
+    ara.addEventListener('input', ciz);
+    const tamamB = el('button', { class: 'btn ana', type: 'button', disabled: true }, svg(IK.yz, 'ikon k'), 'Sıraya al');
+    const d = otPencere('Toplu incele', el('header', {}, el('div', { class: 'bas-metin' }, el('h3', { text: 'Toplu incele' }), el('small', { class: 'soluk', text: `${baslik} · seçilenler sırayla incelenir (biri bitince sıradaki)` })), el('button', { class: 'btn kucuk', type: 'button', onclick: () => d.close() }, 'Kapat')),
+      el('div', { class: 'od-govde' }, el('div', { class: 'gorev-secim' }, el('label', { style: 'flex:1' }, 'Süz', ara), el('label', {}, 'İnceleyen', sec)), liste, el('div', { style: 'display:flex;gap:8px;justify-content:space-between;align-items:center' }, sayac, tamamB)));
+    d.classList.add('od-p');
+    tamamB.addEventListener('click', async () => {
+      tamamB.disabled = true; yerelYaz('pk-inceleme-arac', sec.value);
+      try { const r = await api('/api/inceleme/toplu', { projeler: [...secili], arac: sec.value }); bildir(`${secili.size} proje inceleme sırasına alındı (${r.sira?.bekleyen?.length ?? 0} bekliyor).`, 5000, 'tamam'); d.close(); }
+      catch (e) { bildir(e.message, 7000, 'hata'); tamamB.disabled = false; }
+    });
+    ciz();
+  }
+  /**
+   * Telefon (dilim 3b) · proje sayfası → İnceleme: seçilen bilgisayara istek (kayıt deposu: istekler/<cihaz>/<id>.json; bilgisayar
+   * depoyu çekince toplu sıraya alır) ve son incelemenin maskeli özeti (incelemeler/<proje>.json). Rapor okunur; düğme yok.
+   */
+  function incelemeSekmeMobil(x, govde) {
+    const cihazlar = (Array.isArray(PK?.cihazOturumlari) ? PK.cihazOturumlari : []).filter((c) => c && /^[A-Za-z0-9_-]{1,40}$/.test(String(c.cihaz || '')))
+      .sort((a, b) => String(b.zaman || '').localeCompare(String(a.zaman || '')));
+    const taze = (c) => Date.now() - (Date.parse(c.zaman) || 0) < 25 * 60_000;
+    const cSec = el('select', { 'aria-label': 'Bilgisayar' }, ...cihazlar.map((c) => el('option', { value: c.cihaz, text: `${c.gorunenAd || c.cihaz}${taze(c) ? '' : ' (kapalı olabilir)'}` })));
+    const aSec = el('select', { 'aria-label': 'İnceleyen' }, ...INC_ARAC.map(([k, ad]) => el('option', { value: k, text: ad })));
+    const kSec = el('select', { 'aria-label': 'Tür' }, el('option', { value: 'tam', text: 'Uçtan uca inceleme' }), el('option', { value: 'bagimlilik', text: 'Bağımlılık ve ölü kod taraması' }));
+    const btn = el('button', { class: 'btn ana', type: 'button', disabled: !cihazlar.length }, svg(IK.yz, 'ikon k'), 'Bilgisayara incelet');
+    btn.addEventListener('click', async () => {
+      if (!PK?.incelemeIste) { bildir('Telefon uygulaması eski: kapatıp yeniden açın.', 6000, 'hata'); return; }
+      btn.disabled = true;
+      const ad = cSec.selectedOptions[0]?.textContent || cSec.value;
+      try { await PK.incelemeIste({ proje: x.id, cihaz: cSec.value, arac: aSec.value, kapsam: kSec.value }); bildir(`İstek ${ad} bilgisayarına gönderildi; birkaç dakika içinde başlar. Durum aşağıda görünür.`, 7000, 'tamam'); }
+      catch (e) { bildir(e.message, 7000, 'hata'); }
+      btn.disabled = false;
+    });
+    const sonYer = el('div', {}, yukleniyor('Son inceleme okunuyor…'));
+    const yenileB = el('button', { class: 'btn kucuk', type: 'button', onclick: () => yukle() }, svg(IK.yenile, 'ikon k'), 'Yenile');
+    govde.append(
+      kart({ baslik: 'Yapay zekâyla incele', ikon: IK.yz, sag: 'bilgisayarda çalışır' },
+        el('p', { class: 'gorev-not soluk', text: 'İstek seçtiğin bilgisayara gider; orada Codex (yoksa Claude) projenin geçici kopyasını inceler, Claude bulguları doğrular. Toplu sıraya girer: Codex kotası doluysa yenilenince başlar.' }),
+        cihazlar.length ? null : solukP('Kayıtta bilgisayar yok.'),
+        el('div', { class: 'gorev-secim' }, el('label', {}, 'Bilgisayar', cSec), el('label', {}, 'İnceleyen', aSec), el('label', {}, 'Tür', kSec)),
+        el('div', { style: 'display:flex;justify-content:flex-end' }, btn)),
+      kart({ baslik: 'Son inceleme', ikon: IK.rapor, sag: yenileB }, sonYer));
+    async function yukle() {
+      let o = null;
+      try { o = await PK?.incelemeOku?.(x.id); } catch (e) { sonYer.replaceChildren(solukP('Okunamadı: ' + e.message)); return; }
+      if (!o) { sonYer.replaceChildren(solukP('Bu proje için yayınlanmış inceleme yok.')); return; }
+      const [dAd, dTon] = INC_DURUM[o.durum] || [o.durum, ''];
+      const s = o.sayilar;
+      const ust = el('div', { class: 'serit-ust' }, el('span', { class: 'etiket ' + dTon, text: dAd }), el('span', { class: 'soluk serit-bilgi', text: [o.kapsam === 'bagimlilik' ? 'bağımlılık taraması' : null, o.arac === 'codex' ? 'Codex' : 'Claude', cihazlar.find((c) => c.cihaz === o.cihaz)?.gorunenAd || o.cihaz, otZaman(o.bitis || o.olusturma), s ? `${s.toplam} bulgu${s.dogru != null ? ` · ${s.dogru} doğrulandı` : ''}` : null].filter(Boolean).join(' · ') }));
+      const bulgu = (b) => {
+        const [oAd, oTon] = INC_ONEM[b.onem] || [b.onem, ''], [kAd, kTon] = INC_KARAR[b.karar] || ['Doğrulanmadı', 'yok'];
+        return el('article', { class: 'inc-bulgu', 'data-karar': b.karar || 'yok' }, ...[
+          el('div', { class: 'inc-bulgu-ust' }, el('span', { class: 'etiket ' + oTon, text: oAd }), el('span', { class: 'etiket ' + kTon, text: kAd }), el('span', { class: 'soluk', text: INC_TUR[b.tur] || b.tur }), el('b', { text: b.baslik })),
+          el('div', { class: 'inc-yer' }, el('span', { class: 'mono', text: b.dosya + (b.satir ? ':' + b.satir : '') })),
+          b.aciklama ? el('p', { text: b.aciklama }) : null,
+          b.oneri ? el('p', {}, el('span', { class: 'soluk', text: 'Öneri: ' }), b.oneri) : null,
+        ].filter(Boolean));
+      };
+      const k = o.proje_karti || {};
+      sonYer.replaceChildren(...[
+        ust,
+        incEtkin(o) && o.adim ? solukP(o.adim) : null,
+        o.hata ? el('p', { class: 'serit-hata', text: o.hata }) : null,
+        o.ozet ? el('p', { class: 'inc-ozet', text: o.ozet }) : null,
+        o.proje_karti ? el('div', { class: 'inc-kart' }, incSatir('Ne işe yarar', k.ne_ise_yarar), incSatir('Nasıl çalıştırılır', k.nasil_calistirilir), incSatir('Durum', k.durum)) : null,
+        o.bulgular?.length ? el('div', { class: 'inc-bulgular' }, ...o.bulgular.filter((b) => b.karar !== 'yanlis').map(bulgu)) : null,
+        o.yol_haritasi?.length ? el('ul', { class: 'inc-yol' }, ...o.yol_haritasi.map((m) => el('li', { text: m }))) : null,
+        o.durum === 'bitti' ? solukP('Tam rapor ve "Sıradaki\'ye ekle": bilgisayarda proje → İnceleme.') : null,
+      ].filter(Boolean));
+    }
+    yukle();
+  }
+  // === Yapay zekâyla incele sonu ===
 
   // === Faz 4.4 · Görevler ===
   // Paralel görevler (lib/gorevler.mjs): projede aynı anda birden çok ajan görevi; her şerit ayrı git worktree'sinde, kendi dalında.
