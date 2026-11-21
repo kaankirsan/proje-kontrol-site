@@ -878,6 +878,20 @@ dialog.ot-pencere.kopru-trm { width: min(1240px, calc(100vw - 32px)); }
 @keyframes od-don { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .od-nokta { animation: none !important; } }
 @media (max-width: 760px) { .od-serit { padding: 6px 12px 2px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .od-serit::-webkit-scrollbar { display: none; } .od-cip { flex: none; max-width: 78vw; } }
+/* Telefon: iki satır — üstte kalan kullanımlar (Claude, Codex, ElevenLabs), altta iki bilgisayarın oturumları; her satır kendi içinde kayar */
+.od-serit.iki-satir { flex-direction: column; flex-wrap: nowrap; align-items: stretch; overflow: visible; gap: 5px; padding-bottom: 6px; }
+.od-satir { display: flex; gap: 6px; align-items: center; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.od-satir::-webkit-scrollbar { display: none; }
+.od-satir > .od-cip { flex: none; max-width: 78vw; }
+.od-cip.od-kota { padding: 3px 9px 3px 7px; font-size: .74rem; gap: 6px; }
+.od-cip.od-kota > span { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+@media (max-width: 480px) { .od-cip.od-kota > small { display: none; } } /* dar telefonda üç kota tek satıra sığsın; ayrıntı Pano kartında */
+.od-kota[data-seviye="iyi"] { --od: var(--ok); }
+.od-kota[data-seviye="dusuk"] { --od: var(--warn); }
+.od-kota[data-seviye="kritik"] { --od: var(--bad); }
+.od-cip[data-bayat="1"] { opacity: .62; }
+.od-cip[data-bayat="1"] .od-nokta { animation: none; }
+.od-bos { flex: none; color: var(--muted); font-size: .76rem; padding: 0 4px; }
 dialog.ot-pencere.od-p { width: min(620px, calc(100vw - 32px)); height: fit-content; max-height: calc(100vh - 48px); }
 .od-govde { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; overflow: auto; }
 .od-sorukutu { border: 1px solid var(--line2); border-radius: var(--r); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
@@ -953,7 +967,7 @@ a.ds-konu:hover h4, a.ds-konu:focus-visible h4 { text-decoration: underline; }
 /* Orta genişlikte üst çubuk sığsın: önce cihaz hapı, sonra Claude hapının ayrıntısı gizlenir */
 @media (max-width: 1240px) { #durumHap:has(+ .limit-hap:not([hidden])) { display: none; } }
 @media (max-width: 1020px) { .hap.limit-hap .uzun { display: none; } }
-/* Üç kota hapı birden (Claude, Codex, agy) görünürken: geniş ekran dışında yalnızca yüzdeler (ayrıntı hapın ipucunda) */
+/* Üç kota hapı birden (Claude, Codex, ElevenLabs) görünürken: geniş ekran dışında yalnızca yüzdeler (ayrıntı hapın ipucunda) */
 @media (max-width: 1640px) { .ust-sol:has(.limit-hap:not([hidden]) ~ .limit-hap:not([hidden]) ~ .limit-hap:not([hidden])) .hap.limit-hap .uzun { display: none; } }
 /* Dar ekranda arama kutusu kalan boşluğa sığar (yazısı kısalır), haplar arama kutusunun altına girmez */
 @media (min-width: 821px) and (max-width: 1640px) { .ust:has(.limit-hap:not([hidden]) ~ .limit-hap:not([hidden]) ~ .limit-hap:not([hidden])) .ara-btn { width: auto; flex: 1 1 0; min-width: 96px; max-width: 400px; } }
@@ -968,7 +982,7 @@ a.ds-konu:hover h4, a.ds-konu:focus-visible h4 { text-decoration: underline; }
 .limit .metre .tik { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--ink); opacity: .55; }
 .limit .alt-yazi { grid-column: 1 / -1; color: var(--muted); font-size: .77rem; display: flex; flex-wrap: wrap; gap: 2px 10px; }
 .limit .alt-yazi .uyari-yazi { color: var(--warn); font-weight: 600; } .limit .alt-yazi .kotu-yazi { color: var(--bad); font-weight: 600; }
-/* === Faz 4 · Kotalar: Codex ve agy, Claude kartının altında === */
+/* === Faz 4 · Kotalar: Codex ve ElevenLabs, Claude kartının altında === */
 .kota-diger { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
 .kota-diger[hidden] { display: none; }
 .kota-baslik { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: .86rem; }
@@ -1357,16 +1371,17 @@ body.pencere-kip main { padding: 16px; }
     if (r.status === 401) throw Object.assign(new Error('Erişim anahtarı geçersiz ya da süresi dolmuş.'), { yetki: true });
     return r;
   };
-  async function dosyaOku(repo, yol) {
-    if (test) { const r = await fetch('test-veri/' + repo + '/' + yol); return r.ok ? { metin: await r.text(), sha: null } : null; }
-    const r = await gh('/repos/' + SAHIP + '/' + repo + '/contents/' + yol.split('/').map(encodeURIComponent).join('/'), { headers: { Accept: 'application/vnd.github.raw' } });
+  // taze: tarayıcı önbelleğindeki kopya (GitHub 60 sn saklatır) kullanılmaz, sunucuya sorulur (değişmediyse 304, kota harcamaz)
+  async function dosyaOku(repo, yol, taze = false) {
+    if (test) { const r = await fetch('test-veri/' + repo + '/' + yol, taze ? { cache: 'no-cache' } : {}); return r.ok ? { metin: await r.text(), sha: null } : null; }
+    const r = await gh('/repos/' + SAHIP + '/' + repo + '/contents/' + yol.split('/').map(encodeURIComponent).join('/'), { headers: { Accept: 'application/vnd.github.raw' }, ...(taze ? { cache: 'no-cache' } : {}) });
     if (r.status === 404) return null;
     if (!r.ok) throw new Error(repo + '/' + yol + ' okunamadı (' + r.status + ')');
     return { metin: await r.text() };
   }
-  async function klasorListe(repo, yol) {
-    if (test) { const r = await fetch('test-veri/' + repo + '/' + yol + '/liste.json'); return r.ok ? r.json() : []; }
-    const r = await gh('/repos/' + SAHIP + '/' + repo + '/contents/' + yol);
+  async function klasorListe(repo, yol, taze = false) {
+    if (test) { const r = await fetch('test-veri/' + repo + '/' + yol + '/liste.json', taze ? { cache: 'no-cache' } : {}); return r.ok ? r.json() : []; }
+    const r = await gh('/repos/' + SAHIP + '/' + repo + '/contents/' + yol, taze ? { cache: 'no-cache' } : {});
     return r.ok ? (await r.json()).filter((x) => x.type === 'file').map((x) => x.name) : [];
   }
   const b64yaz = (m) => { const b = new TextEncoder().encode(m); let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode(...b.subarray(i, i + 0x8000)); return btoa(s); };
@@ -1547,8 +1562,9 @@ body.pencere-kip main { padding: 16px; }
       return { cevrimdisi: true, dosyalar: ciktisi(onb) };
     }
   }
-  // === Faz 2 · Köprü === cihaz kaydından yalnızca oturum üst bilgisi (proje durumları, yedekler vb. burada gerekmez)
-  const oturumOzetleri = (l) => (Array.isArray(l) ? l : []).filter((c) => c && typeof c === 'object').map((c) => ({ cihaz: c.cihaz || null, gorunenAd: c.gorunenAd || null, zaman: c.zaman || null, oturumlar: Array.isArray(c.bilgi?.oturumlar) ? c.bilgi.oturumlar : [] }));
+  // === Faz 2 · Köprü === cihaz kaydından yalnızca oturum üst bilgisi (proje durumları, yedekler vb. burada gerekmez) ve kalan
+  // kullanımlar (kotalar: Claude, Codex, ElevenLabs; yalnızca sayılar — lib/kota-yayin.mjs; arayüzde mobilKotaKaynak)
+  const oturumOzetleri = (l) => (Array.isArray(l) ? l : []).filter((c) => c && typeof c === 'object').map((c) => ({ cihaz: c.cihaz || null, gorunenAd: c.gorunenAd || null, zaman: c.zaman || null, oturumlar: Array.isArray(c.bilgi?.oturumlar) ? c.bilgi.oturumlar : [], kotalar: c.kotalar && typeof c.kotalar === 'object' && !Array.isArray(c.kotalar) ? c.kotalar : null }));
   function baslat(v, cevrimdisi) {
     const { k, adlar, zamanlar } = birlestir(v);
     for (const [id, d] of Object.entries(v.kayit)) ilk[id] = JSON.stringify(d);
@@ -1559,7 +1575,7 @@ body.pencere-kip main { padding: 16px; }
     window.PK.cihazOturumlari = oturumOzetleri(v.cihazlar);
     window.PK.oturumlariTazele = async () => {
       const l = [];
-      for (const ad of (await klasorListe('proje-kontrol-veri', 'cihazlar')).filter((n) => n.endsWith('.json'))) { const d = await dosyaOku('proje-kontrol-veri', 'cihazlar/' + ad); if (d) try { l.push(JSON.parse(d.metin)); } catch (_) {} }
+      for (const ad of (await klasorListe('proje-kontrol-veri', 'cihazlar', true)).filter((n) => n.endsWith('.json'))) { const d = await dosyaOku('proje-kontrol-veri', 'cihazlar/' + ad, true); if (d) try { l.push(JSON.parse(d.metin)); } catch (_) {} }
       window.PK.cihazOturumlari = oturumOzetleri(l);
       return window.PK.cihazOturumlari;
     };
@@ -1601,7 +1617,7 @@ body.pencere-kip main { padding: 16px; }
     // Yeni kabuk etkinleşince sayfa güvenli olunca kendiliğinden yenilenir (arayüzün otomatik yenilemesi: yazılan metin, açık
     // pencere, kaydedilmemiş değişiklik beklenir; adres korunur). Sayfa zaten yeni kabuksa (ağdan yüklendi) yenilenmez; ilk
     // kurulumda da. Yeni servis çalışanı kendi sürümünü söyler (sw.js "kabuk-surumu"); yanıt gelmezse yeni sayılır.
-    const KABUK = 'mwpwv626';
+    const KABUK = 'mwqir5sp';
     const vardi = !!navigator.serviceWorker.controller;
     const yeniKabuk = (v) => {
       if (!v || v === KABUK) return;
@@ -2993,8 +3009,9 @@ body.pencere-kip main { padding: 16px; }
   }
   function odCip(o) {
     const ad = odAd(o), alt = [o.uzak ? o.cihazAd : o.terminalAd, odEtiket(o)].filter(Boolean).join(' · ');
-    const ipucuMetni = [`${ad}${o.terminalAd ? ' · ' + o.terminalAd : ''} · ${o.cihazAd || ''}`, `${odEtiket(o)} · ${odSure(o.beri || o.son)}`, odIslem(o), o.mesaj, o.sonMesaj, o.tahmin ? 'Tahmini durum: bu oturumdan henüz kanca olayı gelmedi (bir sonraki mesajda kesinleşir)' : null].filter(Boolean).join('\n');
-    return el('button', { class: 'od-cip', type: 'button', 'data-durum': o.durum, 'data-yeni': odYeni(o) ? '1' : null, title: ipucuMetni, onclick: () => odAc(o) },
+    const ipucuMetni = [`${ad}${o.terminalAd ? ' · ' + o.terminalAd : ''} · ${o.cihazAd || ''}`, `${odEtiket(o)} · ${odSure(o.beri || o.son)}`, odIslem(o), o.mesaj, o.sonMesaj, o.tahmin ? 'Tahmini durum: bu oturumdan henüz kanca olayı gelmedi (bir sonraki mesajda kesinleşir)' : null,
+      o.bayat ? `Son bilgi ${yasMetni(Date.now() - Date.parse(o.kayitZaman))}: ${o.cihazAd || 'bilgisayar'} kapalı ya da çevrimdışı olabilir` : null].filter(Boolean).join('\n');
+    return el('button', { class: 'od-cip', type: 'button', 'data-durum': o.durum, 'data-yeni': odYeni(o) ? '1' : null, 'data-bayat': o.bayat ? '1' : null, title: ipucuMetni, onclick: () => odAc(o) },
       el('span', { class: 'od-nokta', 'aria-hidden': 'true' }), el('b', { text: ad }), el('span', { text: alt }), el('small', { text: odSure(o.beri || o.son) }));
   }
   /** Yapışkan şerit: başlığın ve şeridin yüksekliği CSS değişkenlerine (--ust-y, --od-y) */
@@ -3006,33 +3023,48 @@ body.pencere-kip main { padding: 16px; }
   try { const ro = new ResizeObserver(odYukseklik); setTimeout(() => { for (const x of [$('#ust'), $('#odSerit')]) if (x) ro.observe(x); odYukseklik(); }, 0); } catch (_) { addEventListener('resize', odYukseklik); }
   function odCiz() {
     const s = $('#odSerit'); if (!s) return;
-    const l = OD.liste;
-    if (!l.length) { s.hidden = true; s.replaceChildren(); odYukseklik(); return; }
+    const l = OD.liste, kotalar = MOBIL ? odKotaCipleri() : [];
+    if (!l.length && !kotalar.length) { s.hidden = true; s.replaceChildren(); odYukseklik(); return; }
     const gorunen = l.slice(0, OD_EN_COK), fazla = l.slice(OD_EN_COK);
-    s.replaceChildren(...gorunen.map(odCip), ...(fazla.length ? [el('button', { class: 'od-cip od-fazla', type: 'button', title: fazla.map((o) => `${odAd(o)} · ${odEtiket(o)}`).join('\n'), onclick: () => odListeAc() }, el('b', { text: `+${fazla.length}` }))] : []));
+    const cipler = [...gorunen.map(odCip), ...(fazla.length ? [el('button', { class: 'od-cip od-fazla', type: 'button', title: fazla.map((o) => `${odAd(o)} · ${odEtiket(o)}`).join('\n'), onclick: () => odListeAc() }, el('b', { text: `+${fazla.length}` }))] : [])];
+    if (!l.length) cipler.push(el('span', { class: 'od-bos', text: 'Açık Claude oturumu yok' }));
     const ses = odSesAcik();
-    s.append(el('button', { class: 'od-cip od-ses', type: 'button', 'data-kapali': ses ? null : '1', title: ses ? 'Sesli uyarı açık (kapatmak için tıkla)' : 'Sesli uyarı kapalı (açmak için tıkla)', 'aria-label': ses ? 'Sesli uyarıyı kapat' : 'Sesli uyarıyı aç', onclick: () => { try { localStorage.setItem('pk-od-ses', ses ? '0' : '1'); } catch (_) {} if (!ses) odSes('bekliyor'); odCiz(); } }, svg(IK.zil)));
-    if ('Notification' in window && Notification.permission === 'default') s.append(el('button', { class: 'od-cip od-fazla', type: 'button', title: 'Soru, izin, hata ve sıra sende durumlarında Windows bildirimi', onclick: () => Notification.requestPermission().then(odCiz).catch(() => {}) }, el('b', { text: 'Bildirimleri aç' })));
+    cipler.push(el('button', { class: 'od-cip od-ses', type: 'button', 'data-kapali': ses ? null : '1', title: ses ? 'Sesli uyarı açık (kapatmak için tıkla)' : 'Sesli uyarı kapalı (açmak için tıkla)', 'aria-label': ses ? 'Sesli uyarıyı kapat' : 'Sesli uyarıyı aç', onclick: () => { try { localStorage.setItem('pk-od-ses', ses ? '0' : '1'); } catch (_) {} if (!ses) odSes('bekliyor'); odCiz(); } }, svg(IK.zil)));
+    if ('Notification' in window && Notification.permission === 'default') cipler.push(el('button', { class: 'od-cip od-fazla', type: 'button', title: MOBIL ? 'Soru, izin ve hata durumlarında telefon bildirimi' : 'Soru, izin, hata ve sıra sende durumlarında Windows bildirimi', onclick: () => Notification.requestPermission().then(odCiz).catch(() => {}) }, el('b', { text: 'Bildirimleri aç' })));
+    // Telefon: üst satır kalan kullanımlar (bilgisayardaki üst çubuk hapları telefonda gizli), alt satır oturumlar; her satır kendi içinde kayar
+    if (MOBIL) { s.classList.add('iki-satir'); s.replaceChildren(...[kotalar.length ? el('div', { class: 'od-satir', 'aria-label': 'Kalan kullanımlar' }, ...kotalar) : null, el('div', { class: 'od-satir', 'aria-label': 'Claude oturumları' }, ...cipler)].filter(Boolean)); }
+    else s.replaceChildren(...cipler);
     s.hidden = false; odYukseklik();
     // Sekme başlığı: senden bir şey bekleyen varsa sayısı önde
     const dikkat = l.filter((o) => o.durum === 'soru' || o.durum === 'izin').length;
     document.title = (dikkat ? `(${dikkat}) ` : '') + document.title.replace(/^\(\d+\) /, '');
   }
-  /** Telefon: kayıt deposundaki cihaz kayıtlarından soru / izin / hata bekleyen açık oturumlar (soru metni yayında yok) */
-  function odMobilListe(kayitlar) {
+  /** Cihaz kaydındaki ad → şeritteki kısa ad ("ACER Laptop" → ACER) */
+  const odCihazAd = (c) => String(c?.gorunenAd || c?.cihaz || '').split(/[\s-]/)[0].toUpperCase();
+  const OD_SIRA = { soru: 0, izin: 1, hata: 2, bekliyor: 3, calisiyor: 4, bosta: 5 }; // lib/oturum-durum.mjs ONCELIK
+  const OD_KAYIT_BAYAT_MS = 5 * 60_000; // bilgisayar kaydını 2 dk'da bir yazar; daha eskiyse kapalı / çevrimdışı olabilir
+  /**
+   * Telefon: kayıt deposundaki cihaz kayıtlarından iki bilgisayarın açık Claude oturumlarının hepsi, bilgisayardaki şerit gibi
+   * (soru / izin önde, boşta en sonda; Kaan, 21.11: "hangi cihazda ne oluyor … boştaysa boşta"). Soru metni ve son mesaj yayında
+   * yok. Kayıt 25 dk'dan eskiyse oturumları gösterilmez; 5 dk'dan eskiyse çip soluk ve son bilginin yaşını söyler.
+   */
+  function odMobilListe(kayitlar, simdi = Date.now()) {
     const L = [];
     for (const c of Array.isArray(kayitlar) ? kayitlar : []) {
-      if (Date.now() - (Date.parse(c?.zaman) || 0) >= 25 * 60_000) continue; // lib/oturumlar.mjs KAYIT_TAZE_MS
-      const cihazAd = String(c?.gorunenAd || c?.cihaz || '').split(/[\s-]/)[0].toUpperCase();
+      const kz = Date.parse(c?.zaman) || 0;
+      if (simdi - kz >= 25 * 60_000) continue; // lib/oturumlar.mjs KAYIT_TAZE_MS
+      const cihazAd = odCihazAd(c);
       for (const o of Array.isArray(c?.oturumlar) ? c.oturumlar : []) {
-        if (!o || typeof o.id !== 'string' || !o.acik || !['soru', 'izin', 'hata'].includes(o.durum)) continue;
+        if (!o || typeof o.id !== 'string' || !o.acik || (o.arac && o.arac !== 'claude') || !Object.hasOwn(OD_SIRA, o.durum)) continue; // Codex şeritte yok (bilgisayardaki gibi)
         const x = otProje(o);
-        L.push({ id: o.id, durum: o.durum, uzak: true, cihazAd, projeAd: x ? adSade(x) : null, baslik: o.baslik || null, beri: Number.isFinite(o.beri) ? o.beri : Date.parse(o.son) || Date.now(),
-          son: Date.parse(o.son) || null, uzakUrl: o.arac === 'claude' && OT_UZAK_RX.test(o.uzakUrl || '') ? o.uzakUrl : null, arka: [], ajan: 0 });
+        L.push({ id: o.id, durum: o.durum, uzak: true, cihazAd, projeAd: x ? adSade(x) : null, cwd: typeof o.cwd === 'string' ? o.cwd : null, baslik: o.baslik || null, beri: Number.isFinite(o.beri) ? o.beri : Date.parse(o.son) || simdi,
+          son: Date.parse(o.son) || null, uzakUrl: OT_UZAK_RX.test(o.uzakUrl || '') ? o.uzakUrl : null, arka: [], ajan: 0, kayitZaman: c.zaman, bayat: simdi - kz > OD_KAYIT_BAYAT_MS });
       }
     }
-    return L.sort((a, b) => (a.durum === 'hata') - (b.durum === 'hata') || (b.son || 0) - (a.son || 0));
+    return L.sort((a, b) => OD_SIRA[a.durum] - OD_SIRA[b.durum] || (b.son || 0) - (a.son || 0));
   }
+  /** Telefonda uyarı (ses, titreşim, bildirim) yalnızca senden bir şey isteyen durumlarda: her tur bitişinde çalmasın */
+  const OD_MOBIL_UYARI = ['soru', 'izin', 'hata'];
   let odMobilIlk = true;
   async function odYenile() {
     if (MOBIL) {
@@ -3041,7 +3073,7 @@ body.pencere-kip main { padding: 16px; }
         const once = new Set(OD.liste.map(odAnahtar));
         OD.liste = odMobilListe(l); OD.son = Date.now(); odCiz();
         // Uygulama açıkken yeni soru / izin / hata: ses, titreşim, bildirim (ilk yüklemede değil)
-        if (!odMobilIlk) for (const o of OD.liste) if (!once.has(odAnahtar(o))) { const t = `${odAd(o)} · ${o.cihazAd} · ${odEtiket(o).toLowerCase()}`; odUyari({ id: o.id, durum: o.durum, baslik: t, govde: o.baslik || '' }); try { navigator.vibrate?.([180, 90, 180]); } catch (_) {} }
+        if (!odMobilIlk) for (const o of OD.liste) if (OD_MOBIL_UYARI.includes(o.durum) && !once.has(odAnahtar(o))) { const t = `${odAd(o)} · ${o.cihazAd} · ${odEtiket(o).toLowerCase()}`; odUyari({ id: o.id, durum: o.durum, baslik: t, govde: o.baslik || '' }); try { navigator.vibrate?.([180, 90, 180]); } catch (_) {} }
         odMobilIlk = false;
       } catch (_) { /* çevrimdışı: şerit eski haliyle */ }
       return;
@@ -3098,7 +3130,7 @@ body.pencere-kip main { padding: 16px; }
     if (o.durum === 'hata') govde.append(bilgiKutu(IK.uyari, 'uyari', el('p', { text: o.hata === 'takildi' ? 'Uzun süredir hiçbir şey yapmıyor; terminale bakmak gerekebilir.' : `${o.hata || 'Hata'}${o.sonMesaj ? ': ' + o.sonMesaj : ''}` })));
     if (o.durum === 'calisiyor') govde.append(...[satir('Şu an', odIslem(o) || 'Düşünüyor'), o.arka?.length ? satir('Arka planda', o.arka.join(' · ')) : null].filter(Boolean));
     if (o.durum === 'bekliyor' && o.sonMesaj) govde.append(el('div', { class: 'od-sorukutu' }, el('small', { class: 'soluk', text: 'Son mesajı' }), el('span', { style: 'white-space:pre-wrap;font-size:.86rem', text: o.sonMesaj })));
-    govde.append(...[satir('İstem', o.istem), satir('Klasör', o.cwd), satir('Bilgisayar', o.cihazAd)].filter(Boolean));
+    govde.append(...[satir('İstem', o.istem), satir('Klasör', o.cwd), satir('Bilgisayar', o.cihazAd), satir('Son bilgi', o.kayitZaman ? `${yasMetni(Date.now() - Date.parse(o.kayitZaman))} (bilgisayarın kaydı)` : null)].filter(Boolean));
     const tuslar = el('div', { style: 'display:flex;gap:8px;justify-content:flex-end;margin-top:4px' });
     const d = otPencere(odAd(o), el('header', {}, el('div', { class: 'bas-metin' }, el('h3', { text: `${odAd(o)}${o.terminalAd ? ' · ' + o.terminalAd : ''}` }),
       el('small', { class: 'soluk', text: `${odEtiket(o)} · ${odSure(o.beri || o.son)}${o.baslik ? ' · ' + o.baslik : ''}` })), el('button', { class: 'btn kucuk', type: 'button', onclick: () => d.close() }, 'Kapat')), govde);
@@ -3162,7 +3194,12 @@ body.pencere-kip main { padding: 16px; }
       if (!o || (o.durum !== 'soru' && o.durum !== 'izin' && o.durum !== 'hata' && o.durum !== 'bekliyor')) { try { n.close(); } catch (_) {} odBildirimler.delete(id); }
     }
   }
-  if (MOBIL) { setTimeout(odYenile, 1500); setInterval(() => { if (document.visibilityState === 'visible') odYenile(); }, 90_000); }
+  // Telefon: görünürken 45 sn'de bir; uygulamaya dönünce hemen (GitHub yanıtı önbellekten değil: kabukta cache: 'no-cache')
+  if (MOBIL) {
+    setTimeout(odYenile, 1500);
+    setInterval(() => { if (document.visibilityState === 'visible') odYenile(); }, 45_000);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - OD.son > 15_000) odYenile(); });
+  }
   if (MASA) { setTimeout(odYenile, 400); setInterval(() => { if (document.visibilityState === 'visible') { if (Date.now() - OD.son > 60_000) odYenile(); else odCiz(); } }, 30_000); }
 
   // ================= CANLI GÜNCELLEME (F5 gerekmez) =================
@@ -4261,8 +4298,52 @@ body.pencere-kip main { padding: 16px; }
   }
   // ---------- Claude limitleri ve site ziyaretleri (eski masaüstü widget'ları; yalnızca bilgisayardaki uygulama) ----------
   // mod 0: tarayıcı önbelleği · 1: sunucuya sor (sunucu 5 dk önbellekler) · 2: şimdi yenile (sunucu en erken 1 dk'da bir gider)
-  const izGetir = (ad, yol, mod) => getir(ad, yol + (mod === 2 ? '?yenile=1' : ''), mod > 0).then((r) => { if (r.durum === 'tamam') izSon[ad] = r.v; return r; });
+  const izGetir = (ad, yol, mod) => (MOBIL ? mobilIzGetir(ad, mod) : getir(ad, yol + (mod === 2 ? '?yenile=1' : ''), mod > 0)).then((r) => { if (r.durum === 'tamam') izSon[ad] = r.v; return r; });
   const izSon = {};
+  // ---------- Telefon: kalan kullanımlar bilgisayarların cihaz kaydından (lib/kota-yayin.mjs; cihazlar/*.json "kotalar") ----------
+  // Her kaynak (Claude, Codex, ElevenLabs) için iki bilgisayardan en yeni ÖLÇÜM alınır. Bilgisayarlar kapalıysa ölçüm yaşlanır:
+  // 45 dakikadan eskiyse (lib/kotalar.mjs ile aynı kural) ya da dönemi yenilendiyse değer "bilinmiyor", son ölçülen ayrıca yazılır.
+  const MOBIL_KOTA_ESKI_MS = 45 * 60_000;
+  function mobilKotaKaynak(ad, simdi = Date.now()) {
+    let en = null;
+    for (const c of Array.isArray(PK?.cihazOturumlari) ? PK.cihazOturumlari : []) {
+      const s = c?.kotalar?.[ad], t = Date.parse(s?.zaman);
+      if (!s || !Array.isArray(s.pencereler) || !Number.isFinite(t) || (en && t <= en.t)) continue;
+      en = { s, t, cihazAd: odCihazAd(c) };
+    }
+    if (!en) return null;
+    const { s, t, cihazAd } = en, yas = simdi - t, eski = yas > MOBIL_KOTA_ESKI_MS;
+    const pencereler = s.pencereler.filter((l) => l && typeof l.ad === 'string').map((l) => {
+      const yenilendi = l.sifirlanma && Date.parse(l.sifirlanma) <= simdi;
+      if (typeof l.kalan !== 'number' || !(eski || yenilendi)) return typeof l.kalan === 'number' ? l : { ...l, kalan: null };
+      return { ...l, kalan: null, kullanilan: null, tempo: null, seviye: 'bilinmiyor', neden: yenilendi ? 'dönem yenilendi, yeni ölçüm bekleniyor' : `son ölçüm ${yasMetni(yas)}`, sonOlcum: { kalan: l.kalan, zaman: s.zaman } };
+    });
+    const durum = eski || s.durum !== 'tamam' || pencereler.some((l) => l.kalan == null) ? 'eski' : 'tamam';
+    return { durum, plan: s.plan || '', zaman: s.zaman, cihazAd, kaynakAd: cihazAd, pencereler, limitler: pencereler,
+      mesaj: eski ? `Son ölçüm ${yasMetni(yas)} (${cihazAd}). Bilgisayarlar açıkken 5 dakikada bir güncellenir.` : null };
+  }
+  /** Telefon: Pano'daki Claude kartı ve Codex / ElevenLabs kutusu sunucu yerine buradan; Yenile cihaz kayıtlarını yeniden okur */
+  async function mobilIzGetir(ad, mod) {
+    if (mod === 2) await odYenile();
+    if (ad === 'claudeLimit') return { durum: 'tamam', v: mobilKotaKaynak('claude') || { durum: 'yok', limitler: [], plan: '', zaman: null, mesaj: 'Bilgisayarlardan henüz kullanım bilgisi gelmedi. Proje Kontrol güncellenince açık bilgisayarlar 5 dakikada bir yazar.' } };
+    if (ad === 'kotalar') return { durum: 'tamam', v: { codex: mobilKotaKaynak('codex'), elevenlabs: mobilKotaKaynak('elevenlabs') } };
+    return { durum: 'yok' };
+  }
+  /** Telefon şeridinin üst satırı: bilgisayardaki üst çubuk haplarının karşılığı (Claude ilk pencere, Codex en az kalan, ElevenLabs kredi); dokununca Pano'daki kart */
+  function odKotaCipleri() {
+    const cip = (ad, s, sec) => {
+      if (!s?.pencereler?.length) return null;
+      const l = sec(s.pencereler), bilinmiyor = !l || l.kalan == null;
+      const sv = bilinmiyor ? 'bilinmiyor' : enKotu(s.pencereler.filter((x) => x.kalan != null));
+      const ozet = s.pencereler.map((x) => `${x.ad} ${x.kalan == null ? 'bilinmiyor' : x.krediLimit != null ? `${sayiTR(x.krediKalan)} / ${sayiTR(x.krediLimit)} kredi (%${Math.round(x.kalan)})` : `%${Math.round(x.kalan)}`}`).join(' · ');
+      return el('button', { class: 'od-cip od-kota', type: 'button', 'data-seviye': sv, title: `${ad} kalan: ${ozet} · ölçüm ${yasMetni(Date.now() - Date.parse(s.zaman))} (${s.cihazAd})`, onclick: () => karttaGoster('claudeKart') },
+        el('span', { class: 'od-nokta', 'aria-hidden': 'true' }), el('b', { text: ad }), el('span', { text: bilinmiyor ? '?' : `%${Math.round(l.kalan)}` }),
+        el('small', { text: bilinmiyor ? 'bilinmiyor' : l.krediLimit != null ? `${sayiTR(l.krediKalan)} kredi` : l.ad.toLocaleLowerCase('tr') }));
+    };
+    return [cip('Claude', mobilKotaKaynak('claude'), (p) => p[0]),
+      cip('Codex', mobilKotaKaynak('codex'), (p) => (p.some((x) => x.kalan == null) ? null : p.reduce((a, b) => (b.kalan < a.kalan ? b : a)))),
+      cip('ElevenLabs', mobilKotaKaynak('elevenlabs'), (p) => p[0])].filter(Boolean);
+  }
   const limitGetir = (mod = 0) => izGetir('claudeLimit', '/api/claude-limit', mod);
   const ziyaretGetir = (mod = 0) => izGetir('ziyaret', '/api/ziyaret', mod);
   const sureKisa = (sn) => { sn = Math.max(0, sn); const g = Math.floor(sn / 86400), s = Math.floor((sn % 86400) / 3600), d = Math.floor((sn % 3600) / 60); return g ? `${g} gün ${s} sa` : s ? `${s} sa ${d} dk` : `${Math.max(1, d)} dk`; };
@@ -4274,14 +4355,16 @@ body.pencere-kip main { padding: 16px; }
   const SEVIYE_NOKTA = { iyi: '', dusuk: 'uyari', kritik: 'kotu' };
   const enKotu = (l) => (l.some((x) => x.seviye === 'kritik') ? 'kritik' : l.some((x) => x.seviye === 'dusuk') ? 'dusuk' : 'iyi');
   const limitOzet = (v) => v?.limitler?.map((l) => `${l.ad} %${Math.round(l.kalan)}`).join(' · ') || '';
+  /** Kota satırı. Kredi alanları (krediKalan / krediLimit / asim: ElevenLabs) varsa değer kredi olarak yazılır; yoksa yüzde. */
   function limitSatir(l) {
-    const t = l.tempo, sn = l.sifirlanma ? (Date.parse(l.sifirlanma) - Date.now()) / 1000 : null;
-    const tempoYazi = l.kalan <= 0 ? el('span', { class: 'kotu-yazi', text: 'Limit doldu' })
+    const t = l.tempo, sn = l.sifirlanma ? (Date.parse(l.sifirlanma) - Date.now()) / 1000 : null, kredi = l.krediLimit != null;
+    const tempoYazi = l.kalan <= 0 ? el('span', { class: l.asim ? 'uyari-yazi' : 'kotu-yazi', text: l.asim ? `Limit aşıldı · bu dönem aşım ${l.asim.tutar} ${l.asim.para}` : 'Limit doldu' })
       : t?.bitisSn != null ? el('span', { class: 'kotu-yazi', text: `Bu hızla ≈${sureKisa(t.bitisSn)} sonra biter` })
       : t ? el('span', { class: Math.round(t.tahminiKalan) < 10 ? 'uyari-yazi' : '', text: `Bu hızla sıfırlanırken ≈%${Math.max(0, Math.round(t.tahminiKalan))} kalır` }) : null;
     const m = el('div', { class: 'metre ' + ({ kritik: 'kritik', dusuk: 'uyari' }[l.seviye] || ''), tabindex: '0' }, el('i', { style: `width:${Math.max(1, Math.min(100, l.kalan))}%` }), t ? el('span', { class: 'tik', style: `left:${(1 - t.gecen) * 100}%` }) : null);
-    ipucuBagla(m, `${l.ad}: %${Math.round(l.kalan)} kaldı, %${Math.round(l.kullanilan)} kullanıldı${t ? ` · sürenin %${Math.round(t.gecen * 100)}'i geçti (çizgi: bu hızla gitseydin olacağın yer)` : ''}${l.sifirlanma ? ' · sıfırlanma ' + zamanTR(l.sifirlanma) : ''}`);
-    return el('div', { class: 'limit' }, el('span', { class: 'ad', text: l.ad }), el('span', { class: 'deger' }, `%${Math.round(l.kalan)}`, el('small', { text: 'kaldı' })), m,
+    ipucuBagla(m, `${l.ad}: ${kredi ? `${sayiTR(l.krediKalan)} / ${sayiTR(l.krediLimit)} kredi kaldı (%${Math.round(l.kalan)}), ${sayiTR(l.krediKullanilan)} kullanıldı` : `%${Math.round(l.kalan)} kaldı, %${Math.round(l.kullanilan)} kullanıldı`}${t ? ` · sürenin %${Math.round(t.gecen * 100)}'i geçti (çizgi: bu hızla gitseydin olacağın yer)` : ''}${l.sifirlanma ? ' · sıfırlanma ' + zamanTR(l.sifirlanma) : ''}`);
+    return el('div', { class: 'limit' }, el('span', { class: 'ad', text: l.ad }),
+      el('span', { class: 'deger' }, kredi ? sayiTR(l.krediKalan) : `%${Math.round(l.kalan)}`, el('small', { text: kredi ? `/ ${sayiTR(l.krediLimit)} kredi kaldı` : 'kaldı' })), m,
       el('div', { class: 'alt-yazi' }, sn != null ? el('span', { text: `Sıfırlanma ${sifirZaman(l.sifirlanma)} · ${sureKisa(sn)} sonra` }) : null, tempoYazi));
   }
   const yenileDugme = (fn) => { const b = el('button', { class: 'btn ikon-btn kucuk', type: 'button', 'aria-label': 'Şimdi yenile', title: 'Şimdi yenile', onclick: async () => { b.classList.add('donuyor'); try { await fn(); } finally { b.classList.remove('donuyor'); } } }, svg(IK.yenile)); return b; };
@@ -4290,23 +4373,26 @@ body.pencere-kip main { padding: 16px; }
     const govde = el('div', { class: 'limitler' }, iskelet()), durumN = el('span', { class: 'kart-durum' });
     const c = kart({ baslik: 'Claude kullanımı', ikon: IK.yz, cls, sag: el('span', { class: 'kart-durum' }, durumN, yenileDugme(() => ciz_(2))) }, govde);
     c.id = 'claudeKart';
-    c.append(kotaBolumu()); // === Faz 4 · Kotalar: Codex ve agy, Claude limitlerinin altında (ayrı kutu, kendi yenilemesi)
+    c.append(kotaBolumu()); // === Faz 4 · Kotalar: Codex ve ElevenLabs, Claude limitlerinin altında (ayrı kutu, kendi yenilemesi)
     async function ciz_(mod) {
       const r = await limitGetir(mod);
       if (!c.isConnected && mod) return;
       if (r.durum !== 'tamam') { govde.replaceChildren(izOkunamadi(r)); return; }
       const v = r.v; limitHapGuncelle(v);
-      durumN.replaceChildren(el('span', { class: 'nokta ' + (v.durum === 'tamam' ? '' : 'uyari'), title: v.durum === 'tamam' ? 'Güncel' : 'Son ölçüm eski' }), el('span', { text: [v.plan, v.zaman ? otZaman(v.zaman) : null].filter(Boolean).join(' · ') }));
+      durumN.replaceChildren(el('span', { class: 'nokta ' + (v.durum === 'tamam' ? '' : 'uyari'), title: v.durum === 'tamam' ? 'Güncel' : 'Son ölçüm eski' }), el('span', { text: [v.plan, v.cihazAd, v.zaman ? otZaman(v.zaman) : null].filter(Boolean).join(' · ') }));
       const uyari = v.durum !== 'tamam' && v.mesaj ? bilgiKutu(IK.uyari, 'uyari', p(v.mesaj)) : null;
-      govde.replaceChildren(...(v.limitler.length ? [...v.limitler.map(limitSatir), uyari] : [bosDurum(IK.yz, 'Kullanım bilgisi yok', v.mesaj || '')]).filter(Boolean));
+      // Telefonda eski ölçüm / yenilenmiş dönem "bilinmiyor" satırı (kalan: null; mobilKotaKaynak)
+      govde.replaceChildren(...(v.limitler.length ? [...v.limitler.map((l) => (l.kalan == null ? kotaBilinmiyorSatir(l) : limitSatir(l))), uyari] : [bosDurum(IK.yz, 'Kullanım bilgisi yok', v.mesaj || '')]).filter(Boolean));
     }
     ciz_(0).catch((e) => govde.replaceChildren(solukP('Çizilemedi: ' + e.message)));
     canliTut(c, () => ciz_(1).catch(() => {}), 60_000);
     return c;
   }
-  // === Faz 4 · Kotalar === Codex (ChatGPT) ve Antigravity (agy) — lib/kotalar.mjs, /api/kotalar. Yalnızca yerel dosyalar okunur.
-  // Bilinmeyen değer "bilinmiyor" yazar (boş ya da %100 değil); kurulu olmayan araç yer kaplamaz; agy girişsizse hiç görünmez,
-  // girişliyse tek soluk satır (kota agy'nin içinde: /usage).
+  // === Faz 4 · Kotalar === Codex (ChatGPT) ve ElevenLabs kredisi — lib/kotalar.mjs, lib/elevenlabs.mjs, /api/kotalar.
+  // Bilinmeyen değer "bilinmiyor" yazar (boş ya da %100 değil); kurulu olmayan Codex yer kaplamaz. ElevenLabs: kalan kredi
+  // (sayı ve yüzde), sıfırlanma ve tempo; okunamazsa nedeni (kasa kilitli, izin yok…) ve varsa son ölçüm.
+  // 21.11.2026 Kaan: Antigravity (agy / Gemini) göstergesi kaldırıldı, yerine ElevenLabs.
+  const krediTR = (n) => Number(n).toLocaleString('tr-TR');
   const kotaGetir = (mod = 0) => izGetir('kotalar', '/api/kotalar', mod);
   function kotaBilinmiyorSatir(l) {
     const m = el('div', { class: 'metre bilinmiyor', tabindex: '0' });
@@ -4319,8 +4405,8 @@ body.pencere-kip main { padding: 16px; }
     async function ciz_(mod) {
       const r = await kotaGetir(mod);
       if (!kutu.isConnected && mod) return;
-      if (r.durum !== 'tamam') { kutu.hidden = false; kutu.replaceChildren(el('div', { class: 'kota-baslik' }, el('b', { text: 'Codex ve Antigravity' })), izOkunamadi(r)); return; }
-      const { codex, agy } = r.v; kotaHapGuncelle(r.v);
+      if (r.durum !== 'tamam') { kutu.hidden = false; kutu.replaceChildren(el('div', { class: 'kota-baslik' }, el('b', { text: 'Codex ve ElevenLabs' })), izOkunamadi(r)); return; }
+      const { codex, elevenlabs: ev } = r.v; kotaHapGuncelle(r.v);
       const parcalar = [];
       if (codex && codex.durum !== 'kurulu-degil') {
         parcalar.push(el('div', { class: 'kota-baslik' }, el('b', { text: 'Codex' }), el('span', { text: [codex.plan, codex.zaman ? 'ölçüm ' + otZaman(codex.zaman) : null, codex.kaynakAd].filter(Boolean).join(' · ') })));
@@ -4328,12 +4414,12 @@ body.pencere-kip main { padding: 16px; }
         if (codex.durum !== 'tamam' && codex.mesaj) parcalar.push(el('p', { class: 'kota-not', text: codex.mesaj + (codex.kaynak === 'oturum' ? ' Codex\'te bir istem çalışınca güncellenir.' : '') }));
         if (codex.canliHata) parcalar.push(el('p', { class: 'kota-not', text: `Hesaptan canlı okunamadı (${codex.canliHata}); yerel kayıt gösteriliyor.` }));
       }
-      if (agy?.pencereler?.length) {
-        // agy /usage (sunucu en çok 10 dakikada bir sorar): grup başına haftalık kalan, sıfırlanma ve tempo
-        parcalar.push(el('div', { class: 'kota-baslik' }, el('b', { text: 'Antigravity (agy)' }), el('span', { text: [agy.zaman ? 'ölçüm ' + otZaman(agy.zaman) : null, agy.kaynakAd].filter(Boolean).join(' · ') })));
-        parcalar.push(...agy.pencereler.map((l) => { const s = l.kalan == null ? kotaBilinmiyorSatir(l) : limitSatir(l); if (l.modeller) s.title = l.modeller; return s; }));
-        if (agy.mesaj) parcalar.push(el('p', { class: 'kota-not', text: agy.mesaj }));
-      } else if (agy && ['girisli', 'giris-bilinmiyor', 'bilinmiyor'].includes(agy.durum)) parcalar.push(el('p', { class: 'kota-not' }, el('b', { text: 'Antigravity (agy) · ' }), agy.mesaj));
+      if (ev) {
+        // ElevenLabs (sunucu en çok 10 dakikada bir sorar): kalan kredi, sıfırlanma, tempo; aşım varsa tutarı
+        parcalar.push(el('div', { class: 'kota-baslik' }, el('b', { text: 'ElevenLabs' }), el('span', { text: [ev.plan, ev.zaman ? 'ölçüm ' + otZaman(ev.zaman) : null].filter(Boolean).join(' · ') })));
+        parcalar.push(...(ev.pencereler || []).map((l) => (l.kalan == null ? kotaBilinmiyorSatir(l) : limitSatir(l))));
+        if (ev.mesaj) parcalar.push(el('p', { class: 'kota-not', text: ev.mesaj }));
+      }
       kutu.hidden = !parcalar.length;
       kutu.replaceChildren(...parcalar);
     }
@@ -4343,7 +4429,7 @@ body.pencere-kip main { padding: 16px; }
   }
   /** Üst çubukta Claude hapının yanında Codex hapı: geçerli pencerelerin en azı; biri bilinmiyorsa "?" (boş değil). Codex kurulu değilse görünmez. */
   function kotaHapGuncelle(v) {
-    agyHapGuncelle(v?.agy);
+    elevenHapGuncelle(v?.elevenlabs);
     const h = $('#kotaHap'); if (!h) return;
     const c = v?.codex;
     if (!c || c.durum === 'kurulu-degil') { h.hidden = true; return; }
@@ -4354,21 +4440,23 @@ body.pencere-kip main { padding: 16px; }
       el('span', { class: 'uzun', text: bilinmiyor ? ' · bilinmiyor' : ` · ${bag.ad}${bag.sifirlanma ? ' · ' + sureKisa((Date.parse(bag.sifirlanma) - Date.now()) / 1000) : ''}` })));
     h.title = bilinmiyor ? (c.mesaj || 'Codex kalan kotası bilinmiyor') : `Codex kalan: ${c.pencereler.map((l) => `${l.ad} %${Math.round(l.kalan)}`).join(' · ')}`;
   }
-  /** agy hapı: ölçülen grupların en azı ("agy %97 · Gemini · haftalık"); ölçüm yoksa görünmez */
-  function agyHapGuncelle(a) {
-    const h = $('#agyHap'); if (!h) return;
-    const l = (a?.pencereler || []).filter((x) => x.kalan != null);
-    if (!l.length) { h.hidden = true; return; }
-    const bag = l.reduce((x, y) => (y.kalan < x.kalan ? y : x));
+  /** ElevenLabs hapı: kalan kredi ("ElevenLabs %92 · 9.244 kredi"); hiç ölçüm yoksa görünmez, ölçüm eskiyse "?" */
+  function elevenHapGuncelle(e) {
+    const h = $('#elevenHap'); if (!h) return;
+    const l = e?.pencereler?.[0];
+    if (!l) { h.hidden = true; return; }
+    const bilinmiyor = l.kalan == null;
     h.hidden = false;
-    h.replaceChildren(el('span', { class: 'nokta ' + SEVIYE_NOKTA[enKotu(l)] }), el('span', {}, 'agy ', el('b', { text: `%${Math.round(bag.kalan)}` }),
-      el('span', { class: 'uzun', text: ` · ${bag.ad.split(' · ')[0]}${bag.sifirlanma ? ' · ' + sureKisa((Date.parse(bag.sifirlanma) - Date.now()) / 1000) : ''}` })));
-    h.title = `Antigravity (agy) kalan: ${l.map((x) => `${x.ad} %${Math.round(x.kalan)}`).join(' · ')}`;
+    h.replaceChildren(el('span', { class: 'nokta ' + (bilinmiyor ? 'gri' : SEVIYE_NOKTA[enKotu([l])]) }), el('span', {}, 'ElevenLabs ', el('b', { text: bilinmiyor ? '?' : `%${Math.round(l.kalan)}` }),
+      // Sıfırlanma (günler sonra) hapta yer kaplamasın: ipucunda ve Pano'da
+      el('span', { class: 'uzun', text: bilinmiyor ? ' · bilinmiyor' : ` · ${krediTR(l.krediKalan)} kredi` })));
+    h.title = bilinmiyor ? (e.mesaj || l.neden || 'ElevenLabs kredisi bilinmiyor')
+      : `ElevenLabs: ${krediTR(l.krediKalan)} / ${krediTR(l.krediLimit)} kredi kaldı${l.asim ? ` · bu dönem aşım ${l.asim.tutar} ${l.asim.para}` : ''}${l.sifirlanma ? ' · sıfırlanma ' + zamanTR(l.sifirlanma) : ''}`;
   }
   function kotaHapKur(yanina) {
     const kh = el('button', { class: 'hap limit-hap', id: 'kotaHap', type: 'button', hidden: true, onclick: () => karttaGoster('claudeKart') });
     yanina.after(kh);
-    kh.after(el('button', { class: 'hap limit-hap', id: 'agyHap', type: 'button', hidden: true, onclick: () => karttaGoster('claudeKart') }));
+    kh.after(el('button', { class: 'hap limit-hap', id: 'elevenHap', type: 'button', hidden: true, onclick: () => karttaGoster('claudeKart') }));
     const yokla = (mod) => kotaGetir(mod).then((r) => { if (r.durum === 'tamam') kotaHapGuncelle(r.v); }).catch(() => {});
     setTimeout(() => yokla(0), 600);
     setInterval(() => { if (document.visibilityState === 'visible') yokla(1); }, 60_000);
@@ -4703,6 +4791,7 @@ body.pencere-kip main { padding: 16px; }
     // Önce bir bakışta: dört sayı, sonra Claude limitleri ve site ziyaretleri; ardından şu an / bu hafta; ayrıntılar en altta
     const bakis = el('div', { class: 'izgara' }); v.append(bakis);
     if (MASA) bakis.append(claudeKarti('c7'), ziyaretKarti('c5'));
+    else if (MOBIL) bakis.append(claudeKarti('c12')); // telefonda bilgisayarların cihaz kaydından (mobilKotaKaynak)
     if (MASA) v.append(genelBakis());
     const iz = el('div', { class: 'izgara' }); v.append(iz);
     const bk = bekleyenler(), buBk = bk.filter((b) => b.k === BU);
